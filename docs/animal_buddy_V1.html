@@ -1,0 +1,1765 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Animal Buddy Lab 🐾</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --card:#121a33;
+      --card2:#0f1730;
+      --text:#eaf0ff;
+      --muted:#b8c4ffcc;
+      --line:#ffffff1f;
+      --good:#6ef3b1;
+      --warn:#ffd86e;
+      --bad:#ff7aa2;
+      --shadow: 0 14px 36px rgba(0,0,0,.45);
+      --r:16px;
+      --tap:48px;
+      --font: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      --animalSize: 44px; /* customizable */
+      --sfxVol: 0.5;      /* customizable */
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--font);
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 15% 10%, #2a3dff33, transparent 55%),
+        radial-gradient(900px 500px at 90% 25%, #ff5ef233, transparent 55%),
+        radial-gradient(700px 520px at 40% 90%, #00e5ff22, transparent 55%),
+        var(--bg);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .wrap{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 14px 14px 28px;
+      padding-top: calc(14px + env(safe-area-inset-top));
+      padding-bottom: calc(24px + env(safe-area-inset-bottom));
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom: 12px;
+    }
+    .brand{
+      display:flex; gap:10px; align-items:center;
+      min-width: 0;
+    }
+    .logo{
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg,#7c4dff,#00d4ff);
+      display:grid; place-items:center;
+      box-shadow: var(--shadow);
+      flex:0 0 auto;
+    }
+    .logo span{font-size: 22px}
+    .title{
+      min-width:0;
+      line-height:1.05;
+    }
+    .title h1{
+      margin:0;
+      font-size: 18px;
+      letter-spacing: .2px;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .title .sub{
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 3px;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+
+    .topBtns{display:flex; gap:10px; align-items:center;}
+    button, .chip{
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #16204a, #0f1736);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 10px 12px;
+      min-height: var(--tap);
+      font-weight: 650;
+      letter-spacing: .2px;
+      box-shadow: 0 10px 26px rgba(0,0,0,.28);
+    }
+    button:active{transform: translateY(1px)}
+    button:focus{outline: 2px solid #ffffff33; outline-offset: 2px}
+    .chip{
+      display:flex; gap:8px; align-items:center;
+      padding: 10px 12px;
+      user-select:none;
+    }
+    .chip small{opacity:.8; font-weight:600}
+    .pill{
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #0b122b;
+      color: var(--muted);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.3fr .9fr;
+      gap: 12px;
+    }
+    @media (max-width: 860px){
+      .grid{grid-template-columns: 1fr}
+    }
+
+    .card{
+      background: linear-gradient(180deg, #111a3a, #0c122a);
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .cardHeader{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      padding: 12px 12px 10px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #141f48, #10183a);
+    }
+    .cardHeader h2{
+      margin:0;
+      font-size: 14px;
+      letter-spacing: .25px;
+    }
+    .cardHeader .hint{
+      font-size: 12px;
+      color: var(--muted);
+      text-align:right;
+      line-height: 1.15;
+    }
+    .cardBody{padding: 12px}
+
+    /* Play area */
+    .playRow{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .stage{
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background:
+        radial-gradient(900px 500px at 20% 25%, #00d4ff1f, transparent 55%),
+        radial-gradient(700px 450px at 80% 20%, #ff5ef21c, transparent 55%),
+        #0a1026;
+      position: relative;
+      overflow:hidden;
+      min-height: 320px;
+      padding: 10px;
+    }
+    @media (max-width: 520px){
+      .stage{min-height: 360px;}
+    }
+
+    .stageTop{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding: 6px 6px 10px;
+    }
+    .scoreLine{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .scoreLine b{color: var(--text)}
+    .miniBtns{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+    .miniBtns button{min-height: 40px; padding: 8px 10px; border-radius: 12px; font-weight: 700}
+    .miniBtns .ghost{
+      background: transparent;
+      box-shadow:none;
+    }
+
+    /* Animal “buddies” */
+    .buddy{
+      position:absolute;
+      transform: translate(-50%, -50%);
+      font-size: var(--animalSize);
+      filter: drop-shadow(0 10px 10px rgba(0,0,0,.45));
+      cursor: pointer;
+      user-select: none;
+      transition: transform .08s ease, filter .12s ease;
+    }
+    .buddy:active{
+      transform: translate(-50%,-50%) scale(.98);
+      filter: drop-shadow(0 6px 8px rgba(0,0,0,.4));
+    }
+
+    /* “confetti” */
+    .pop{
+      position:absolute;
+      transform: translate(-50%,-50%);
+      pointer-events:none;
+      font-weight: 900;
+      animation: pop .55s ease-out forwards;
+      opacity: .95;
+      text-shadow: 0 10px 20px rgba(0,0,0,.35);
+      font-size: 18px;
+      letter-spacing: .2px;
+    }
+    @keyframes pop{
+      0%{opacity:0; transform: translate(-50%,-30%) scale(.8)}
+      20%{opacity:1}
+      100%{opacity:0; transform: translate(-50%,-120%) scale(1.12)}
+    }
+
+    /* Bottom bar in stage */
+    .stageBar{
+      position:absolute;
+      left:10px; right:10px; bottom:10px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #0f1736cc, #0b1026cc);
+      backdrop-filter: blur(10px);
+      padding: 10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .modeTabs{
+      display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+    }
+    .tab{
+      min-height: 40px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: transparent;
+      box-shadow:none;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-weight: 800;
+      cursor:pointer;
+    }
+    .tab.on{
+      background: linear-gradient(180deg, #1a2a6b, #101a45);
+      color: var(--text);
+    }
+    .prompt{
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.2;
+      flex: 1 1 220px;
+    }
+
+    /* Right-side panels */
+    .rows{
+      display:grid;
+      gap:12px;
+    }
+
+    .sectionTitle{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      margin: 0 0 10px;
+    }
+    .sectionTitle h3{
+      margin:0;
+      font-size: 14px;
+      letter-spacing: .2px;
+    }
+    .sectionTitle span{
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .animals{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 10px;
+    }
+    @media (max-width: 420px){
+      .animals{grid-template-columns: repeat(4, minmax(0,1fr)); gap:8px}
+    }
+    .animalBtn{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      padding: 10px 8px;
+      min-height: 78px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #121b3b, #0d1531);
+      user-select:none;
+      cursor:pointer;
+      position:relative;
+      overflow:hidden;
+    }
+    .animalBtn:hover{filter: brightness(1.05)}
+    .animalBtn:active{transform: translateY(1px)}
+    .animalEmoji{font-size: 26px}
+    .animalName{
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing:.2px;
+      text-align:center;
+    }
+    .animalBtn.on{
+      border-color: #ffffff55;
+      box-shadow: 0 0 0 3px #ffffff1a inset, 0 12px 26px rgba(0,0,0,.28);
+    }
+
+    .controls{
+      display:grid;
+      gap:10px;
+    }
+    .control{
+      border:1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px;
+      background: linear-gradient(180deg, #0f1736, #0b1026);
+    }
+    .control label{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:10px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .control label b{color: var(--text)}
+    input[type="range"]{width:100%}
+    .row2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 420px){ .row2{grid-template-columns: 1fr} }
+
+    .toggle{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding: 10px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #0f1736, #0b1026);
+      user-select:none;
+      cursor:pointer;
+      min-height: 48px;
+    }
+    .toggle .tMeta{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width:0;
+    }
+    .toggle .tMeta b{
+      font-size: 13px;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .toggle .tMeta small{
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.1;
+    }
+    .switch{
+      width: 46px; height: 26px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      position: relative;
+      flex:0 0 auto;
+      background: #0b122b;
+    }
+    .switch::after{
+      content:"";
+      position:absolute;
+      top: 50%;
+      left: 3px;
+      transform: translateY(-50%);
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: linear-gradient(180deg,#fff,#bcd3ff);
+      box-shadow: 0 10px 18px rgba(0,0,0,.35);
+      transition: left .18s ease;
+    }
+    .toggle.on .switch{
+      background: linear-gradient(180deg,#2ddc9a33,#2ddc9a11);
+      border-color: #2ddc9a66;
+    }
+    .toggle.on .switch::after{left: 22px}
+
+    /* Tiny “ad” corner */
+    .microAd{
+      border: 1px dashed #ffffff33;
+      border-radius: 14px;
+      padding: 10px;
+      background: linear-gradient(180deg, #0c122a, #0a1026);
+      position: relative;
+      overflow:hidden;
+    }
+    .microAd::before{
+      content:"";
+      position:absolute;
+      inset:-60px;
+      background: radial-gradient(closest-side at 20% 30%, #ffd86e22, transparent 65%),
+                  radial-gradient(closest-side at 80% 70%, #6ef3b122, transparent 65%);
+      transform: rotate(12deg);
+      pointer-events:none;
+    }
+    .adTop{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      position:relative;
+    }
+    .adTop .tag{
+      font-size: 11px;
+      color: #ffffffaa;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid #ffffff22;
+      background:#0b122b99;
+      backdrop-filter: blur(8px);
+    }
+    .adTop button{
+      min-height: 38px;
+      padding: 7px 10px;
+      border-radius: 12px;
+    }
+    .adBody{
+      position:relative;
+      margin-top: 8px;
+      display:grid;
+      gap:8px;
+    }
+    .adBody .headline{
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: .2px;
+    }
+    .adBody .copy{
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.2;
+    }
+    .adChoices{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top: 2px;
+    }
+    .choice{
+      min-height: 40px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border:1px solid var(--line);
+      background: #0b122b;
+      color: var(--text);
+      font-weight: 800;
+      cursor:pointer;
+      user-select:none;
+    }
+    .choice:active{transform: translateY(1px)}
+    .adResult{
+      font-size: 12px;
+      font-weight: 800;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border:1px solid var(--line);
+      background: #0b122b;
+      color: var(--muted);
+    }
+    .adResult.good{color:#c9ffe6; border-color:#2ddc9a55; background:#0b122b}
+    .adResult.warn{color:#fff1c9; border-color:#ffd86e55; background:#0b122b}
+
+    /* Modal */
+    .modalBack{
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      padding: 14px;
+      padding-bottom: calc(14px + env(safe-area-inset-bottom));
+      z-index: 50;
+    }
+    .modalBack.show{display:flex}
+    .modal{
+      width: min(720px, 100%);
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #141f48, #0b1026);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .modalHead{
+      display:flex; justify-content:space-between; align-items:center; gap:10px;
+      padding: 12px 12px 10px;
+      border-bottom: 1px solid var(--line);
+    }
+    .modalHead h3{margin:0; font-size: 14px}
+    .modalHead button{min-height: 40px}
+    .modalBody{padding: 12px}
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono";
+      font-size: 12px;
+      padding: 2px 6px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      background: #0b122b;
+    }
+
+    /* Footer */
+    footer{
+      margin-top: 12px;
+      color: #b8c4ff99;
+      font-size: 12px;
+      text-align:center;
+    }
+    a{color:#bcd3ff}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"><span>🐾</span></div>
+        <div class="title">
+          <h1>Animal Buddy Lab</h1>
+          <div class="sub">Tap animals • earn hearts • make a cute collection</div>
+        </div>
+      </div>
+      <div class="topBtns">
+        <div class="chip" id="kidNameChip" title="Tap to edit your name">
+          <span id="kidAvatar">🦄</span>
+          <div style="display:flex;flex-direction:column;line-height:1.05;">
+            <small id="kidName">Buddy</small>
+            <span class="pill" id="heartsPill">❤️ 0</span>
+          </div>
+        </div>
+        <button id="menuBtn" aria-label="Open menu">Menu</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- LEFT: Play -->
+      <section class="card">
+        <div class="cardHeader">
+          <h2>Play Area</h2>
+          <div class="hint">
+            <div><b>Modes:</b> Tap &amp; Pop • Buddy Match • Animal Drum</div>
+            <div style="margin-top:2px;">Small “tips” appear in the corner 🙂</div>
+          </div>
+        </div>
+
+        <div class="cardBody">
+          <div class="playRow">
+            <div class="stage" id="stage" role="application" aria-label="Animal play stage">
+              <div class="stageTop">
+                <div class="scoreLine" id="scoreLine">
+                  <span>Mode: <b id="modeLabel">Tap &amp; Pop</b></span>
+                  <span>Streak: <b id="streakLabel">0</b></span>
+                  <span>Stars: <b id="starsLabel">0</b> ⭐</span>
+                </div>
+                <div class="miniBtns">
+                  <button class="ghost" id="shuffleBtn" title="Shuffle buddies">Shuffle</button>
+                  <button class="ghost" id="clearBtn" title="Clear and start again">Reset</button>
+                </div>
+              </div>
+
+              <!-- buddies injected here -->
+
+              <div class="stageBar">
+                <div class="modeTabs" aria-label="Select a game mode">
+                  <button class="tab on" data-mode="pop">Tap &amp; Pop</button>
+                  <button class="tab" data-mode="match">Buddy Match</button>
+                  <button class="tab" data-mode="drum">Animal Drum</button>
+                </div>
+                <div class="prompt" id="promptText">
+                  Tap any animal to earn a heart. Find your favorite and make a streak!
+                </div>
+              </div>
+            </div>
+
+            <!-- tiny “ad” / PSA box -->
+            <div class="microAd" id="microAd">
+              <div class="adTop">
+                <div class="tag">tiny tip</div>
+                <button id="newTipBtn" title="New tiny tip">New</button>
+              </div>
+              <div class="adBody">
+                <div class="headline" id="adHeadline">Quick Kindness Quest</div>
+                <div class="copy" id="adCopy">If Mom says “please tidy,” what’s the best first move?</div>
+                <div class="adChoices" id="adChoices"></div>
+                <div class="adResult" id="adResult" aria-live="polite" style="display:none;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT: Customize + Collection -->
+      <aside class="rows">
+        <section class="card">
+          <div class="cardHeader">
+            <h2>Pick Your Animals</h2>
+            <div class="hint">Tap to add to your stage</div>
+          </div>
+          <div class="cardBody">
+            <div class="animals" id="animalGrid" aria-label="Animal choices"></div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="cardHeader">
+            <h2>Customize</h2>
+            <div class="hint">Make it yours</div>
+          </div>
+          <div class="cardBody">
+            <div class="controls">
+              <div class="control">
+                <label>
+                  <span>Animal size</span>
+                  <b id="sizeVal">44px</b>
+                </label>
+                <input id="sizeRange" type="range" min="28" max="70" value="44" />
+              </div>
+
+              <div class="control">
+                <label>
+                  <span>How many buddies on stage</span>
+                  <b id="countVal">10</b>
+                </label>
+                <input id="countRange" type="range" min="4" max="20" value="10" />
+              </div>
+
+              <div class="row2">
+                <div class="toggle on" id="toggleSound" role="switch" aria-checked="true">
+                  <div class="tMeta">
+                    <b>Sound</b>
+                    <small>tiny beeps &amp; taps</small>
+                  </div>
+                  <div class="switch" aria-hidden="true"></div>
+                </div>
+
+                <div class="toggle on" id="toggleHints" role="switch" aria-checked="true">
+                  <div class="tMeta">
+                    <b>Tiny tips</b>
+                    <small>gentle manners/PSA</small>
+                  </div>
+                  <div class="switch" aria-hidden="true"></div>
+                </div>
+              </div>
+
+              <div class="control">
+                <label>
+                  <span>Sound volume</span>
+                  <b id="volVal">50%</b>
+                </label>
+                <input id="volRange" type="range" min="0" max="100" value="50" />
+              </div>
+
+              <div class="toggle" id="toggleHard" role="switch" aria-checked="false">
+                <div class="tMeta">
+                  <b>Challenge mode</b>
+                  <small>faster match game</small>
+                </div>
+                <div class="switch" aria-hidden="true"></div>
+              </div>
+
+              <button id="saveBtn" title="Save your settings on this device">Save Settings</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="cardHeader">
+            <h2>My Collection</h2>
+            <div class="hint">Earned by playing</div>
+          </div>
+          <div class="cardBody">
+            <div class="sectionTitle">
+              <h3>Badges</h3>
+              <span id="badgeHint">Unlock 6 for a surprise</span>
+            </div>
+            <div id="badges" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+            <div style="height:10px"></div>
+            <div class="sectionTitle">
+              <h3>Animal Stars</h3>
+              <span><span class="kbd">Tap</span> animals to earn ⭐</span>
+            </div>
+            <div id="starBoard" style="display:grid; gap:8px;"></div>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <footer>
+      Tip: On phones, add to Home Screen for a “mini app” feel. 🐾
+    </footer>
+  </div>
+
+  <!-- Menu modal -->
+  <div class="modalBack" id="modalBack" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Menu">
+      <div class="modalHead">
+        <h3>Menu</h3>
+        <button id="closeModalBtn" aria-label="Close menu">Close</button>
+      </div>
+      <div class="modalBody" id="modalBody">
+        <div style="display:grid;gap:10px;">
+          <div class="control">
+            <label><span>Your name</span><b>Tap to edit</b></label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+              <input id="nameInput" type="text" maxlength="16"
+                     style="flex:1 1 180px; min-height:48px; border-radius:14px; border:1px solid var(--line); background:#0b122b; color:var(--text); padding:10px 12px; font-weight:750;"
+                     placeholder="Buddy" />
+              <button id="applyNameBtn">Apply</button>
+            </div>
+            <div style="margin-top:8px; font-size:12px; color:var(--muted); line-height:1.2;">
+              Pro tip: Choose an avatar animal in the picker (it becomes your little icon).
+            </div>
+          </div>
+
+          <div class="control">
+            <label><span>How to play</span><b>Quick guide</b></label>
+            <div style="font-size:12px;color:var(--muted);line-height:1.35;">
+              <b>Tap &amp; Pop:</b> tap animals to earn ❤️ and ⭐ (streaks give bonus).<br/>
+              <b>Buddy Match:</b> remember where animals are and find pairs.<br/>
+              <b>Animal Drum:</b> copy the animal pattern like a tiny memory drum.
+            </div>
+          </div>
+
+          <div class="row2">
+            <button id="wipeBtn" style="background: linear-gradient(180deg,#2a1630,#140b18); border-color:#ff7aa255;">
+              Reset Progress
+            </button>
+            <button id="surpriseBtn" style="background: linear-gradient(180deg,#17301f,#0b1a12); border-color:#6ef3b155;">
+              Surprise!
+            </button>
+          </div>
+
+          <div style="font-size:12px;color:#b8c4ff99;line-height:1.3;">
+            This app stores progress <b>only on this device</b> (no logins, no tracking).
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- Emoji set (given) ---
+    const ANIMALS = [
+      {e:"🐶", n:"Dog"},
+      {e:"🐱", n:"Cat"},
+      {e:"🐭", n:"Mouse"},
+      {e:"🐰", n:"Bunny"},
+      {e:"🦊", n:"Fox"},
+      {e:"🐻", n:"Bear"},
+      {e:"🐼", n:"Panda"},
+      {e:"🐨", n:"Koala"},
+      {e:"🐯", n:"Tiger"},
+      {e:"🦁", n:"Lion"},
+      {e:"🐸", n:"Frog"},
+      {e:"🐵", n:"Monkey"},
+      {e:"🦄", n:"Unicorn"},
+      {e:"🐷", n:"Pig"},
+      {e:"🐮", n:"Cow"},
+      {e:"🐔", n:"Chicken"},
+      {e:"🦉", n:"Owl"},
+    ];
+
+    // --- “Tiny tips” (not obvious ads) ---
+    const TIPS = [
+      {
+        head:"Quick Kindness Quest",
+        copy:"If Mom says “please tidy,” what’s the best first move?",
+        choices:[
+          {t:"Start right away", good:true, msg:"Yes! Starting calmly is a superpower. ❤️"},
+          {t:"Argue a bit", good:false, msg:"Try a calm ‘Okay!’ first. You can ask questions after. 🙂"},
+          {t:"Hide in another room", good:false, msg:"Sneaky feels fun… but helping fast feels better. ⭐"}
+        ]
+      },
+      {
+        head:"Manners Mini-Quiz",
+        copy:"You want a snack. What’s the best sentence?",
+        choices:[
+          {t:"“Can I have a snack, please?”", good:true, msg:"Perfect. Polite + clear. ❤️"},
+          {t:"“Snack NOW.”", good:false, msg:"Try adding ‘please’ and a calm voice."},
+          {t:"(grab it silently)", good:false, msg:"Ask first—grown-ups love that."}
+        ]
+      },
+      {
+        head:"Helpful Hero Tip",
+        copy:"Pick the best “help at home” idea:",
+        choices:[
+          {t:"Put shoes where they go", good:true, msg:"Nice! That helps everyone find stuff. ⭐"},
+          {t:"Leave a mess", good:false, msg:"Future-you won’t like that mess either."},
+          {t:"Ask: “What’s one thing I can do?”", good:true, msg:"Awesome question. Grown-ups love it. ❤️"}
+        ]
+      },
+      {
+        head:"Good Friend PSA",
+        copy:"A friend looks sad. What’s a good first step?",
+        choices:[
+          {t:"“Do you want to talk?”", good:true, msg:"Kind and respectful. ❤️"},
+          {t:"Laugh at them", good:false, msg:"Oof. Better to be kind—everyone has sad days."},
+          {t:"Invite them to join you", good:true, msg:"Yes! Including people is powerful. ⭐"}
+        ]
+      },
+      {
+        head:"Safety Spark",
+        copy:"When crossing a street, you should…",
+        choices:[
+          {t:"Look both ways", good:true, msg:"Yes—look left, right, then left again. ⭐"},
+          {t:"Run without looking", good:false, msg:"Not safe. Pause + check first."},
+          {t:"Listen for cars too", good:true, msg:"Great—eyes AND ears! ❤️"}
+        ]
+      }
+    ];
+
+    // --- State ---
+    const state = {
+      mode: "pop",            // pop | match | drum
+      sound: true,
+      hints: true,
+      challenge: false,
+      buddyCount: 10,
+      animalSize: 44,
+      vol: 0.5,
+      hearts: 0,
+      stars: 0,
+      streak: 0,
+      avatar: "🦄",
+      name: "Buddy",
+      unlockedBadges: {},     // key -> true
+      animalStars: {},        // emoji -> number
+      // match mode
+      match: {
+        grid: [],            // {emoji, revealed, matched}
+        firstIdx: -1,
+        lock: false
+      },
+      // drum mode
+      drum: {
+        seq: [],
+        input: [],
+        step: 0,
+        playing: false
+      }
+    };
+
+    // --- Storage ---
+    const KEY = "animal_buddy_lab_v1";
+    function load(){
+      try{
+        const raw = localStorage.getItem(KEY);
+        if(!raw) return;
+        const saved = JSON.parse(raw);
+        Object.assign(state, saved);
+        // sanity defaults
+        state.vol = clamp(state.vol ?? 0.5, 0, 1);
+        state.animalSize = clamp(state.animalSize ?? 44, 28, 70);
+        state.buddyCount = clamp(state.buddyCount ?? 10, 4, 20);
+        state.mode = saved.mode || "pop";
+      }catch(e){}
+    }
+    function save(){
+      const toSave = {
+        mode: state.mode,
+        sound: state.sound,
+        hints: state.hints,
+        challenge: state.challenge,
+        buddyCount: state.buddyCount,
+        animalSize: state.animalSize,
+        vol: state.vol,
+        hearts: state.hearts,
+        stars: state.stars,
+        streak: state.streak,
+        avatar: state.avatar,
+        name: state.name,
+        unlockedBadges: state.unlockedBadges,
+        animalStars: state.animalStars
+      };
+      localStorage.setItem(KEY, JSON.stringify(toSave));
+    }
+
+    // --- Helpers ---
+    const $ = (q)=>document.querySelector(q);
+    const $$ = (q)=>Array.from(document.querySelectorAll(q));
+    const clamp = (v,min,max)=>Math.max(min,Math.min(max,v));
+    function randInt(a,b){ return Math.floor(a + Math.random()*(b-a+1)); }
+    function choice(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+    // --- Tiny sound (WebAudio) ---
+    let audioCtx = null;
+    function beep(freq=440, dur=0.06, type="sine", gain=0.04){
+      if(!state.sound) return;
+      try{
+        if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const t0 = audioCtx.currentTime;
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = type;
+        o.frequency.setValueAtTime(freq, t0);
+        g.gain.setValueAtTime(gain * state.vol, t0);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+        o.connect(g).connect(audioCtx.destination);
+        o.start(t0);
+        o.stop(t0 + dur);
+      }catch(e){}
+    }
+    function sfxPop(){
+      beep(760, 0.05, "triangle", 0.05);
+      setTimeout(()=>beep(540, 0.05, "triangle", 0.04), 30);
+    }
+    function sfxGood(){ beep(660,0.07,"sine",0.05); setTimeout(()=>beep(880,0.08,"sine",0.05), 70); }
+    function sfxBad(){ beep(220,0.08,"square",0.03); }
+
+    // --- UI refs ---
+    const stage = $("#stage");
+    const animalGrid = $("#animalGrid");
+    const modeLabel = $("#modeLabel");
+    const streakLabel = $("#streakLabel");
+    const starsLabel = $("#starsLabel");
+    const promptText = $("#promptText");
+
+    const heartsPill = $("#heartsPill");
+    const kidAvatar = $("#kidAvatar");
+    const kidNameEl = $("#kidName");
+    const kidNameChip = $("#kidNameChip");
+
+    const sizeRange = $("#sizeRange");
+    const countRange = $("#countRange");
+    const volRange = $("#volRange");
+    const sizeVal = $("#sizeVal");
+    const countVal = $("#countVal");
+    const volVal = $("#volVal");
+
+    const toggleSound = $("#toggleSound");
+    const toggleHints = $("#toggleHints");
+    const toggleHard = $("#toggleHard");
+
+    const saveBtn = $("#saveBtn");
+    const shuffleBtn = $("#shuffleBtn");
+    const clearBtn = $("#clearBtn");
+
+    // Modal refs
+    const menuBtn = $("#menuBtn");
+    const modalBack = $("#modalBack");
+    const closeModalBtn = $("#closeModalBtn");
+    const nameInput = $("#nameInput");
+    const applyNameBtn = $("#applyNameBtn");
+    const wipeBtn = $("#wipeBtn");
+    const surpriseBtn = $("#surpriseBtn");
+
+    // Tiny tips
+    const microAd = $("#microAd");
+    const newTipBtn = $("#newTipBtn");
+    const adHeadline = $("#adHeadline");
+    const adCopy = $("#adCopy");
+    const adChoices = $("#adChoices");
+    const adResult = $("#adResult");
+
+    // Collection
+    const badgesEl = $("#badges");
+    const badgeHint = $("#badgeHint");
+    const starBoard = $("#starBoard");
+
+    // --- Init ---
+    load();
+
+    // Apply saved settings to CSS variables
+    document.documentElement.style.setProperty("--animalSize", state.animalSize+"px");
+    document.documentElement.style.setProperty("--sfxVol", state.vol);
+
+    // --- Build animal picker ---
+    function buildAnimalPicker(){
+      animalGrid.innerHTML = "";
+      ANIMALS.forEach((a)=>{
+        const b = document.createElement("div");
+        b.className = "animalBtn";
+        b.innerHTML = `
+          <div class="animalEmoji">${a.e}</div>
+          <div class="animalName">${a.n}</div>
+        `;
+        b.addEventListener("click", ()=>{
+          // In pop mode: add a buddy to stage immediately
+          // Also set avatar (cute)
+          state.avatar = a.e;
+          kidAvatar.textContent = state.avatar;
+          popLabel(stage, "Avatar!", a.e);
+          sfxGood();
+          addHeart(1, true);
+          // drop one buddy on stage
+          if(state.mode === "pop") spawnOneBuddy(a.e);
+          if(state.mode === "match") {/* no-op */}
+          if(state.mode === "drum") {/* no-op */}
+          updateCollection();
+          save();
+        });
+        animalGrid.appendChild(b);
+      });
+    }
+
+    // --- Stage population ---
+    function clearStageBuddies(){
+      $$(".buddy").forEach(x=>x.remove());
+      $$(".pop").forEach(x=>x.remove());
+    }
+
+    function spawnOneBuddy(emoji){
+      const rect = stage.getBoundingClientRect();
+      const pad = 18;
+      const topPad = 78;        // keep clear of top row
+      const bottomPad = 84;     // keep clear of bottom bar
+      const x = randInt(pad, Math.max(pad, rect.width - pad));
+      const y = randInt(topPad, Math.max(topPad, rect.height - bottomPad));
+      const el = document.createElement("div");
+      el.className = "buddy";
+      el.textContent = emoji;
+      el.style.left = x + "px";
+      el.style.top = y + "px";
+      el.dataset.emoji = emoji;
+
+      el.addEventListener("click", (ev)=>{
+        ev.stopPropagation();
+        if(state.mode === "pop") onBuddyPop(el);
+        if(state.mode === "match") onBuddyMatchClick(el);
+        if(state.mode === "drum") onBuddyDrumClick(el);
+      });
+      stage.appendChild(el);
+    }
+
+    function populatePopMode(){
+      clearStageBuddies();
+      for(let i=0;i<state.buddyCount;i++){
+        spawnOneBuddy(choice(ANIMALS).e);
+      }
+      promptText.textContent = "Tap any animal to earn a heart. Find your favorite and make a streak!";
+    }
+
+    // --- Mode: Tap & Pop ---
+    function onBuddyPop(el){
+      const emoji = el.dataset.emoji;
+      // move to new spot, like whack-a-mole but calm
+      const rect = stage.getBoundingClientRect();
+      const pad = 18;
+      const topPad = 78;
+      const bottomPad = 84;
+      const x = randInt(pad, Math.max(pad, rect.width - pad));
+      const y = randInt(topPad, Math.max(topPad, rect.height - bottomPad));
+      el.style.left = x + "px";
+      el.style.top = y + "px";
+
+      // reward
+      state.streak += 1;
+      const bonus = (state.streak % 5 === 0) ? 2 : 1;
+      addHeart(bonus);
+      addStar(emoji, (state.streak % 3 === 0) ? 1 : 0); // occasional stars
+      popLabel(stage, "+"+bonus+" ❤️", emoji, el);
+      sfxPop();
+
+      // badge checks
+      checkBadges();
+      updateHUD();
+      updateCollection();
+      save();
+    }
+
+    function addHeart(n=1, quiet=false){
+      state.hearts += n;
+      if(!quiet) heartsPill.textContent = "❤️ " + state.hearts;
+    }
+
+    function addStar(emoji, n=1){
+      if(n<=0) return;
+      state.stars += n;
+      state.animalStars[emoji] = (state.animalStars[emoji] || 0) + n;
+    }
+
+    // --- Mode: Buddy Match (simple memory) ---
+    function setupMatch(){
+      clearStageBuddies();
+      state.match = { grid: [], firstIdx:-1, lock:false };
+
+      // 8 pairs (16 tiles) or 6 pairs in challenge? We'll scale.
+      const pairs = state.challenge ? 10 : 8; // up to 20 tiles (max)
+      const used = [];
+      while(used.length < pairs){
+        const e = choice(ANIMALS).e;
+        if(!used.includes(e)) used.push(e);
+      }
+      const tiles = used.concat(used).map(e=>({emoji:e, revealed:false, matched:false}));
+      // shuffle
+      for(let i=tiles.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [tiles[i],tiles[j]] = [tiles[j],tiles[i]];
+      }
+      state.match.grid = tiles;
+
+      // layout in stage
+      const cols = state.challenge ? 5 : 4;
+      const gap = 10;
+      const topPad = 70;
+      const leftPad = 12;
+      const bottomPad = 86;
+      const usableH = stage.clientHeight - topPad - bottomPad;
+      const rows = Math.ceil(tiles.length / cols);
+      const cell = Math.floor(Math.min(
+        (stage.clientWidth - leftPad*2 - gap*(cols-1)) / cols,
+        (usableH - gap*(rows-1)) / rows
+      ));
+      // Use buddy elements as “cards”
+      tiles.forEach((t, idx)=>{
+        const r = Math.floor(idx / cols);
+        const c = idx % cols;
+        const x = leftPad + c*(cell+gap) + cell/2;
+        const y = topPad + r*(cell+gap) + cell/2;
+
+        const el = document.createElement("div");
+        el.className = "buddy";
+        el.style.left = x + "px";
+        el.style.top = y + "px";
+        el.style.fontSize = Math.max(30, Math.min(52, Math.floor(cell*0.58))) + "px";
+        el.dataset.idx = String(idx);
+        el.dataset.emoji = t.emoji;
+        el.textContent = "❔"; // hidden
+        el.addEventListener("click",(ev)=>{
+          ev.stopPropagation();
+          onMatchTileClick(el);
+        });
+        stage.appendChild(el);
+      });
+
+      state.streak = 0;
+      promptText.textContent = "Buddy Match: tap two cards. If they match, you keep them!";
+      updateHUD();
+      updateCollection();
+    }
+
+    function onMatchTileClick(el){
+      if(state.mode !== "match") return;
+      const idx = Number(el.dataset.idx);
+      const tile = state.match.grid[idx];
+      if(state.match.lock) return;
+      if(tile.matched) return;
+      if(tile.revealed) return;
+
+      tile.revealed = true;
+      el.textContent = tile.emoji;
+      sfxPop();
+
+      if(state.match.firstIdx === -1){
+        state.match.firstIdx = idx;
+        return;
+      }
+
+      const firstIdx = state.match.firstIdx;
+      const firstTile = state.match.grid[firstIdx];
+      state.match.firstIdx = -1;
+
+      if(firstTile.emoji === tile.emoji){
+        // match!
+        tile.matched = true;
+        firstTile.matched = true;
+        state.streak += 1;
+        const heartGain = state.challenge ? 3 : 2;
+        addHeart(heartGain);
+        addStar(tile.emoji, 1);
+        popLabel(stage, "MATCH! +" + heartGain + " ❤️", tile.emoji, el);
+        sfxGood();
+
+        // badges
+        checkBadges();
+
+        // win check
+        if(state.match.grid.every(t=>t.matched)){
+          addHeart(5);
+          popLabel(stage, "YOU WIN! +5 ❤️", "⭐");
+          sfxGood();
+        }
+        updateHUD();
+        updateCollection();
+        save();
+      } else {
+        // no match: flip back
+        state.match.lock = true;
+        state.streak = 0;
+
+        setTimeout(()=>{
+          tile.revealed = false;
+          firstTile.revealed = false;
+          el.textContent = "❔";
+          const firstEl = stage.querySelector(`.buddy[data-idx="${firstIdx}"]`);
+          if(firstEl) firstEl.textContent = "❔";
+          state.match.lock = false;
+          sfxBad();
+          updateHUD();
+          save();
+        }, state.challenge ? 520 : 780);
+      }
+    }
+
+    // --- Mode: Animal Drum (Simon-ish) ---
+    function setupDrum(){
+      clearStageBuddies();
+      state.drum = { seq: [], input: [], step: 0, playing:false };
+
+      // place 6 animals in a ring
+      const picks = [];
+      while(picks.length < 6){
+        const e = choice(ANIMALS).e;
+        if(!picks.includes(e)) picks.push(e);
+      }
+
+      const cx = stage.clientWidth / 2;
+      const cy = stage.clientHeight / 2 - 10;
+      const r = Math.min(stage.clientWidth, stage.clientHeight) * 0.28;
+
+      picks.forEach((e, i)=>{
+        const ang = (Math.PI*2) * (i / picks.length) - Math.PI/2;
+        const x = cx + Math.cos(ang)*r;
+        const y = cy + Math.sin(ang)*r;
+        const el = document.createElement("div");
+        el.className = "buddy";
+        el.textContent = e;
+        el.dataset.emoji = e;
+        el.style.left = x + "px";
+        el.style.top = y + "px";
+        el.addEventListener("click",(ev)=>{
+          ev.stopPropagation();
+          onDrumHit(el);
+        });
+        stage.appendChild(el);
+      });
+
+      promptText.textContent = "Animal Drum: press Start, watch the pattern, then copy it!";
+      // add start button in stageBar prompt area (simple)
+      const startBtn = document.createElement("button");
+      startBtn.id = "drumStartBtn";
+      startBtn.textContent = "Start";
+      startBtn.style.minHeight = "40px";
+      startBtn.style.borderRadius = "999px";
+      startBtn.style.fontWeight = "900";
+      startBtn.addEventListener("click",(ev)=>{
+        ev.stopPropagation();
+        if(state.drum.playing) return;
+        drumNext();
+      });
+      // Put it beside prompt text
+      // We'll append to promptText parent in stageBar (promptText sits in stageBar)
+      promptText.innerHTML = `Animal Drum: press <span class="kbd">Start</span>, watch, then copy!`;
+      promptText.parentElement.appendChild(startBtn);
+
+      updateHUD();
+      updateCollection();
+    }
+
+    function flashBuddy(emoji){
+      const el = $$(".buddy").find(b=>b.dataset.emoji === emoji);
+      if(!el) return;
+      el.style.filter = "drop-shadow(0 0 20px rgba(255,255,255,.55))";
+      el.style.transform = "translate(-50%,-50%) scale(1.05)";
+      setTimeout(()=>{
+        el.style.filter = "";
+        el.style.transform = "translate(-50%,-50%)";
+      }, 180);
+    }
+
+    function drumNext(){
+      const choices = $$(".buddy").map(b=>b.dataset.emoji);
+      const next = choice(choices);
+      state.drum.seq.push(next);
+      state.drum.input = [];
+      state.drum.playing = true;
+
+      // play sequence
+      let i = 0;
+      const speed = state.challenge ? 350 : 520;
+
+      const tick = ()=>{
+        if(i >= state.drum.seq.length){
+          state.drum.playing = false;
+          promptText.textContent = "Now you try! Tap the animals in the same order.";
+          save();
+          return;
+        }
+        const e = state.drum.seq[i++];
+        flashBuddy(e);
+        // different pitch per emoji (simple)
+        const idx = ANIMALS.findIndex(a=>a.e===e);
+        beep(320 + idx*28, 0.10, "sine", 0.06);
+        setTimeout(tick, speed);
+      };
+
+      promptText.textContent = "Watch the pattern…";
+      setTimeout(tick, 260);
+      save();
+    }
+
+    function onDrumHit(el){
+      if(state.mode !== "drum") return;
+      if(state.drum.playing) return; // don't allow during playback
+
+      const e = el.dataset.emoji;
+      flashBuddy(e);
+      const idx = ANIMALS.findIndex(a=>a.e===e);
+      beep(320 + idx*28, 0.09, "triangle", 0.05);
+
+      state.drum.input.push(e);
+      const k = state.drum.input.length - 1;
+
+      if(state.drum.seq[k] !== e){
+        // fail
+        state.streak = 0;
+        state.drum.seq = [];
+        state.drum.input = [];
+        popLabel(stage, "Oops — try again!", "🙂", el);
+        sfxBad();
+        promptText.textContent = "Press Start to try again. You’ve got this.";
+        // remove extra Start button duplication (if any)
+        cleanupDrumStartBtn();
+        setupDrum(); // rebuild cleanly
+        save();
+        return;
+      }
+
+      // correct so far
+      if(state.drum.input.length === state.drum.seq.length){
+        // complete round
+        state.streak += 1;
+        const reward = state.challenge ? 3 : 2;
+        addHeart(reward);
+        addStar(e, 1);
+        popLabel(stage, "Nice! +" + reward + " ❤️", "⭐", el);
+        sfxGood();
+        checkBadges();
+        updateHUD();
+        updateCollection();
+        save();
+        setTimeout(()=>{
+          drumNext();
+        }, 600);
+      }
+    }
+
+    function cleanupDrumStartBtn(){
+      const btn = $("#drumStartBtn");
+      if(btn) btn.remove();
+    }
+
+    // --- Generic buddy handlers (unused in match/drum, but kept for clarity) ---
+    function onBuddyMatchClick(){ /* handled by match tiles */ }
+    function onBuddyDrumClick(){ /* handled by ring buddies */ }
+
+    // --- Pop label ---
+    function popLabel(container, text, emoji="⭐", anchorEl=null){
+      const rect = container.getBoundingClientRect();
+      let x = rect.width * 0.5;
+      let y = rect.height * 0.45;
+      if(anchorEl){
+        const r = anchorEl.getBoundingClientRect();
+        x = (r.left - rect.left) + r.width*0.5;
+        y = (r.top - rect.top) + r.height*0.3;
+      }
+      const p = document.createElement("div");
+      p.className = "pop";
+      p.style.left = x + "px";
+      p.style.top = y + "px";
+      p.textContent = `${emoji} ${text}`;
+      container.appendChild(p);
+      setTimeout(()=>p.remove(), 620);
+    }
+
+    // --- HUD ---
+    function updateHUD(){
+      heartsPill.textContent = "❤️ " + state.hearts;
+      kidAvatar.textContent = state.avatar;
+      kidNameEl.textContent = state.name || "Buddy";
+
+      streakLabel.textContent = String(state.streak);
+      starsLabel.textContent = String(state.stars);
+
+      const modeNames = {pop:"Tap & Pop", match:"Buddy Match", drum:"Animal Drum"};
+      modeLabel.textContent = modeNames[state.mode] || "Tap & Pop";
+
+      // Controls reflect state
+      sizeRange.value = String(state.animalSize);
+      countRange.value = String(state.buddyCount);
+      volRange.value = String(Math.round(state.vol*100));
+      sizeVal.textContent = state.animalSize + "px";
+      countVal.textContent = String(state.buddyCount);
+      volVal.textContent = Math.round(state.vol*100) + "%";
+
+      document.documentElement.style.setProperty("--animalSize", state.animalSize+"px");
+
+      syncToggle(toggleSound, state.sound);
+      syncToggle(toggleHints, state.hints);
+      syncToggle(toggleHard, state.challenge);
+    }
+
+    function syncToggle(el, on){
+      el.classList.toggle("on", !!on);
+      el.setAttribute("aria-checked", on ? "true" : "false");
+    }
+
+    // --- Collection / badges ---
+    const BADGES = [
+      {k:"hearts10",  name:"Warm Heart",  need: ()=>state.hearts>=10,  icon:"❤️"},
+      {k:"hearts50",  name:"Big Helper",  need: ()=>state.hearts>=50,  icon:"🧹"},
+      {k:"stars10",   name:"Star Finder", need: ()=>state.stars>=10,   icon:"⭐"},
+      {k:"streak8",   name:"Streak 8!",   need: ()=>state.streak>=8,   icon:"🔥"},
+      {k:"matchWin",  name:"Matcher",     need: ()=>state.mode==="match" && state.match.grid.length && state.match.grid.every(t=>t.matched), icon:"🧠"},
+      {k:"drum3",     name:"Rhythm Kid",  need: ()=>state.mode==="drum" && state.streak>=3, icon:"🥁"},
+    ];
+
+    function checkBadges(){
+      BADGES.forEach(b=>{
+        if(!state.unlockedBadges[b.k] && b.need()){
+          state.unlockedBadges[b.k] = true;
+          popLabel(stage, "Badge: " + b.name, b.icon);
+          sfxGood();
+        }
+      });
+    }
+
+    function updateCollection(){
+      // badges
+      badgesEl.innerHTML = "";
+      const unlocked = Object.keys(state.unlockedBadges).filter(k=>state.unlockedBadges[k]);
+      const count = unlocked.length;
+
+      BADGES.forEach(b=>{
+        const on = !!state.unlockedBadges[b.k];
+        const chip = document.createElement("div");
+        chip.className = "pill";
+        chip.style.padding = "8px 10px";
+        chip.style.borderRadius = "14px";
+        chip.style.background = on ? "#0b122b" : "transparent";
+        chip.style.borderStyle = on ? "solid" : "dashed";
+        chip.style.borderColor = on ? "#6ef3b155" : "#ffffff22";
+        chip.style.color = on ? "#c9ffe6" : "#b8c4ff88";
+        chip.textContent = (on ? b.icon : "🔒") + " " + b.name;
+        badgesEl.appendChild(chip);
+      });
+
+      badgeHint.textContent = count >= 6 ? "Surprise unlocked in Menu 🎁" : `Unlock ${Math.max(0, 6-count)} more for a surprise`;
+
+      // star board
+      starBoard.innerHTML = "";
+      const entries = Object.entries(state.animalStars);
+      entries.sort((a,b)=>b[1]-a[1]);
+      const top = entries.slice(0, 6);
+      if(top.length === 0){
+        const empty = document.createElement("div");
+        empty.className = "pill";
+        empty.style.padding = "10px 12px";
+        empty.textContent = "No stars yet — tap animals to start!";
+        starBoard.appendChild(empty);
+      }else{
+        top.forEach(([e, n])=>{
+          const row = document.createElement("div");
+          row.className = "pill";
+          row.style.padding = "10px 12px";
+          row.style.display = "flex";
+          row.style.justifyContent = "space-between";
+          row.style.alignItems = "center";
+          row.innerHTML = `<span style="font-weight:900;font-size:14px;">${e}</span><span style="color:var(--muted);font-weight:800;">${n} ⭐</span>`;
+          starBoard.appendChild(row);
+        });
+      }
+    }
+
+    // --- Tiny tips rendering ---
+    let currentTip = null;
+    function renderTip(){
+      if(!state.hints){
+        microAd.style.display = "none";
+        return;
+      }
+      microAd.style.display = "";
+      currentTip = choice(TIPS);
+      adHeadline.textContent = currentTip.head;
+      adCopy.textContent = currentTip.copy;
+      adChoices.innerHTML = "";
+      adResult.style.display = "none";
+      adResult.className = "adResult";
+      currentTip.choices.forEach((c)=>{
+        const b = document.createElement("button");
+        b.className = "choice";
+        b.textContent = c.t;
+        b.addEventListener("click", ()=>{
+          adResult.style.display = "";
+          adResult.textContent = c.msg;
+          adResult.classList.toggle("good", !!c.good);
+          adResult.classList.toggle("warn", !c.good);
+          if(c.good){
+            addHeart(1);
+            popLabel(stage, "+1 ❤️", "✨");
+            sfxGood();
+          } else {
+            sfxBad();
+          }
+          updateHUD();
+          updateCollection();
+          save();
+        });
+        adChoices.appendChild(b);
+      });
+    }
+
+    // --- Mode switching ---
+    function setMode(m){
+      state.mode = m;
+      // tabs
+      $$(".tab").forEach(t=>t.classList.toggle("on", t.dataset.mode===m));
+      cleanupDrumStartBtn();
+
+      if(m==="pop") populatePopMode();
+      if(m==="match") setupMatch();
+      if(m==="drum") setupDrum();
+
+      state.streak = 0;
+      updateHUD();
+      checkBadges();
+      updateCollection();
+      save();
+    }
+
+    // --- Controls handlers ---
+    sizeRange.addEventListener("input", ()=>{
+      state.animalSize = Number(sizeRange.value);
+      sizeVal.textContent = state.animalSize + "px";
+      document.documentElement.style.setProperty("--animalSize", state.animalSize+"px");
+    });
+    sizeRange.addEventListener("change", ()=>{ save(); });
+
+    countRange.addEventListener("input", ()=>{
+      state.buddyCount = Number(countRange.value);
+      countVal.textContent = String(state.buddyCount);
+    });
+    countRange.addEventListener("change", ()=>{
+      if(state.mode==="pop") populatePopMode();
+      save();
+    });
+
+    volRange.addEventListener("input", ()=>{
+      state.vol = Number(volRange.value)/100;
+      volVal.textContent = Math.round(state.vol*100) + "%";
+    });
+    volRange.addEventListener("change", ()=>save());
+
+    function toggle(el, key){
+      el.addEventListener("click", ()=>{
+        state[key] = !state[key];
+        syncToggle(el, state[key]);
+        if(key==="hints") renderTip();
+        if(key==="sound" && state.sound) sfxGood();
+        save();
+      });
+    }
+    toggle(toggleSound, "sound");
+    toggle(toggleHints, "hints");
+    toggle(toggleHard, "challenge");
+
+    saveBtn.addEventListener("click", ()=>{
+      save();
+      popLabel(stage, "Saved!", "💾");
+      sfxGood();
+    });
+
+    shuffleBtn.addEventListener("click", ()=>{
+      if(state.mode==="pop"){
+        populatePopMode();
+        popLabel(stage, "Shuffled!", "🔀");
+        sfxPop();
+      }else if(state.mode==="match"){
+        setupMatch();
+        popLabel(stage, "New Match!", "🧠");
+        sfxPop();
+      }else{
+        setupDrum();
+        popLabel(stage, "New Drum!", "🥁");
+        sfxPop();
+      }
+      save();
+    });
+
+    clearBtn.addEventListener("click", ()=>{
+      state.streak = 0;
+      if(state.mode==="pop") populatePopMode();
+      if(state.mode==="match") setupMatch();
+      if(state.mode==="drum") setupDrum();
+      popLabel(stage, "Reset!", "🧼");
+      sfxPop();
+      updateHUD();
+      save();
+    });
+
+    // Tabs
+    $$(".tab").forEach(t=>{
+      t.addEventListener("click", ()=>setMode(t.dataset.mode));
+    });
+
+    // Stage click: in pop mode, add a random buddy at tap location
+    stage.addEventListener("click", (ev)=>{
+      // avoid clicks on UI overlays
+      const target = ev.target;
+      if(target.closest(".stageBar") || target.closest(".stageTop")) return;
+
+      if(state.mode==="pop"){
+        const rect = stage.getBoundingClientRect();
+        const x = ev.clientX - rect.left;
+        const y = ev.clientY - rect.top;
+        const e = choice(ANIMALS).e;
+        const el = document.createElement("div");
+        el.className = "buddy";
+        el.textContent = e;
+        el.dataset.emoji = e;
+        el.style.left = x + "px";
+        el.style.top = y + "px";
+        el.addEventListener("click",(e2)=>{
+          e2.stopPropagation();
+          onBuddyPop(el);
+        });
+        stage.appendChild(el);
+        popLabel(stage, "New buddy!", e);
+        sfxPop();
+        save();
+      }
+    });
+
+    // --- Menu modal ---
+    function openModal(){
+      modalBack.classList.add("show");
+      modalBack.setAttribute("aria-hidden","false");
+      nameInput.value = state.name || "";
+      // focus
+      setTimeout(()=>nameInput.focus(), 50);
+    }
+    function closeModal(){
+      modalBack.classList.remove("show");
+      modalBack.setAttribute("aria-hidden","true");
+      save();
+    }
+    menuBtn.addEventListener("click", openModal);
+    closeModalBtn.addEventListener("click", closeModal);
+    modalBack.addEventListener("click", (e)=>{
+      if(e.target === modalBack) closeModal();
+    });
+
+    applyNameBtn.addEventListener("click", ()=>{
+      const v = (nameInput.value || "").trim();
+      state.name = v ? v.slice(0,16) : "Buddy";
+      kidNameEl.textContent = state.name;
+      popLabel(stage, "Hi " + state.name + "!", state.avatar);
+      sfxGood();
+      save();
+      closeModal();
+    });
+
+    kidNameChip.addEventListener("click", openModal);
+
+    wipeBtn.addEventListener("click", ()=>{
+      if(!confirm("Reset progress on this device?")) return;
+      localStorage.removeItem(KEY);
+      // reset soft
+      Object.assign(state, {
+        mode:"pop",
+        sound:true,
+        hints:true,
+        challenge:false,
+        buddyCount:10,
+        animalSize:44,
+        vol:0.5,
+        hearts:0,
+        stars:0,
+        streak:0,
+        avatar:"🦄",
+        name:"Buddy",
+        unlockedBadges:{},
+        animalStars:{},
+        match:{grid:[],firstIdx:-1,lock:false},
+        drum:{seq:[],input:[],step:0,playing:false}
+      });
+      updateHUD();
+      renderTip();
+      setMode("pop");
+      updateCollection();
+      closeModal();
+    });
+
+    surpriseBtn.addEventListener("click", ()=>{
+      const unlocked = Object.keys(state.unlockedBadges).filter(k=>state.unlockedBadges[k]).length;
+      if(unlocked < 6){
+        popLabel(stage, "Unlock 6 badges first!", "🔒");
+        sfxBad();
+        return;
+      }
+      // cute surprise: rainbow parade
+      closeModal();
+      if(state.mode !== "pop") setMode("pop");
+      const parade = ["🌈","✨","⭐","💖","🎉"];
+      let i = 0;
+      const run = ()=>{
+        if(i++ > 16) return;
+        spawnOneBuddy(choice(ANIMALS).e);
+        popLabel(stage, "Surprise!", choice(parade));
+        sfxGood();
+        setTimeout(run, 140);
+      };
+      run();
+    });
+
+    // --- Tiny tips button ---
+    newTipBtn.addEventListener("click", ()=>{
+      renderTip();
+      sfxPop();
+    });
+
+    // --- Resize handling: keep match/drum layouts nice ---
+    let resizeTO = null;
+    window.addEventListener("resize", ()=>{
+      clearTimeout(resizeTO);
+      resizeTO = setTimeout(()=>{
+        if(state.mode==="match") setupMatch();
+        if(state.mode==="drum") setupDrum();
+      }, 120);
+    });
+
+    // --- Start ---
+    buildAnimalPicker();
+    updateHUD();
+    renderTip();
+    setMode(state.mode || "pop");
+    updateCollection();
+
+    // avoid iOS audio restrictions until first interaction: arm audio on first touch
+    window.addEventListener("pointerdown", ()=>{
+      if(!audioCtx){
+        try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){}
+      }
+    }, {once:true});
+  </script>
+</body>
+</html>
