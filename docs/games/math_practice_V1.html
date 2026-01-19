@@ -1,0 +1,1134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Math Spark ✨</title>
+  <style>
+    :root{
+      --bg1:#0ea5e9;
+      --bg2:#a78bfa;
+      --card: rgba(255,255,255,.92);
+      --ink:#0b1220;
+      --muted:#4b5563;
+      --accent:#22c55e;
+      --danger:#ef4444;
+      --shadow: 0 18px 50px rgba(0,0,0,.18);
+      --radius: 22px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-rounded, system-ui, -apple-system, "SF Pro Rounded", "Segoe UI", Roboto, Arial, sans-serif;
+      color:var(--ink);
+      background: radial-gradient(1200px 800px at 20% 10%, rgba(255,255,255,.25), transparent 55%),
+                  linear-gradient(140deg, var(--bg1), var(--bg2));
+      display:flex;
+      align-items:stretch;
+      justify-content:center;
+      padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+               max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+      overflow:hidden;
+    }
+
+    .app{
+      width:min(980px, 100%);
+      display:grid;
+      gap:12px;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 12px;
+      background:rgba(255,255,255,.20);
+      border:1px solid rgba(255,255,255,.22);
+      border-radius: 18px;
+      backdrop-filter: blur(10px);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width: 0;
+    }
+    .avatar{
+      width:44px;height:44px;border-radius:16px;
+      display:grid;place-items:center;
+      background:rgba(255,255,255,.55);
+      box-shadow: 0 10px 25px rgba(0,0,0,.10);
+      font-size:26px;
+      user-select:none;
+    }
+    .brand h1{
+      margin:0;
+      font-size:18px;
+      line-height:1.1;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .brand .sub{
+      font-size:12px;
+      color:rgba(11,18,32,.72);
+      margin-top:2px;
+    }
+
+    .stats{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .pill{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      padding:8px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.55);
+      border:1px solid rgba(255,255,255,.35);
+      box-shadow: 0 10px 25px rgba(0,0,0,.08);
+      font-size:13px;
+      user-select:none;
+    }
+    .pill b{font-variant-numeric: tabular-nums}
+    .btn{
+      appearance:none;
+      border:none;
+      cursor:pointer;
+      padding:10px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.75);
+      border:1px solid rgba(255,255,255,.38);
+      box-shadow: 0 10px 25px rgba(0,0,0,.10);
+      font-weight:700;
+      color:var(--ink);
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:active{transform: translateY(1px) scale(.99)}
+    .btn.small{padding:8px 10px; font-weight:800; font-size:13px}
+    .btn.primary{
+      background: rgba(34,197,94,.92);
+      color:white;
+      border-color: rgba(255,255,255,.3);
+    }
+    .btn.danger{
+      background: rgba(239,68,68,.92);
+      color:white;
+      border-color: rgba(255,255,255,.3);
+    }
+
+    .main{
+      display:grid;
+      grid-template-columns: 1.3fr .7fr;
+      gap:12px;
+      align-items:stretch;
+      min-height: 0;
+    }
+
+    @media (max-width: 860px){
+      .main{grid-template-columns: 1fr; grid-template-rows: auto auto;}
+    }
+
+    .card{
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.6);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      min-height: 0;
+    }
+
+    .practice{
+      padding:14px;
+      display:grid;
+      gap:12px;
+      grid-template-rows: auto auto 1fr;
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .controls{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .select{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      padding:10px 12px;
+      border-radius: 16px;
+      background: rgba(0,0,0,.03);
+      border: 1px solid rgba(0,0,0,.07);
+      font-size:14px;
+      user-select:none;
+    }
+    .select label{color:var(--muted); font-weight:700; font-size:12px}
+    select, input[type="number"]{
+      font: inherit;
+      border:none;
+      background:transparent;
+      outline:none;
+      font-weight:800;
+      color:var(--ink);
+    }
+    select{cursor:pointer}
+    .toggle{
+      display:flex; gap:8px; align-items:center;
+      padding:10px 12px;
+      border-radius:16px;
+      background: rgba(0,0,0,.03);
+      border: 1px solid rgba(0,0,0,.07);
+    }
+    .toggle input{width:18px;height:18px}
+
+    .problemBox{
+      background: rgba(0,0,0,.03);
+      border: 1px solid rgba(0,0,0,.07);
+      border-radius: 20px;
+      padding:14px;
+      display:grid;
+      gap:10px;
+    }
+
+    .bigProblem{
+      display:flex;
+      align-items:baseline;
+      justify-content:center;
+      gap:12px;
+      font-weight: 1000;
+      letter-spacing: .5px;
+      font-variant-numeric: tabular-nums;
+    }
+    .bigProblem .num{font-size:56px}
+    .bigProblem .op{font-size:44px; opacity:.9}
+    .bigProblem .eq{font-size:44px; opacity:.7}
+    .bigProblem .ans{
+      font-size:56px;
+      min-width: 120px;
+      text-align:center;
+      padding:4px 10px;
+      border-radius: 16px;
+      border: 2px dashed rgba(0,0,0,.18);
+      background: rgba(255,255,255,.7);
+    }
+
+    @media (max-width: 420px){
+      .bigProblem .num, .bigProblem .ans{font-size:46px}
+      .bigProblem .op, .bigProblem .eq{font-size:36px}
+      .bigProblem{gap:10px}
+      .bigProblem .ans{min-width: 98px}
+    }
+
+    .hint{
+      text-align:center;
+      color: rgba(11,18,32,.75);
+      font-size: 13px;
+      font-weight:700;
+    }
+
+    .keypad{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:10px;
+      padding-top: 4px;
+      user-select:none;
+      -webkit-user-select:none;
+      touch-action: manipulation;
+    }
+    .key{
+      padding:16px 0;
+      border-radius: 18px;
+      border: 1px solid rgba(0,0,0,.08);
+      background: rgba(255,255,255,.85);
+      box-shadow: 0 10px 20px rgba(0,0,0,.10);
+      font-size: 22px;
+      font-weight: 900;
+      text-align:center;
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .key:active{transform: translateY(1px) scale(.99)}
+    .key.secondary{
+      background: rgba(0,0,0,.05);
+      box-shadow: none;
+      font-size: 16px;
+      font-weight: 900;
+    }
+    .key.go{
+      background: rgba(34,197,94,.92);
+      color: #fff;
+      border-color: rgba(255,255,255,.35);
+    }
+    .key.back{
+      background: rgba(239,68,68,.92);
+      color:#fff;
+      border-color: rgba(255,255,255,.35);
+    }
+
+    .side{
+      padding:14px;
+      display:grid;
+      gap:12px;
+      grid-template-rows: auto auto 1fr;
+      min-height: 0;
+    }
+    .side h2{
+      margin:0;
+      font-size:16px;
+    }
+    .panel{
+      background: rgba(0,0,0,.03);
+      border: 1px solid rgba(0,0,0,.07);
+      border-radius: 18px;
+      padding:12px;
+      min-height: 0;
+      overflow:auto;
+    }
+
+    .unlockBox{
+      display:grid;
+      gap:8px;
+    }
+    .progress{
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.08);
+      overflow:hidden;
+      border:1px solid rgba(0,0,0,.06);
+    }
+    .progress > div{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(34,197,94,.95), rgba(14,165,233,.95));
+      border-radius:999px;
+      transition: width .25s ease;
+    }
+    .unlockText{
+      font-size: 13px;
+      color: rgba(11,18,32,.78);
+      font-weight: 700;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+    }
+    .unlockText span{font-variant-numeric: tabular-nums}
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap:10px;
+    }
+    .chip{
+      padding:12px;
+      border-radius: 18px;
+      border: 1px solid rgba(0,0,0,.08);
+      background: rgba(255,255,255,.85);
+      cursor:pointer;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:flex-start;
+      box-shadow: 0 10px 20px rgba(0,0,0,.08);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .chip:active{transform: translateY(1px) scale(.99)}
+    .chip.locked{
+      opacity:.55;
+      filter:saturate(.7);
+      cursor:not-allowed;
+      box-shadow:none;
+      background: rgba(0,0,0,.04);
+    }
+    .chip .emoji{font-size:22px; width:30px; text-align:center}
+    .chip .meta{display:flex; flex-direction:column; gap:2px}
+    .chip .title{font-weight:900; font-size:13px}
+    .chip .desc{font-size:12px; color: rgba(11,18,32,.65); font-weight:700}
+    .chip.active{
+      outline: 3px solid rgba(14,165,233,.35);
+    }
+
+    .footer{
+      display:flex;
+      gap:10px;
+      justify-content:space-between;
+      align-items:center;
+      padding:10px 12px;
+      background:rgba(255,255,255,.18);
+      border:1px solid rgba(255,255,255,.22);
+      border-radius: 18px;
+      backdrop-filter: blur(10px);
+      font-size:12px;
+      color: rgba(255,255,255,.92);
+      text-shadow: 0 2px 8px rgba(0,0,0,.18);
+      flex-wrap:wrap;
+    }
+    .footer .mini{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    }
+
+    /* Toast */
+    .toast{
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: max(14px, env(safe-area-inset-bottom));
+      background: rgba(17,24,39,.92);
+      color: white;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 13px;
+      box-shadow: 0 20px 40px rgba(0,0,0,.25);
+      opacity: 0;
+      pointer-events:none;
+      transition: opacity .2s ease, transform .2s ease;
+      z-index: 50;
+      max-width: min(92vw, 720px);
+      text-align:center;
+    }
+    .toast.show{opacity:1; transform: translateX(-50%) translateY(-4px)}
+
+    /* Confetti */
+    .confetti{
+      position: fixed;
+      inset: 0;
+      pointer-events:none;
+      overflow:hidden;
+      z-index: 40;
+    }
+    .confetti i{
+      position:absolute;
+      top:-20px;
+      width:10px;
+      height:14px;
+      border-radius: 2px;
+      opacity:.95;
+      animation: fall var(--dur) linear forwards;
+      transform: translateX(0) rotate(0deg);
+    }
+    .confetti i.circle{border-radius:999px; width:10px; height:10px}
+    .confetti i.star{
+      width: 0; height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-bottom: 14px solid currentColor;
+      background: transparent !important;
+      border-radius:0;
+      opacity:.9;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,.18));
+    }
+    @keyframes fall{
+      0% { transform: translate3d(var(--x), 0, 0) rotate(0deg); }
+      100% { transform: translate3d(calc(var(--x) + var(--drift)), 110vh, 0) rotate(720deg); }
+    }
+
+    /* A little “sparkle” animation on correct */
+    .pop{
+      animation: pop .18s ease-out;
+    }
+    @keyframes pop{
+      0%{transform: scale(.98)}
+      100%{transform: scale(1)}
+    }
+  </style>
+</head>
+<body>
+  <div class="confetti" id="confetti"></div>
+
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="avatar" id="avatar">🦊</div>
+        <div style="min-width:0">
+          <h1>Math Spark</h1>
+          <div class="sub" id="subLine">Answer correctly to win sparkles + unlock fun!</div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="pill">⭐ <b id="stars">0</b></div>
+        <div class="pill">🔥 <b id="streak">0</b></div>
+        <button class="btn small" id="btnCustomize">Customize</button>
+        <button class="btn small danger" id="btnReset">Reset</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="card practice">
+        <div class="row">
+          <div class="controls">
+            <div class="select">
+              <label for="mode">Mode</label>
+              <select id="mode">
+                <option value="add">➕ Add</option>
+                <option value="sub">➖ Subtract</option>
+                <option value="mul">✖️ Multiply</option>
+                <option value="mix">🎲 Mixed</option>
+              </select>
+            </div>
+
+            <div class="select" id="rangeWrap">
+              <label for="range">Max #</label>
+              <select id="range">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+
+            <div class="select" id="timesWrap" style="display:none;">
+              <label for="times">Times up to</label>
+              <select id="times">
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="12" selected>12</option>
+              </select>
+            </div>
+
+            <div class="toggle">
+              <input type="checkbox" id="sound" checked />
+              <label for="sound" style="font-weight:900;color:var(--muted)">Sound</label>
+            </div>
+
+            <div class="toggle">
+              <input type="checkbox" id="haptic" checked />
+              <label for="haptic" style="font-weight:900;color:var(--muted)">Haptic</label>
+            </div>
+          </div>
+
+          <button class="btn primary" id="btnNew">New Problem</button>
+        </div>
+
+        <div class="problemBox" id="problemBox">
+          <div class="bigProblem" aria-live="polite">
+            <span class="num" id="a">3</span>
+            <span class="op" id="op">+</span>
+            <span class="num" id="b">4</span>
+            <span class="eq">=</span>
+            <span class="ans" id="ansBox">?</span>
+          </div>
+          <div class="hint" id="hint">Tap numbers below, then press ✅ Check</div>
+
+          <div class="keypad" id="keypad">
+            <!-- digits -->
+          </div>
+        </div>
+      </section>
+
+      <aside class="card side" id="customCard" style="display:none;">
+        <div class="row" style="align-items:flex-start;">
+          <div>
+            <h2>Customize</h2>
+            <div style="font-size:12px;color:rgba(11,18,32,.65);font-weight:800;margin-top:2px">
+              Earn unlocks every <b>5</b> correct answers 🎁
+            </div>
+          </div>
+          <button class="btn small" id="btnCloseCustom">Close</button>
+        </div>
+
+        <div class="panel unlockBox">
+          <div class="unlockText">
+            <span>Next unlock</span>
+            <span><b id="toNext">5</b> correct left</span>
+          </div>
+          <div class="progress" aria-label="Progress to next unlock">
+            <div id="progressBar"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+            <div style="font-weight:1000">Your stuff</div>
+            <div style="font-size:12px;color:rgba(11,18,32,.65);font-weight:900">Tap to equip</div>
+          </div>
+
+          <div style="margin-top:10px; font-weight:1000; font-size:13px;">Avatar</div>
+          <div class="grid" id="avatarGrid" style="margin-top:8px;"></div>
+
+          <div style="margin-top:14px; font-weight:1000; font-size:13px;">Background</div>
+          <div class="grid" id="bgGrid" style="margin-top:8px;"></div>
+
+          <div style="margin-top:14px; font-weight:1000; font-size:13px;">Confetti</div>
+          <div class="grid" id="confettiGrid" style="margin-top:8px;"></div>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="footer">
+      <div class="mini">
+        <span><b>Tip:</b> Do 10 in a row for a big celebration 🎉</span>
+      </div>
+      <div class="mini">
+        <button class="btn small" id="btnSkip">Skip</button>
+        <button class="btn small primary" id="btnCheck">✅ Check</button>
+      </div>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast">Nice!</div>
+
+<script>
+(() => {
+  // ---------- Storage ----------
+  const STORE_KEY = "math_spark_v1";
+  const defaultState = {
+    stars: 0,
+    streak: 0,
+    correctTotal: 0,
+    correctSinceUnlock: 0,
+    equipped: { avatarId: "fox", bgId: "sky", confettiId: "classic" },
+    unlocked: { avatars: ["fox"], bgs: ["sky"], confetti: ["classic"] },
+    settings: { mode: "add", range: 20, times: 12, sound: true, haptic: true },
+  };
+  const load = () => {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if(!raw) return structuredClone(defaultState);
+      const parsed = JSON.parse(raw);
+      // merge carefully
+      return {
+        ...structuredClone(defaultState),
+        ...parsed,
+        equipped: { ...defaultState.equipped, ...(parsed.equipped||{}) },
+        unlocked: { ...defaultState.unlocked, ...(parsed.unlocked||{}) },
+        settings: { ...defaultState.settings, ...(parsed.settings||{}) },
+      };
+    } catch {
+      return structuredClone(defaultState);
+    }
+  };
+  const save = () => localStorage.setItem(STORE_KEY, JSON.stringify(state));
+
+  let state = load();
+
+  // ---------- Catalog ----------
+  const avatars = [
+    { id:"fox",   emoji:"🦊", name:"Fox Friend",  unlockAt:0 },
+    { id:"cat",   emoji:"🐱", name:"Cool Cat",    unlockAt:5 },
+    { id:"unicorn",emoji:"🦄",name:"Unicorn",     unlockAt:10 },
+    { id:"robot", emoji:"🤖", name:"Robot Buddy", unlockAt:15 },
+    { id:"panda", emoji:"🐼", name:"Panda Pal",   unlockAt:20 },
+    { id:"dragon",emoji:"🐉", name:"Tiny Dragon", unlockAt:25 },
+  ];
+  const bgs = [
+    { id:"sky",   a:"#0ea5e9", b:"#a78bfa", name:"Sky Pop", unlockAt:0 },
+    { id:"sunset",a:"#fb7185", b:"#fbbf24", name:"Sunset",  unlockAt:5 },
+    { id:"mint",  a:"#22c55e", b:"#06b6d4", name:"Minty",   unlockAt:10 },
+    { id:"galaxy",a:"#111827", b:"#7c3aed", name:"Galaxy",  unlockAt:15 },
+    { id:"candy", a:"#f472b6", b:"#60a5fa", name:"Candy",   unlockAt:20 },
+    { id:"lava",  a:"#ef4444", b:"#f97316", name:"Lava",    unlockAt:25 },
+  ];
+  const confettis = [
+    { id:"classic", name:"Classic", emoji:"🎊", type:"rect", unlockAt:0 },
+    { id:"circles", name:"Bubbles", emoji:"🫧", type:"circle", unlockAt:5 },
+    { id:"stars",   name:"Stars",   emoji:"⭐",  type:"star", unlockAt:10 },
+  ];
+
+  const UNLOCK_EVERY = 5; // correct answers per unlock
+
+  // ---------- UI Refs ----------
+  const $ = (q) => document.querySelector(q);
+  const avatarEl = $("#avatar");
+  const starsEl = $("#stars");
+  const streakEl = $("#streak");
+  const subLine = $("#subLine");
+
+  const modeSel = $("#mode");
+  const rangeSel = $("#range");
+  const timesSel = $("#times");
+  const rangeWrap = $("#rangeWrap");
+  const timesWrap = $("#timesWrap");
+  const soundChk = $("#sound");
+  const hapticChk = $("#haptic");
+
+  const aEl = $("#a"), bEl = $("#b"), opEl = $("#op"), ansBox = $("#ansBox");
+  const keypad = $("#keypad");
+  const toast = $("#toast");
+  const confettiLayer = $("#confetti");
+  const problemBox = $("#problemBox");
+
+  const btnNew = $("#btnNew");
+  const btnCheck = $("#btnCheck");
+  const btnSkip = $("#btnSkip");
+  const btnReset = $("#btnReset");
+
+  const btnCustomize = $("#btnCustomize");
+  const customCard = $("#customCard");
+  const btnCloseCustom = $("#btnCloseCustom");
+
+  const toNextEl = $("#toNext");
+  const progressBar = $("#progressBar");
+  const avatarGrid = $("#avatarGrid");
+  const bgGrid = $("#bgGrid");
+  const confettiGrid = $("#confettiGrid");
+
+  // ---------- Audio (tiny) ----------
+  let audioCtx = null;
+  const beep = (freq, dur=0.08, type="sine", vol=0.06) => {
+    if(!state.settings.sound) return;
+    try{
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = type;
+      o.frequency.value = freq;
+      g.gain.value = vol;
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start();
+      o.stop(audioCtx.currentTime + dur);
+    }catch{}
+  };
+  const successSound = () => { beep(660,0.08,"triangle",0.05); setTimeout(()=>beep(880,0.08,"triangle",0.05),70); };
+  const failSound = () => { beep(220,0.12,"sawtooth",0.04); };
+
+  const haptic = (ms=20) => {
+    if(!state.settings.haptic) return;
+    if(navigator.vibrate) navigator.vibrate(ms);
+  };
+
+  // ---------- Problem Gen ----------
+  let current = { a:3, b:4, op:"+", answer:7 };
+  let typed = "";
+
+  function randInt(min, maxInclusive){
+    return Math.floor(Math.random() * (maxInclusive - min + 1)) + min;
+  }
+
+  function pickMode(){
+    const m = state.settings.mode;
+    if(m !== "mix") return m;
+    const pool = ["add","sub","mul"];
+    return pool[randInt(0, pool.length-1)];
+  }
+
+  function makeProblem(){
+    const mode = pickMode();
+    let a,b,op,answer;
+
+    if(mode === "mul"){
+      const t = Number(state.settings.times);
+      a = randInt(0, t);
+      b = randInt(0, t);
+      op = "×";
+      answer = a*b;
+    } else {
+      const maxN = Number(state.settings.range);
+      a = randInt(0, maxN);
+      b = randInt(0, maxN);
+      if(mode === "add"){
+        op = "+";
+        answer = a + b;
+      } else {
+        op = "−";
+        // keep it friendly: no negatives by default
+        if(b > a){ const tmp=a; a=b; b=tmp; }
+        answer = a - b;
+      }
+    }
+
+    current = { a,b,op,answer };
+    typed = "";
+    renderProblem();
+  }
+
+  function renderProblem(){
+    aEl.textContent = current.a;
+    bEl.textContent = current.b;
+    opEl.textContent = current.op;
+    ansBox.textContent = typed.length ? typed : "?";
+    ansBox.classList.remove("pop");
+    void ansBox.offsetWidth;
+    ansBox.classList.add("pop");
+  }
+
+  // ---------- Keypad ----------
+  const keys = [
+    "1","2","3",
+    "4","5","6",
+    "7","8","9",
+    "⌫","0","✅"
+  ];
+  function buildKeypad(){
+    keypad.innerHTML = "";
+    keys.forEach(k=>{
+      const btn = document.createElement("div");
+      btn.className = "key";
+      btn.textContent = k;
+      if(k==="⌫"){ btn.classList.add("back"); }
+      if(k==="✅"){ btn.classList.add("go"); }
+      btn.addEventListener("click", ()=> onKey(k));
+      keypad.appendChild(btn);
+    });
+  }
+
+  function onKey(k){
+    if(k==="✅"){ checkAnswer(); return; }
+    if(k==="⌫"){
+      typed = typed.slice(0,-1);
+      haptic(10);
+      renderProblem();
+      return;
+    }
+    // digits
+    if(typed.length >= 4) return; // keep it tidy
+    if(k === "0" && typed === "0") return;
+    typed = (typed === "0") ? k : (typed + k);
+    haptic(8);
+    renderProblem();
+  }
+
+  // ---------- Feedback ----------
+  let toastTimer = null;
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>toast.classList.remove("show"), 1400);
+  }
+
+  function launchConfetti(power=1, kind=null){
+    const chosen = kind || getEquippedConfetti().type;
+    const count = Math.floor(70 * power);
+    const colors = ["#ffffff","#fef08a","#93c5fd","#86efac","#fda4af","#c4b5fd","#fdba74"];
+    const w = window.innerWidth;
+
+    for(let i=0;i<count;i++){
+      const p = document.createElement("i");
+      const left = Math.random() * w;
+      const dur = 1.2 + Math.random() * (1.4 * power);
+      const drift = (Math.random() * 220 - 110) * (0.7 + power*0.2);
+      const x = (Math.random() * 40 - 20);
+
+      p.style.left = left + "px";
+      p.style.setProperty("--dur", dur + "s");
+      p.style.setProperty("--drift", drift + "px");
+      p.style.setProperty("--x", x + "px");
+
+      const c = colors[Math.floor(Math.random()*colors.length)];
+      p.style.background = c;
+      p.style.color = c; // for star triangles
+
+      if(chosen === "circle") p.classList.add("circle");
+      if(chosen === "star") p.classList.add("star");
+
+      confettiLayer.appendChild(p);
+      setTimeout(()=>p.remove(), (dur*1000)+200);
+    }
+  }
+
+  function bigCelebration(){
+    launchConfetti(1.6, "rect");
+    setTimeout(()=>launchConfetti(1.6, "circle"), 120);
+    setTimeout(()=>launchConfetti(1.6, "star"), 240);
+  }
+
+  // ---------- Unlocks ----------
+  function getEquippedAvatar(){
+    return avatars.find(x=>x.id===state.equipped.avatarId) || avatars[0];
+  }
+  function getEquippedBg(){
+    return bgs.find(x=>x.id===state.equipped.bgId) || bgs[0];
+  }
+  function getEquippedConfetti(){
+    return confettis.find(x=>x.id===state.equipped.confettiId) || confettis[0];
+  }
+
+  function applyTheme(){
+    const bg = getEquippedBg();
+    document.documentElement.style.setProperty("--bg1", bg.a);
+    document.documentElement.style.setProperty("--bg2", bg.b);
+    avatarEl.textContent = getEquippedAvatar().emoji;
+
+    // small dynamic subline
+    subLine.textContent = `Mode: ${modeLabel(state.settings.mode)} • Keep the streak going!`;
+  }
+
+  function modeLabel(m){
+    return m==="add" ? "Add" : m==="sub" ? "Subtract" : m==="mul" ? "Multiply" : "Mixed";
+  }
+
+  function updateStatsUI(){
+    starsEl.textContent = state.stars;
+    streakEl.textContent = state.streak;
+
+    const left = UNLOCK_EVERY - (state.correctSinceUnlock % UNLOCK_EVERY);
+    toNextEl.textContent = left;
+    const pct = ((state.correctSinceUnlock % UNLOCK_EVERY) / UNLOCK_EVERY) * 100;
+    progressBar.style.width = pct + "%";
+  }
+
+  function maybeUnlock(){
+    // Unlock when correctSinceUnlock hits a multiple of UNLOCK_EVERY
+    if(state.correctSinceUnlock === 0) return;
+    if(state.correctSinceUnlock % UNLOCK_EVERY !== 0) return;
+
+    // Determine what’s next locked based on correctTotal
+    const total = state.correctTotal;
+
+    const nextAvatar = avatars.find(x => !state.unlocked.avatars.includes(x.id) && total >= x.unlockAt);
+    const nextBg     = bgs.find(x => !state.unlocked.bgs.includes(x.id) && total >= x.unlockAt);
+    const nextConf   = confettis.find(x => !state.unlocked.confetti.includes(x.id) && total >= x.unlockAt);
+
+    // Prefer unlocking something that exists; rotate categories
+    const order = [nextAvatar && {type:"avatar", item:nextAvatar},
+                   nextBg && {type:"bg", item:nextBg},
+                   nextConf && {type:"confetti", item:nextConf}].filter(Boolean);
+
+    // If nothing qualifies, still unlock the next in sequence by total thresholds
+    const fallback =
+      avatars.find(x => !state.unlocked.avatars.includes(x.id)) ||
+      bgs.find(x => !state.unlocked.bgs.includes(x.id)) ||
+      confettis.find(x => !state.unlocked.confetti.includes(x.id));
+
+    const pick = order[ total % Math.max(order.length,1) ] || (fallback ? {
+      type: avatars.some(a=>a.id===fallback.id) ? "avatar" : bgs.some(b=>b.id===fallback.id) ? "bg" : "confetti",
+      item: fallback
+    } : null);
+
+    if(!pick){
+      showToast("You’ve unlocked EVERYTHING! 🏆");
+      bigCelebration();
+      return;
+    }
+
+    if(pick.type==="avatar"){
+      state.unlocked.avatars.push(pick.item.id);
+      state.equipped.avatarId = pick.item.id;
+      showToast(`Unlocked: ${pick.item.name} ${pick.item.emoji}`);
+    } else if(pick.type==="bg"){
+      state.unlocked.bgs.push(pick.item.id);
+      state.equipped.bgId = pick.item.id;
+      showToast(`Unlocked: ${pick.item.name} 🎨`);
+    } else {
+      state.unlocked.confetti.push(pick.item.id);
+      state.equipped.confettiId = pick.item.id;
+      showToast(`Unlocked: ${pick.item.name} ${pick.item.emoji}`);
+    }
+
+    applyTheme();
+    renderCustomize();
+    save();
+    bigCelebration();
+    successSound();
+    haptic(30);
+  }
+
+  // ---------- Checking ----------
+  function checkAnswer(){
+    if(typed.length === 0){
+      showToast("Type an answer first 🙂");
+      haptic(12);
+      return;
+    }
+
+    const guess = Number(typed);
+    const ok = guess === current.answer;
+
+    if(ok){
+      state.streak += 1;
+      state.correctTotal += 1;
+      state.correctSinceUnlock += 1;
+
+      // rewards
+      const base = 1;
+      const streakBonus = Math.min(5, Math.floor(state.streak / 3));
+      state.stars += base + streakBonus;
+
+      // feedback
+      showToast(state.streak >= 10 ? "🔥 AMAZING STREAK! 🔥" : "Correct! ⭐");
+      launchConfetti(state.streak >= 10 ? 1.4 : 1.0);
+      successSound();
+      haptic(25);
+
+      // big celebration at 10 streak
+      if(state.streak === 10) bigCelebration();
+
+      updateStatsUI();
+      save();
+      maybeUnlock();
+
+      // next
+      makeProblem();
+    } else {
+      state.streak = 0;
+      showToast("Oops — try again!");
+      failSound();
+      haptic(40);
+
+      updateStatsUI();
+      save();
+
+      // gently show the answer if they miss twice in a row on same problem
+      // (simple: if they typed something wrong, we keep the same problem)
+      typed = "";
+      renderProblem();
+    }
+  }
+
+  function skipProblem(){
+    state.streak = 0;
+    showToast("Skipped — new one!");
+    haptic(12);
+    updateStatsUI();
+    save();
+    makeProblem();
+  }
+
+  // ---------- Customize UI ----------
+  function renderGrid(el, items, unlockedIds, activeId, onPick, kindLabel){
+    el.innerHTML = "";
+    items.forEach(item=>{
+      const unlocked = unlockedIds.includes(item.id);
+      const chip = document.createElement("div");
+      chip.className = "chip" + (unlocked ? "" : " locked") + (item.id===activeId ? " active" : "");
+      const emoji = document.createElement("div");
+      emoji.className = "emoji";
+      emoji.textContent = item.emoji || "🎨";
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      const title = document.createElement("div");
+      title.className = "title";
+      title.textContent = item.name;
+      const desc = document.createElement("div");
+      desc.className = "desc";
+      desc.textContent = unlocked ? `Tap to equip` : `Unlock at ${item.unlockAt} correct`;
+      meta.appendChild(title);
+      meta.appendChild(desc);
+      chip.appendChild(emoji);
+      chip.appendChild(meta);
+
+      chip.addEventListener("click", ()=>{
+        if(!unlocked) { showToast(`Keep going to unlock this ${kindLabel}!`); haptic(10); return; }
+        onPick(item.id);
+      });
+
+      el.appendChild(chip);
+    });
+  }
+
+  function renderCustomize(){
+    renderGrid(
+      avatarGrid, avatars,
+      state.unlocked.avatars,
+      state.equipped.avatarId,
+      (id)=>{ state.equipped.avatarId=id; applyTheme(); save(); renderCustomize(); showToast("Avatar equipped!"); haptic(12); },
+      "avatar"
+    );
+    renderGrid(
+      bgGrid,
+      bgs.map(b=>({ ...b, emoji:"🌈" })),
+      state.unlocked.bgs,
+      state.equipped.bgId,
+      (id)=>{ state.equipped.bgId=id; applyTheme(); save(); renderCustomize(); showToast("Background equipped!"); launchConfetti(.7); haptic(12); },
+      "background"
+    );
+    renderGrid(
+      confettiGrid,
+      confettis.map(c=>({ ...c, emoji: c.emoji })),
+      state.unlocked.confetti,
+      state.equipped.confettiId,
+      (id)=>{ state.equipped.confettiId=id; applyTheme(); save(); renderCustomize(); showToast("Confetti style equipped!"); launchConfetti(.9, getEquippedConfetti().type); haptic(12); },
+      "confetti"
+    );
+    updateStatsUI();
+  }
+
+  // ---------- Settings wiring ----------
+  function syncSettingsUI(){
+    modeSel.value = state.settings.mode;
+    rangeSel.value = String(state.settings.range);
+    timesSel.value = String(state.settings.times);
+    soundChk.checked = !!state.settings.sound;
+    hapticChk.checked = !!state.settings.haptic;
+
+    // show/hide range/times depending on mode
+    const showTimes = (state.settings.mode === "mul");
+    const showRange = (state.settings.mode !== "mul");
+    timesWrap.style.display = showTimes ? "" : "none";
+    rangeWrap.style.display = showRange ? "" : "none";
+  }
+
+  function onModeChange(){
+    state.settings.mode = modeSel.value;
+    syncSettingsUI();
+    applyTheme();
+    save();
+    makeProblem();
+  }
+
+  // ---------- Buttons ----------
+  btnNew.addEventListener("click", ()=>{ makeProblem(); showToast("New problem!"); haptic(12); });
+  btnCheck.addEventListener("click", checkAnswer);
+  btnSkip.addEventListener("click", skipProblem);
+
+  btnReset.addEventListener("click", ()=>{
+    if(!confirm("Reset everything? This clears stars + unlocks.")) return;
+    state = structuredClone(defaultState);
+    save();
+    applyTheme();
+    syncSettingsUI();
+    buildKeypad();
+    renderCustomize();
+    updateStatsUI();
+    makeProblem();
+    showToast("Reset!");
+    haptic(20);
+  });
+
+  btnCustomize.addEventListener("click", ()=>{
+    customCard.style.display = "";
+    showToast("Customize time!");
+    renderCustomize();
+  });
+  btnCloseCustom.addEventListener("click", ()=> customCard.style.display = "none");
+
+  modeSel.addEventListener("change", onModeChange);
+  rangeSel.addEventListener("change", ()=>{ state.settings.range = Number(rangeSel.value); save(); makeProblem(); });
+  timesSel.addEventListener("change", ()=>{ state.settings.times = Number(timesSel.value); save(); makeProblem(); });
+  soundChk.addEventListener("change", ()=>{ state.settings.sound = soundChk.checked; save(); });
+  hapticChk.addEventListener("change", ()=>{ state.settings.haptic = hapticChk.checked; save(); });
+
+  // allow keyboard typing too (desktop)
+  window.addEventListener("keydown", (e)=>{
+    if(e.key >= "0" && e.key <= "9") onKey(e.key);
+    if(e.key === "Backspace") onKey("⌫");
+    if(e.key === "Enter") onKey("✅");
+  });
+
+  // prevent accidental scroll-bounce while tapping
+  keypad.addEventListener("touchstart", (e)=>{ /* allow */ }, {passive:true});
+
+  // ---------- Init ----------
+  function init(){
+    buildKeypad();
+    syncSettingsUI();
+    applyTheme();
+    renderCustomize();
+    updateStatsUI();
+    makeProblem();
+  }
+  init();
+
+})();
+</script>
+</body>
+</html>

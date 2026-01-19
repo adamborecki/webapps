@@ -1,0 +1,1275 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Snack Hero 🍕 — Kid-Friendly Mini App</title>
+  <style>
+    :root{
+      --bg1:#0b1220;
+      --bg2:#1b2a4a;
+      --card: rgba(255,255,255,.08);
+      --card2: rgba(255,255,255,.12);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.72);
+      --accent: #7dd3fc;
+      --good: #86efac;
+      --warn: #fcd34d;
+      --bad:  #fca5a5;
+      --shadow: 0 12px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+      --tile: 58px;
+      --fs: 18px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; margin:0; }
+    body{
+      font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 20% 10%, var(--bg2), var(--bg1));
+      color:var(--text);
+      font-size: var(--fs);
+      overflow-x:hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* iOS safe areas */
+    .safe{
+      padding:
+        calc(10px + env(safe-area-inset-top))
+        calc(12px + env(safe-area-inset-right))
+        calc(12px + env(safe-area-inset-bottom))
+        calc(12px + env(safe-area-inset-left));
+      max-width: 920px;
+      margin: 0 auto;
+      min-height:100%;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    header{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      background: var(--card);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius);
+      padding:10px 12px;
+      box-shadow: var(--shadow);
+      min-width: 240px;
+    }
+    .avatar{
+      width:44px; height:44px;
+      border-radius: 14px;
+      display:grid;
+      place-items:center;
+      background: rgba(0,0,0,.25);
+      border:1px solid rgba(255,255,255,.12);
+      font-size: 26px;
+      user-select:none;
+    }
+    .brand .meta{ line-height:1.1; }
+    .brand .meta .name{ font-weight:800; letter-spacing:.2px; }
+    .brand .meta .sub{ color:var(--muted); font-size:.92em; }
+
+    .stats{
+      display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;
+    }
+    .pill{
+      background: var(--card);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: 999px;
+      padding:8px 10px;
+      display:flex; gap:8px; align-items:center;
+      box-shadow: var(--shadow);
+      user-select:none;
+      font-weight:700;
+      white-space:nowrap;
+    }
+    .pill small{ font-weight:700; color:var(--muted); }
+    .btn{
+      appearance:none;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.10);
+      color:var(--text);
+      border-radius: 14px;
+      padding:10px 12px;
+      font-weight:800;
+      cursor:pointer;
+      box-shadow: var(--shadow);
+      transition: transform .06s ease, background .12s ease, border-color .12s ease;
+      touch-action: manipulation;
+    }
+    .btn:active{ transform: scale(.98); }
+    .btn.primary{
+      background: rgba(125,211,252,.18);
+      border-color: rgba(125,211,252,.35);
+    }
+    .btn.good{
+      background: rgba(134,239,172,.18);
+      border-color: rgba(134,239,172,.35);
+    }
+    .btn.warn{
+      background: rgba(252,211,77,.18);
+      border-color: rgba(252,211,77,.35);
+    }
+    .btn.ghost{
+      background: transparent;
+      box-shadow:none;
+    }
+
+    .tabs{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .tab{
+      flex: 1 1 120px;
+      text-align:center;
+    }
+
+    .grid{
+      display:grid;
+      gap:12px;
+    }
+    @media (min-width: 840px){
+      .grid.two{ grid-template-columns: 1.1fr .9fr; }
+      .tabs{ flex-wrap:nowrap; }
+    }
+
+    .card{
+      background: var(--card);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius);
+      padding:14px;
+      box-shadow: var(--shadow);
+    }
+    .card h2{
+      margin:0 0 8px 0;
+      font-size:1.1em;
+      letter-spacing:.2px;
+    }
+    .muted{ color:var(--muted); }
+
+    .emoji-grid{
+      display:grid;
+      grid-template-columns: repeat(5, minmax(0,1fr));
+      gap:10px;
+      margin-top: 10px;
+    }
+    @media (min-width: 420px){
+      .emoji-grid{ grid-template-columns: repeat(7, minmax(0,1fr)); }
+    }
+    .tile{
+      height: var(--tile);
+      border-radius: 16px;
+      background: rgba(0,0,0,.22);
+      border:1px solid rgba(255,255,255,.12);
+      display:grid;
+      place-items:center;
+      font-size: 28px;
+      cursor:pointer;
+      user-select:none;
+      touch-action: manipulation;
+      transition: transform .06s ease, background .12s ease, border-color .12s ease;
+    }
+    .tile:active{ transform: scale(.98); }
+    .tile.selected{
+      background: rgba(125,211,252,.16);
+      border-color: rgba(125,211,252,.40);
+    }
+    .tile.locked{
+      opacity:.45;
+      filter: grayscale(.2);
+      cursor:not-allowed;
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .row.left{ justify-content:flex-start; }
+    .row .spacer{ flex: 1 1 auto; }
+
+    .big{
+      font-size: 1.45em;
+      font-weight: 900;
+      letter-spacing:.2px;
+    }
+    .target{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      min-height: 46px;
+      padding:10px 12px;
+      border-radius: 16px;
+      background: rgba(0,0,0,.18);
+      border:1px dashed rgba(255,255,255,.18);
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.12);
+      font-weight:900;
+    }
+
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: calc(16px + env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      background: rgba(0,0,0,.70);
+      border:1px solid rgba(255,255,255,.18);
+      border-radius: 999px;
+      padding:10px 14px;
+      box-shadow: var(--shadow);
+      color: white;
+      display:none;
+      max-width: 92vw;
+      text-align:center;
+      z-index: 50;
+    }
+
+    /* "Ad" modal */
+    .overlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index: 100;
+      padding: 16px;
+    }
+    .modal{
+      width: min(720px, 100%);
+      background: rgba(15,23,42,.92);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .modal .top{
+      padding: 12px 14px;
+      background: rgba(255,255,255,.06);
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .badge{
+      font-weight: 950;
+      letter-spacing:.4px;
+      font-size: .85em;
+      color: rgba(255,255,255,.85);
+      background: rgba(252,211,77,.16);
+      border:1px solid rgba(252,211,77,.28);
+      padding: 6px 10px;
+      border-radius: 999px;
+      user-select:none;
+    }
+    .modal .body{ padding: 14px; }
+    .modal h3{
+      margin: 0 0 8px 0;
+      font-size: 1.15em;
+    }
+    .q{
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 18px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+    .choices{
+      display:grid;
+      gap:10px;
+      margin-top: 10px;
+    }
+    @media (min-width: 520px){
+      .choices{ grid-template-columns: 1fr 1fr; }
+    }
+    .choice{
+      text-align:left;
+      line-height:1.2;
+    }
+    .hint{
+      color: var(--muted);
+      font-size:.95em;
+      margin-top: 8px;
+    }
+
+    /* Range / inputs */
+    label{ display:block; margin:10px 0 6px; font-weight:800; }
+    input[type="text"], select{
+      width:100%;
+      padding:10px 12px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      color:var(--text);
+      font-size:1em;
+      outline:none;
+    }
+    input[type="range"]{ width:100%; }
+    .split{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+    }
+    @media (min-width: 720px){
+      .split{ grid-template-columns: 1fr 1fr; }
+    }
+
+    .footer{
+      margin-top:auto;
+      padding: 6px 0 2px;
+      color: rgba(255,255,255,.55);
+      font-size:.88em;
+      text-align:center;
+    }
+
+    /* Reduce motion */
+    .reduce-motion * { transition: none !important; }
+  </style>
+</head>
+<body>
+  <div class="safe" id="app">
+    <header>
+      <div class="brand">
+        <div class="avatar" id="avatar">🍕</div>
+        <div class="meta">
+          <div class="name" id="kidName">Snack Hero</div>
+          <div class="sub" id="subtitle">Tap, match, and earn stickers!</div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="pill" title="Stickers earned">
+          ⭐ <span id="stars">0</span> <small>stickers</small>
+        </div>
+        <div class="pill" title="Coins used for themes">
+          🪙 <span id="coins">0</span> <small>coins</small>
+        </div>
+        <button class="btn warn" id="showAdBtn" title="A fun ‘ad’ that teaches something good">Show “Ad” 📣</button>
+      </div>
+    </header>
+
+    <nav class="tabs">
+      <button class="btn tab primary" data-screen="play">Play 🍟</button>
+      <button class="btn tab" data-screen="custom">Customize 🎨</button>
+      <button class="btn tab" data-screen="collection">Collection ⭐</button>
+      <button class="btn tab" data-screen="grownups">Grown-ups 🔒</button>
+    </nav>
+
+    <!-- SCREENS -->
+    <main class="grid two">
+      <!-- LEFT -->
+      <section class="card" id="screen-play">
+        <div class="row">
+          <h2 style="margin:0;">Order Match</h2>
+          <div class="row left" style="gap:8px;">
+            <button class="btn good" id="newRoundBtn">New Order ✅</button>
+            <button class="btn" id="clearBtn">Clear</button>
+          </div>
+        </div>
+
+        <p class="muted" style="margin:8px 0 10px;">
+          A customer wants a snack order. Tap emojis to match it exactly. Earn coins + stickers!
+        </p>
+
+        <div class="target" id="targetLine" aria-live="polite"></div>
+
+        <div class="row" style="margin-top:10px;">
+          <div class="chip">Your Order: <span id="yourOrder">—</span></div>
+          <div class="chip">Round: <span id="roundNum">1</span></div>
+        </div>
+
+        <div class="emoji-grid" id="emojiGrid" aria-label="Emoji buttons"></div>
+
+        <div class="row" style="margin-top:12px;">
+          <button class="btn primary" id="submitBtn">Submit Order 🚀</button>
+          <div class="spacer"></div>
+          <button class="btn ghost" id="helpBtn">How to play?</button>
+        </div>
+      </section>
+
+      <!-- RIGHT -->
+      <section class="card" id="screen-side">
+        <h2 style="margin:0 0 8px 0;">Mini-Goals</h2>
+        <div class="q">
+          <div class="big" id="goalTitle">Today’s Goal</div>
+          <div class="muted" id="goalText" style="margin-top:6px;"></div>
+          <div class="row" style="margin-top:10px;">
+            <button class="btn" id="claimGoalBtn">Claim Goal Reward 🎁</button>
+            <span class="muted" id="goalStatus"></span>
+          </div>
+        </div>
+
+        <div class="q">
+          <div class="big">Theme Shop</div>
+          <div class="muted" style="margin-top:6px;">
+            Spend coins to change the vibe. (Totally optional.)
+          </div>
+
+          <label for="themeSelect">Theme</label>
+          <select id="themeSelect">
+            <option value="ocean">Ocean Night 🌊</option>
+            <option value="sunset">Sunset Pop 🌅</option>
+            <option value="mint">Minty Fresh 🍃</option>
+            <option value="grape">Grape Soda 🍇</option>
+          </select>
+
+          <div class="row" style="margin-top:10px;">
+            <button class="btn warn" id="buyThemeBtn">Buy / Apply (10🪙)</button>
+            <span class="muted" id="themeHint"></span>
+          </div>
+        </div>
+
+        <div class="q">
+          <div class="big">Quick Mode</div>
+          <div class="muted" style="margin-top:6px;">Choose difficulty for the order size.</div>
+
+          <label for="difficulty">Items in the order: <span id="diffLabel">3</span></label>
+          <input id="difficulty" type="range" min="1" max="6" value="3" />
+
+          <label for="autoAds">
+            “Learning Ads” frequency
+          </label>
+          <select id="autoAds">
+            <option value="off">Off (never)</option>
+            <option value="sometimes">Sometimes (every 3 rounds)</option>
+            <option value="often">Often (every 2 rounds)</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- CUSTOMIZE -->
+      <section class="card" id="screen-custom" style="display:none;">
+        <h2>Customize</h2>
+        <p class="muted" style="margin-top:-2px;">
+          Make it yours. Everything saves on this device.
+        </p>
+
+        <div class="split">
+          <div class="q">
+            <label for="nameInput">Name</label>
+            <input id="nameInput" type="text" maxlength="18" placeholder="Snack Hero" />
+
+            <label for="avatarSelect">Avatar Emoji</label>
+            <select id="avatarSelect"></select>
+
+            <label for="fontSize">Text size: <span id="fsLabel">18</span>px</label>
+            <input id="fontSize" type="range" min="16" max="24" value="18" />
+
+            <div class="row" style="margin-top:10px;">
+              <button class="btn good" id="saveCustomBtn">Save ✅</button>
+              <button class="btn" id="resetBtn">Reset</button>
+            </div>
+          </div>
+
+          <div class="q">
+            <div class="big">Comfort + Safety</div>
+            <p class="muted" style="margin-top:6px;">
+              Helpful options for kids (and parents).
+            </p>
+
+            <label for="reduceMotion">Reduce motion</label>
+            <select id="reduceMotion">
+              <option value="off">Off</option>
+              <option value="on">On</option>
+            </select>
+
+            <label for="soundOn">Sound effects</label>
+            <select id="soundOn">
+              <option value="on">On</option>
+              <option value="off">Off</option>
+            </select>
+
+            <label for="vibrateOn">Vibrate (if supported)</label>
+            <select id="vibrateOn">
+              <option value="on">On</option>
+              <option value="off">Off</option>
+            </select>
+
+            <div class="hint">
+              Tip: If you’re in a quiet place, set Sound effects to Off.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- COLLECTION -->
+      <section class="card" id="screen-collection" style="display:none;">
+        <h2>Collection</h2>
+        <p class="muted" style="margin-top:-2px;">
+          Earn stickers by completing orders + “learning ads.”
+        </p>
+
+        <div class="q" id="stickerWall"></div>
+        <div class="row" style="margin-top:10px;">
+          <button class="btn warn" id="spendCoinsBtn">Spend 25🪙 for a Mystery Sticker 🎲</button>
+          <button class="btn" id="clearStickersBtn">Clear Stickers</button>
+        </div>
+      </section>
+
+      <!-- GROWNUPS -->
+      <section class="card" id="screen-grownups" style="display:none;">
+        <h2>Grown-ups 🔒</h2>
+        <p class="muted" style="margin-top:-2px;">
+          This is a simple, offline web app. No real ads, no tracking, no purchases.
+        </p>
+
+        <div class="q">
+          <div class="big">Parent Notes</div>
+          <ul class="muted" style="margin-top:8px; line-height:1.5;">
+            <li>“Ads” are positive affirmations + short manners/helpfulness quizzes.</li>
+            <li>Everything is stored <b>only</b> in this browser (localStorage).</li>
+            <li>You can turn off “Learning Ads” in <b>Quick Mode</b>.</li>
+          </ul>
+        </div>
+
+        <div class="q">
+          <div class="big">Reset Everything</div>
+          <p class="muted" style="margin-top:8px;">
+            This clears name, coins, stickers, settings, and progress.
+          </p>
+          <button class="btn warn" id="nukeBtn">Reset All Data 🧨</button>
+        </div>
+      </section>
+    </main>
+
+    <div class="footer">
+      Snack Hero 🍩 — a tiny, offline-friendly kids webapp (single HTML file).
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- "AD" OVERLAY -->
+  <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="Learning Ad">
+    <div class="modal">
+      <div class="top">
+        <div class="badge">LEARNING AD 📣 (not a real ad)</div>
+        <button class="btn" id="closeAdBtn">Close</button>
+      </div>
+      <div class="body" id="adBody"></div>
+    </div>
+  </div>
+
+  <script>
+    // ====== DATA ======
+    const EMOJIS = ["🍕","🍔","🍟","🌭","🥪","🌮","🍜","🍝","🥟","🍣","🍪","🍩","🍫","🍿","🧃","🥤","☕️","🍦"];
+    const STICKERS = ["⭐","🌟","✨","💫","🎉","🏆","🧠","💛","👍","🙌","🧼","🧹","🧺","📚","🦷","🛏️","🧃","🍦","🍪","🍕"];
+
+    const THEMES = {
+      ocean:  { bg1:"#071126", bg2:"#143b6b", accent:"#7dd3fc" },
+      sunset: { bg1:"#220b1d", bg2:"#6b1844", accent:"#fb7185" },
+      mint:   { bg1:"#06211c", bg2:"#0a4b36", accent:"#86efac" },
+      grape:  { bg1:"#120a2b", bg2:"#3b1778", accent:"#c4b5fd" },
+    };
+
+    const ADS = [
+      { type:"affirm", title:"Quick Kindness ✨", text:"You can make someone’s day with: a smile, a ‘please,’ and a ‘thank you.’" },
+      { type:"affirm", title:"Helper Power 💪", text:"Helping for 2 minutes counts! Pick one: put a cup away, wipe a spot, or bring something to the sink." },
+      { type:"quiz", title:"Good Manners Quiz", q:"When someone gives you food or help, what do you say?", a:[
+        {t:"“Thank you!”", ok:true,  why:"Yep—gratitude is powerful."},
+        {t:"Nothing",      ok:false, why:"Try a quick ‘thank you!’"},
+        {t:"“Gimme more”", ok:false, why:"Better: ‘May I have more, please?’"},
+        {t:"“Whatever”",   ok:false, why:"That can hurt feelings—try kind words."},
+      ]},
+      { type:"quiz", title:"Helping Mom Quiz", q:"Which one is the BEST ‘help’ without being asked?", a:[
+        {t:"Put your dishes near the sink", ok:true,  why:"Nice—small steps help a lot."},
+        {t:"Leave wrappers on the couch",   ok:false, why:"That makes extra work later."},
+        {t:"Hide toys under the bed",       ok:false, why:"Better to put them where they belong."},
+        {t:"Ask for snacks while someone is busy", ok:false, why:"Try waiting 2 minutes, then ask politely."},
+      ]},
+      { type:"quiz", title:"Clean Hands PSA 🧼", q:"When should you wash your hands?", a:[
+        {t:"Before eating", ok:true,  why:"Yes—keeps germs away."},
+        {t:"After bathroom", ok:true, why:"Absolutely—super important."},
+        {t:"After playing outside", ok:true, why:"Good idea—especially before food."},
+        {t:"Never", ok:false, why:"Hands carry germs—washing helps keep everyone healthy."},
+      ]},
+      { type:"affirm", title:"Brave Try 🌈", text:"New things can be tricky. A brave try can be: ‘I’ll try one bite,’ or ‘I’ll try for 30 seconds.’" },
+      { type:"quiz", title:"Good Sport Quiz", q:"If you lose a game, what’s a good move?", a:[
+        {t:"Say ‘good game’", ok:true,  why:"That’s being a good sport."},
+        {t:"Yell and quit",   ok:false, why:"Big feelings happen—try a calm reset."},
+        {t:"Blame someone",   ok:false, why:"Better: ‘Let’s try again!’"},
+        {t:"Throw stuff",     ok:false, why:"Not safe. Take a breath instead."},
+      ]},
+    ];
+
+    // ====== STATE ======
+    const defaultState = {
+      name: "Snack Hero",
+      avatar: "🍕",
+      coins: 0,
+      stars: 0,
+      stickers: [],
+      round: 1,
+      difficulty: 3,
+      autoAds: "sometimes", // off | sometimes | often
+      theme: "ocean",
+      reduceMotion: "off",
+      soundOn: "on",
+      vibrateOn: "on",
+      fontSize: 18,
+      lastGoalClaimedRound: 0,
+      goalDone: false,
+      goalText: "",
+      goalKey: "",
+    };
+
+    let S = loadState();
+
+    // ====== ELEMENTS ======
+    const $ = (id) => document.getElementById(id);
+
+    const avatarEl = $("avatar");
+    const kidNameEl = $("kidName");
+    const starsEl = $("stars");
+    const coinsEl = $("coins");
+    const roundNumEl = $("roundNum");
+    const targetLineEl = $("targetLine");
+    const yourOrderEl = $("yourOrder");
+    const emojiGridEl = $("emojiGrid");
+    const toastEl = $("toast");
+
+    const overlayEl = $("overlay");
+    const adBodyEl = $("adBody");
+
+    const themeSelect = $("themeSelect");
+    const buyThemeBtn = $("buyThemeBtn");
+    const themeHint = $("themeHint");
+
+    const difficultyEl = $("difficulty");
+    const diffLabel = $("diffLabel");
+    const autoAdsEl = $("autoAds");
+
+    const nameInput = $("nameInput");
+    const avatarSelect = $("avatarSelect");
+    const fontSizeEl = $("fontSize");
+    const fsLabel = $("fsLabel");
+    const reduceMotionEl = $("reduceMotion");
+    const soundOnEl = $("soundOn");
+    const vibrateOnEl = $("vibrateOn");
+
+    const stickerWall = $("stickerWall");
+
+    const goalTitle = $("goalTitle");
+    const goalText = $("goalText");
+    const goalStatus = $("goalStatus");
+    const claimGoalBtn = $("claimGoalBtn");
+
+    // ====== GAME ROUND STATE ======
+    let target = [];
+    let picked = [];
+
+    // ====== UTIL ======
+    function randInt(n){ return Math.floor(Math.random()*n); }
+    function shuffle(arr){
+      const a = arr.slice();
+      for(let i=a.length-1;i>0;i--){
+        const j = randInt(i+1);
+        [a[i],a[j]] = [a[j],a[i]];
+      }
+      return a;
+    }
+
+    function vibrate(ms=18){
+      if(S.vibrateOn !== "on") return;
+      if("vibrate" in navigator) navigator.vibrate(ms);
+    }
+
+    // Tiny beep (no external assets). Kept gentle.
+    let audioCtx = null;
+    function beep(type="good"){
+      if(S.soundOn !== "on") return;
+      try{
+        audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.connect(g); g.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+        const freq = (type==="good") ? 740 : (type==="warn" ? 520 : 220);
+        o.frequency.setValueAtTime(freq, now);
+        o.type = "sine";
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.exponentialRampToValueAtTime(0.06, now + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+        o.start(now);
+        o.stop(now + 0.14);
+      }catch(e){}
+    }
+
+    function toast(msg){
+      toastEl.textContent = msg;
+      toastEl.style.display = "block";
+      clearTimeout(toastEl._t);
+      toastEl._t = setTimeout(()=> toastEl.style.display = "none", 1800);
+    }
+
+    function saveState(){
+      localStorage.setItem("snackHeroState_v1", JSON.stringify(S));
+    }
+    function loadState(){
+      try{
+        const raw = localStorage.getItem("snackHeroState_v1");
+        if(!raw) return structuredClone(defaultState);
+        const parsed = JSON.parse(raw);
+        return { ...structuredClone(defaultState), ...parsed };
+      }catch(e){
+        return structuredClone(defaultState);
+      }
+    }
+
+    // ====== THEMING ======
+    function applyTheme(){
+      const t = THEMES[S.theme] || THEMES.ocean;
+      document.documentElement.style.setProperty("--bg1", t.bg1);
+      document.documentElement.style.setProperty("--bg2", t.bg2);
+      document.documentElement.style.setProperty("--accent", t.accent);
+      document.body.style.background = `radial-gradient(1200px 800px at 20% 10%, ${t.bg2}, ${t.bg1})`;
+
+      document.documentElement.style.setProperty("--fs", S.fontSize + "px");
+      fsLabel.textContent = String(S.fontSize);
+
+      const app = $("app");
+      app.classList.toggle("reduce-motion", S.reduceMotion === "on");
+    }
+
+    // ====== SCREENS ======
+    function showScreen(name){
+      const screens = ["play","custom","collection","grownups"];
+      for(const s of screens){
+        const el = $("screen-" + s);
+        if(!el) continue;
+        el.style.display = (s === name) ? "" : "none";
+      }
+      // side panel is tied to play
+      $("screen-side").style.display = (name === "play") ? "" : "none";
+    }
+
+    // ====== GOALS ======
+    const goalPool = [
+      { key:"please_thanks", text:"Say “please” once today, and “thank you” once today. ✅" },
+      { key:"tiny_help", text:"Do a 2-minute help: put one thing away, wipe one spot, or bring dishes near the sink. ✅" },
+      { key:"calm_breath", text:"If you feel annoyed, try: 3 slow breaths (in… out…) ✅" },
+      { key:"kind_words", text:"Use kind words when asking for something: “May I please…?” ✅" },
+      { key:"cleanup_song", text:"Do a quick tidy while singing a silly song for 30 seconds. ✅" },
+    ];
+
+    function ensureGoal(){
+      // one goal per day-ish (we’ll just refresh if missing)
+      if(!S.goalKey || !S.goalText){
+        const g = goalPool[randInt(goalPool.length)];
+        S.goalKey = g.key;
+        S.goalText = g.text;
+        S.goalDone = false;
+        saveState();
+      }
+      goalText.textContent = S.goalText;
+      goalStatus.textContent = S.goalDone ? "Done! 🎉" : "Not claimed yet.";
+      claimGoalBtn.disabled = !!S.goalDone;
+      $("claimGoalBtn").classList.toggle("good", !S.goalDone);
+    }
+
+    function claimGoal(){
+      if(S.goalDone){
+        toast("Already claimed! ⭐");
+        return;
+      }
+      S.goalDone = true;
+      S.stars += 1;
+      S.coins += 5;
+      S.stickers.push(randomSticker());
+      saveState();
+      renderTop();
+      renderStickers();
+      ensureGoal();
+      beep("good"); vibrate(18);
+      toast("Goal reward: +1⭐ +5🪙 +sticker!");
+    }
+
+    // ====== STICKERS ======
+    function randomSticker(){
+      const s = STICKERS[randInt(STICKERS.length)];
+      return s;
+    }
+    function renderStickers(){
+      if(!S.stickers?.length){
+        stickerWall.innerHTML = `<div class="muted">No stickers yet. Win rounds or do a “Learning Ad” to earn some! ⭐</div>`;
+        return;
+      }
+      // show as big sticker wall
+      const chunks = S.stickers.slice(-120).map((x,i)=>`<span style="font-size:30px; margin:6px; display:inline-block;">${x}</span>`).join("");
+      stickerWall.innerHTML = `<div style="line-height:1; user-select:none;">${chunks}</div>`;
+    }
+
+    // ====== GAME ======
+    function renderTop(){
+      avatarEl.textContent = S.avatar;
+      kidNameEl.textContent = S.name || "Snack Hero";
+      starsEl.textContent = String(S.stars);
+      coinsEl.textContent = String(S.coins);
+      roundNumEl.textContent = String(S.round);
+      diffLabel.textContent = String(S.difficulty);
+    }
+
+    function renderEmojiGrid(){
+      emojiGridEl.innerHTML = "";
+      EMOJIS.forEach((em, idx)=>{
+        const b = document.createElement("button");
+        b.className = "tile";
+        b.type = "button";
+        b.textContent = em;
+        b.setAttribute("aria-label", "Pick " + em);
+        b.addEventListener("click", ()=> pickEmoji(em, b));
+        emojiGridEl.appendChild(b);
+      });
+    }
+
+    function setTarget(newTarget){
+      target = newTarget;
+      targetLineEl.innerHTML = "";
+      const label = document.createElement("div");
+      label.className = "chip";
+      label.textContent = "Customer wants:";
+      targetLineEl.appendChild(label);
+
+      newTarget.forEach((em)=>{
+        const s = document.createElement("span");
+        s.className = "chip";
+        s.style.fontSize = "1.15em";
+        s.textContent = em;
+        targetLineEl.appendChild(s);
+      });
+    }
+
+    function updatePicked(){
+      yourOrderEl.textContent = picked.length ? picked.join(" ") : "—";
+      // mark selected-ish (optional)
+      const tiles = [...emojiGridEl.querySelectorAll(".tile")];
+      tiles.forEach(t=> t.classList.remove("selected"));
+      // highlight the last picked emoji tile
+      if(picked.length){
+        const last = picked[picked.length-1];
+        const tile = tiles.find(x=> x.textContent === last);
+        if(tile) tile.classList.add("selected");
+      }
+    }
+
+    function newRound(){
+      picked = [];
+      updatePicked();
+
+      const n = Math.max(1, Math.min(6, S.difficulty|0));
+      // allow repeats sometimes for fun, but avoid all repeats
+      const bag = shuffle(EMOJIS);
+      const out = [];
+      for(let i=0;i<n;i++){
+        out.push(Math.random() < 0.18 ? EMOJIS[randInt(EMOJIS.length)] : bag[i % bag.length]);
+      }
+      // ensure not empty
+      setTarget(out);
+
+      toast("New order! Tap the emojis.");
+      beep("warn"); vibrate(10);
+    }
+
+    function pickEmoji(em){
+      if(picked.length >= target.length){
+        toast("Order is full! Submit or Clear.");
+        beep("warn");
+        return;
+      }
+      picked.push(em);
+      updatePicked();
+      vibrate(8);
+    }
+
+    function clearPicked(){
+      picked = [];
+      updatePicked();
+      toast("Cleared.");
+      vibrate(8);
+    }
+
+    function sameOrder(a,b){
+      if(a.length !== b.length) return false;
+      for(let i=0;i<a.length;i++){
+        if(a[i] !== b[i]) return false;
+      }
+      return true;
+    }
+
+    function submit(){
+      if(picked.length !== target.length){
+        toast(`Pick ${target.length - picked.length} more item(s).`);
+        beep("warn");
+        return;
+      }
+
+      const ok = sameOrder(picked, target);
+      if(ok){
+        const coinGain = 3 + Math.max(0, target.length - 2);
+        S.coins += coinGain;
+        S.stars += 1;
+        S.stickers.push(randomSticker());
+        S.round += 1;
+        saveState();
+        renderTop();
+        renderStickers();
+        beep("good"); vibrate(20);
+        toast(`Perfect! +${coinGain}🪙 +1⭐ +sticker!`);
+
+        maybeAutoAd();
+        newRound();
+      }else{
+        // gentle feedback: show correct order
+        beep("bad"); vibrate(25);
+        toast("Oops — not quite. Try again!");
+        // show a hint as a small “coach” message
+        showCoachHint();
+      }
+    }
+
+    function showCoachHint(){
+      const hint = document.createElement("div");
+      hint.className = "q";
+      hint.innerHTML = `
+        <div class="big">Hint 🧠</div>
+        <div class="muted" style="margin-top:6px;">
+          The order must match <b>exactly</b> (same emojis, same order).
+        </div>
+        <div style="margin-top:8px; font-size:1.2em;">
+          Correct: ${target.join(" ")}
+        </div>
+      `;
+      // Insert hint above grid, then remove after a moment
+      const play = $("screen-play");
+      play.insertBefore(hint, emojiGridEl);
+      clearTimeout(hint._t);
+      hint._t = setTimeout(()=> hint.remove(), 3200);
+    }
+
+    function maybeAutoAd(){
+      const mode = S.autoAds;
+      if(mode === "off") return;
+
+      const every = (mode === "often") ? 2 : 3;
+      if(S.round % every === 0){
+        showLearningAd();
+      }
+    }
+
+    // ====== "AD" / PSA ======
+    function showLearningAd(){
+      const ad = ADS[randInt(ADS.length)];
+      renderAd(ad);
+      overlayEl.style.display = "flex";
+      // scroll lock-ish
+      document.body.style.overflow = "hidden";
+      beep("warn");
+      vibrate(10);
+    }
+
+    function closeAd(){
+      overlayEl.style.display = "none";
+      document.body.style.overflow = "";
+    }
+
+    function rewardForAd(){
+      // reward but keep it small
+      S.coins += 2;
+      S.stars += 1;
+      S.stickers.push(randomSticker());
+      saveState();
+      renderTop();
+      renderStickers();
+      toast("+2🪙 +1⭐ +sticker! Nice learning!");
+      beep("good"); vibrate(16);
+    }
+
+    function renderAd(ad){
+      const safeText = (s)=> String(s).replace(/[<>&]/g, (m)=>({ "<":"&lt;", ">":"&gt;", "&":"&amp;" }[m]));
+      if(ad.type === "affirm"){
+        adBodyEl.innerHTML = `
+          <h3>${safeText(ad.title)}</h3>
+          <div class="q">
+            <div style="font-size:1.2em; line-height:1.35;">
+              ${safeText(ad.text)}
+            </div>
+            <div class="hint">Tap “I got it” to earn a sticker.</div>
+          </div>
+          <div class="row" style="margin-top:12px;">
+            <button class="btn good" id="adOkBtn">I got it ✅</button>
+            <button class="btn" id="adLaterBtn">Later</button>
+          </div>
+        `;
+        $("adOkBtn").onclick = ()=>{ rewardForAd(); closeAd(); };
+        $("adLaterBtn").onclick = ()=> closeAd();
+      }else if(ad.type === "quiz"){
+        const choices = ad.a.map((c, i)=>`
+          <button class="btn choice" data-i="${i}">
+            ${safeText(c.t)}
+          </button>
+        `).join("");
+        adBodyEl.innerHTML = `
+          <h3>${safeText(ad.title)}</h3>
+          <div class="q">
+            <div style="font-size:1.1em; font-weight:900;">${safeText(ad.q)}</div>
+            <div class="choices">${choices}</div>
+            <div class="hint" id="quizHint">Pick the best answer. (Sometimes more than one can be good!)</div>
+          </div>
+          <div class="row" style="margin-top:12px;">
+            <button class="btn" id="quizCloseBtn">Close</button>
+          </div>
+        `;
+        $("quizCloseBtn").onclick = ()=> closeAd();
+
+        const buttons = [...adBodyEl.querySelectorAll(".choice")];
+        const hintEl = $("quizHint");
+        buttons.forEach(btn=>{
+          btn.onclick = ()=>{
+            const idx = Number(btn.getAttribute("data-i"));
+            const choice = ad.a[idx];
+            const ok = !!choice.ok;
+            btn.classList.add(ok ? "good" : "warn");
+            hintEl.textContent = choice.why;
+
+            // If the quiz has multiple "ok" answers, still reward if they picked one
+            if(ok){
+              rewardForAd();
+              setTimeout(closeAd, 650);
+            }else{
+              beep("bad"); vibrate(18);
+            }
+          };
+        });
+      }
+    }
+
+    // ====== SHOP ======
+    function buyOrApplyTheme(){
+      const selected = themeSelect.value;
+      const already = (S.theme === selected);
+
+      if(already){
+        toast("Theme already active.");
+        return;
+      }
+      if(S.coins < 10){
+        toast("Need 10🪙 to change theme.");
+        beep("bad");
+        return;
+      }
+      S.coins -= 10;
+      S.theme = selected;
+      saveState();
+      applyTheme();
+      renderTop();
+      toast("Theme applied! ✨");
+      beep("good");
+    }
+
+    // ====== CUSTOMIZE ======
+    function fillAvatarSelect(){
+      avatarSelect.innerHTML = "";
+      const picks = shuffle(EMOJIS.concat(["🧑‍🍳","👩‍🍳","🧑‍🚀","🦊","🐶","🐱","🦄","🐉","🤖","🧠","🌈"]));
+      const unique = [...new Set(picks)].slice(0, 22);
+      unique.forEach(em=>{
+        const opt = document.createElement("option");
+        opt.value = em;
+        opt.textContent = em + "  " + nameForEmoji(em);
+        avatarSelect.appendChild(opt);
+      });
+    }
+
+    function nameForEmoji(em){
+      const map = {
+        "🍕":"Pizza","🍔":"Burger","🍟":"Fries","🌭":"Hot Dog","🥪":"Sandwich","🌮":"Taco","🍜":"Ramen","🍝":"Pasta",
+        "🥟":"Dumpling","🍣":"Sushi","🍪":"Cookie","🍩":"Donut","🍫":"Chocolate","🍿":"Popcorn","🧃":"Juice","🥤":"Soda",
+        "☕️":"Coffee","🍦":"Ice Cream","🧑‍🍳":"Chef","👩‍🍳":"Chef","🧑‍🚀":"Astronaut","🦊":"Fox","🐶":"Dog","🐱":"Cat","🦄":"Unicorn","🐉":"Dragon","🤖":"Robot","🧠":"Brain","🌈":"Rainbow"
+      };
+      return map[em] || "Buddy";
+    }
+
+    function syncCustomizeUI(){
+      nameInput.value = S.name;
+      // ensure avatar option exists
+      const has = [...avatarSelect.options].some(o=>o.value === S.avatar);
+      if(!has){
+        const opt = document.createElement("option");
+        opt.value = S.avatar;
+        opt.textContent = S.avatar + "  " + nameForEmoji(S.avatar);
+        avatarSelect.insertBefore(opt, avatarSelect.firstChild);
+      }
+      avatarSelect.value = S.avatar;
+
+      fontSizeEl.value = String(S.fontSize);
+      fsLabel.textContent = String(S.fontSize);
+
+      reduceMotionEl.value = S.reduceMotion;
+      soundOnEl.value = S.soundOn;
+      vibrateOnEl.value = S.vibrateOn;
+
+      difficultyEl.value = String(S.difficulty);
+      diffLabel.textContent = String(S.difficulty);
+
+      autoAdsEl.value = S.autoAds;
+      themeSelect.value = S.theme;
+
+      themeHint.textContent = (S.coins >= 10) ? "You can switch themes." : "Earn more coins to switch.";
+    }
+
+    function saveCustomize(){
+      S.name = (nameInput.value || "Snack Hero").trim().slice(0,18);
+      S.avatar = avatarSelect.value;
+      S.fontSize = Number(fontSizeEl.value) || 18;
+      S.reduceMotion = reduceMotionEl.value;
+      S.soundOn = soundOnEl.value;
+      S.vibrateOn = vibrateOnEl.value;
+      saveState();
+      applyTheme();
+      renderTop();
+      toast("Saved!");
+      beep("good"); vibrate(12);
+    }
+
+    function resetCustomize(){
+      // keep coins/stickers; just reset preferences
+      S.name = defaultState.name;
+      S.avatar = defaultState.avatar;
+      S.fontSize = defaultState.fontSize;
+      S.reduceMotion = defaultState.reduceMotion;
+      S.soundOn = defaultState.soundOn;
+      S.vibrateOn = defaultState.vibrateOn;
+      saveState();
+      applyTheme();
+      renderTop();
+      syncCustomizeUI();
+      toast("Reset!");
+      beep("warn"); vibrate(10);
+    }
+
+    // ====== COINS -> STICKER ======
+    function spendCoinsForSticker(){
+      if(S.coins < 25){
+        toast("Need 25🪙 for a mystery sticker.");
+        beep("bad");
+        return;
+      }
+      S.coins -= 25;
+      S.stickers.push(randomSticker());
+      S.stars += 1;
+      saveState();
+      renderTop();
+      renderStickers();
+      toast("Mystery sticker unlocked! 🎲");
+      beep("good"); vibrate(18);
+    }
+
+    // ====== EVENTS ======
+    document.querySelectorAll(".tab").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const scr = btn.getAttribute("data-screen");
+        showScreen(scr);
+      });
+    });
+
+    $("newRoundBtn").onclick = newRound;
+    $("submitBtn").onclick = submit;
+    $("clearBtn").onclick = clearPicked;
+
+    $("helpBtn").onclick = ()=>{
+      toast("Match the order EXACTLY. Clear if you make a mistake.");
+      showLearningAd(); // a helpful “ad” when they ask for help
+    };
+
+    $("showAdBtn").onclick = showLearningAd;
+    $("closeAdBtn").onclick = closeAd;
+
+    buyThemeBtn.onclick = buyOrApplyTheme;
+
+    difficultyEl.oninput = ()=>{
+      S.difficulty = Number(difficultyEl.value);
+      diffLabel.textContent = String(S.difficulty);
+      saveState();
+    };
+
+    autoAdsEl.onchange = ()=>{
+      S.autoAds = autoAdsEl.value;
+      saveState();
+      toast("Saved ad setting.");
+    };
+
+    $("saveCustomBtn").onclick = saveCustomize;
+    $("resetBtn").onclick = resetCustomize;
+
+    $("spendCoinsBtn").onclick = spendCoinsForSticker;
+    $("clearStickersBtn").onclick = ()=>{
+      S.stickers = [];
+      S.stars = 0;
+      saveState();
+      renderTop();
+      renderStickers();
+      toast("Stickers cleared.");
+    };
+
+    claimGoalBtn.onclick = claimGoal;
+
+    $("nukeBtn").onclick = ()=>{
+      const phrase = prompt("Type RESET to clear everything:");
+      if(phrase === "RESET"){
+        localStorage.removeItem("snackHeroState_v1");
+        S = structuredClone(defaultState);
+        applyTheme();
+        renderTop();
+        syncCustomizeUI();
+        renderStickers();
+        ensureGoal();
+        newRound();
+        toast("All data cleared.");
+      }else{
+        toast("Cancelled.");
+      }
+    };
+
+    // Close ad if tapping outside modal
+    overlayEl.addEventListener("click", (e)=>{
+      if(e.target === overlayEl) closeAd();
+    });
+
+    // ====== INIT ======
+    function init(){
+      fillAvatarSelect();
+      applyTheme();
+      renderTop();
+      renderEmojiGrid();
+      syncCustomizeUI();
+      renderStickers();
+      ensureGoal();
+      newRound();
+      showScreen("play");
+    }
+    init();
+  </script>
+</body>
+</html>

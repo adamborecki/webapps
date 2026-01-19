@@ -1,0 +1,1456 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <title>Nature Quest (Kid-Safe “Good Ads”)</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --panel:rgba(20,24,40,.72);
+      --panel2:rgba(20,24,40,.88);
+      --text:#f3f6ff;
+      --muted:rgba(243,246,255,.78);
+      --accent:#7ee787;
+      --accent2:#7aa2ff;
+      --danger:#ff6b6b;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius:18px;
+      --safeTop: env(safe-area-inset-top, 0px);
+      --safeBottom: env(safe-area-inset-bottom, 0px);
+      --safeLeft: env(safe-area-inset-left, 0px);
+      --safeRight: env(safe-area-inset-right, 0px);
+    }
+    html,body{height:100%; margin:0; background: radial-gradient(1200px 700px at 20% 10%, #1b2a6a 0%, #0b1020 55%, #070912 100%); color:var(--text); font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji"; overscroll-behavior:none;}
+    *{box-sizing:border-box;}
+    button, input, select { font: inherit; }
+
+    /* App layout */
+    #app{
+      height:100%;
+      display:flex;
+      flex-direction:column;
+      padding: calc(10px + var(--safeTop)) calc(10px + var(--safeRight)) calc(10px + var(--safeBottom)) calc(10px + var(--safeLeft));
+      gap:10px;
+    }
+    #topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .pill{
+      background:var(--panel);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:999px;
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+    .pill .big{font-size:18px;}
+    .pill .small{font-size:12px; color:var(--muted); line-height:1.1;}
+    .pill b{font-weight:800;}
+    .btn{
+      appearance:none;
+      border:none;
+      color:var(--text);
+      background:linear-gradient(135deg, rgba(126,231,135,.95), rgba(122,162,255,.92));
+      padding:10px 12px;
+      border-radius:999px;
+      box-shadow: var(--shadow);
+      cursor:pointer;
+      font-weight:800;
+      letter-spacing:.2px;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:active{transform: translateY(1px); filter:brightness(.98);}
+    .btn.secondary{
+      background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: none;
+      font-weight:700;
+    }
+    .btn.danger{
+      background:rgba(255,107,107,.18);
+      border:1px solid rgba(255,107,107,.35);
+    }
+
+    #gameWrap{
+      position:relative;
+      flex:1;
+      min-height:300px;
+      border-radius: var(--radius);
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: var(--shadow);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.18));
+    }
+    canvas{ width:100%; height:100%; display:block; }
+
+    /* Bottom area: controls + banner ad */
+    #bottomArea{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    #controlsRow{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    /* Virtual joystick */
+    #joy{
+      width:150px;
+      height:150px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: var(--shadow);
+      position:relative;
+      touch-action:none;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      flex:0 0 auto;
+    }
+    #joyHint{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:rgba(243,246,255,.55);
+      font-size:12px;
+      text-align:center;
+      padding:16px;
+      pointer-events:none;
+    }
+    #stick{
+      position:absolute;
+      left:50%;
+      top:50%;
+      width:62px;
+      height:62px;
+      margin-left:-31px;
+      margin-top:-31px;
+      border-radius:999px;
+      background:rgba(126,231,135,.25);
+      border:1px solid rgba(126,231,135,.55);
+      box-shadow: 0 10px 20px rgba(0,0,0,.25);
+      backdrop-filter: blur(10px);
+      pointer-events:none;
+      transform: translate(0,0);
+    }
+
+    /* Tap-to-walk pad */
+    #tapPad{
+      flex:1;
+      min-height:150px;
+      border-radius: var(--radius);
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: var(--shadow);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:12px;
+      touch-action:none;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      position:relative;
+      overflow:hidden;
+    }
+    #tapPad .msg{
+      color:rgba(243,246,255,.7);
+      font-size:13px;
+      text-align:center;
+      max-width:42ch;
+      line-height:1.25;
+    }
+    #tapRing{
+      position:absolute;
+      width:14px; height:14px;
+      border-radius:999px;
+      border:2px solid rgba(122,162,255,.95);
+      transform: translate(-50%,-50%);
+      pointer-events:none;
+      opacity:0;
+    }
+
+    /* “Good Ad” banner */
+    #goodAdBanner{
+      background:linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      border:1px solid rgba(255,255,255,.14);
+      border-radius: var(--radius);
+      padding:12px;
+      box-shadow: var(--shadow);
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      backdrop-filter: blur(10px);
+    }
+    #goodAdBanner .tag{
+      background:rgba(126,231,135,.22);
+      border:1px solid rgba(126,231,135,.45);
+      color:rgba(243,246,255,.95);
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    #goodAdBanner .content{
+      flex:1;
+      min-width:0;
+    }
+    #goodAdBanner .title{
+      font-weight:900;
+      letter-spacing:.2px;
+      margin:0 0 4px 0;
+      font-size:13px;
+    }
+    #goodAdBanner .body{
+      margin:0;
+      font-size:13px;
+      color:rgba(243,246,255,.85);
+      line-height:1.25;
+    }
+    #goodAdBanner .actions{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      align-items:flex-end;
+      flex:0 0 auto;
+    }
+    #goodAdBanner .actions button{
+      padding:8px 10px;
+      font-size:12px;
+      border-radius:999px;
+    }
+
+    /* Modal */
+    .overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      z-index:999;
+    }
+    .overlay.show{display:flex;}
+    .modal{
+      width:min(560px, 100%);
+      background:var(--panel2);
+      border:1px solid rgba(255,255,255,.16);
+      border-radius: 22px;
+      box-shadow: 0 25px 70px rgba(0,0,0,.45);
+      overflow:hidden;
+      backdrop-filter: blur(14px);
+    }
+    .modalHeader{
+      padding:14px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      border-bottom:1px solid rgba(255,255,255,.12);
+    }
+    .modalHeader .h{
+      display:flex; align-items:center; gap:10px;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+    .modalHeader .h span{font-size:18px;}
+    .modalBody{ padding:14px 16px; }
+    .modalBody p{ margin:0 0 12px 0; color:rgba(243,246,255,.88); line-height:1.25; }
+    .modalFooter{
+      padding:14px 16px;
+      display:flex;
+      gap:10px;
+      justify-content:flex-end;
+      border-top:1px solid rgba(255,255,255,.12);
+      flex-wrap:wrap;
+    }
+    .choiceGrid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    .choice{
+      width:100%;
+      text-align:left;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+      color:var(--text);
+      padding:12px 12px;
+      border-radius: 16px;
+      cursor:pointer;
+      font-weight:800;
+      line-height:1.15;
+    }
+    .choice:active{transform: translateY(1px);}
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      background:rgba(122,162,255,.18);
+      border:1px solid rgba(122,162,255,.35);
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      color:rgba(243,246,255,.92);
+      font-weight:900;
+    }
+    .row{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    }
+    label{font-size:12px; color:rgba(243,246,255,.82); font-weight:800;}
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width: 150px;
+      flex:1;
+    }
+    .field input, .field select{
+      width:100%;
+      padding:10px 12px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      outline:none;
+    }
+    .hint{font-size:12px; color:rgba(243,246,255,.68); margin-top:6px;}
+
+    /* Responsive tweaks */
+    @media (max-width: 480px){
+      #controlsRow{ gap:10px; }
+      #joy{ width:130px; height:130px; }
+      #tapPad{ min-height:130px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="topbar">
+      <div class="pill" aria-label="Status">
+        <div class="big" id="avatarPreview">🧒</div>
+        <div>
+          <div style="display:flex; gap:8px; align-items:baseline;">
+            <b id="playerName">Explorer</b>
+            <span class="badge" id="worldBadge">🏞️ Forest</span>
+          </div>
+          <div class="small">
+            ⭐ <span id="stars">0</span>
+            &nbsp;•&nbsp; 🪵 <span id="logs">0</span>
+            &nbsp;•&nbsp; 🪙 <span id="points">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pill" style="gap:8px;">
+        <button class="btn secondary" id="modeBtn" title="Switch controls">🎮 Mode: <span id="modeLabel">Joystick</span></button>
+        <button class="btn" id="menuBtn" title="Customize & settings">⚙️ Menu</button>
+      </div>
+    </div>
+
+    <div id="gameWrap">
+      <canvas id="c"></canvas>
+    </div>
+
+    <div id="bottomArea">
+      <div id="controlsRow">
+        <div id="joy" aria-label="Virtual joystick">
+          <div id="joyHint">Hold + drag<br/>to walk</div>
+          <div id="stick"></div>
+        </div>
+
+        <div id="tapPad" aria-label="Tap-to-walk pad">
+          <div class="msg" id="tapMsg">Tap anywhere on this pad to pick a direction. Your character will step toward that direction.</div>
+          <div id="tapRing"></div>
+        </div>
+      </div>
+
+      <div id="goodAdBanner" aria-label="Good Ad banner">
+        <div class="tag">GOOD AD</div>
+        <div class="content">
+          <p class="title" id="adTitle">Kindness Break 🌈</p>
+          <p class="body" id="adBody">You can be the kind of person who helps without being asked. Tiny help = big love.</p>
+        </div>
+        <div class="actions">
+          <button class="btn secondary" id="adNext">Next</button>
+          <button class="btn secondary" id="adDo">Do it ✅</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Menu / Customize Modal -->
+  <div class="overlay" id="menuOverlay" role="dialog" aria-modal="true" aria-label="Menu">
+    <div class="modal">
+      <div class="modalHeader">
+        <div class="h"><span>⚙️</span> <div>Nature Quest Menu</div></div>
+        <button class="btn secondary" id="menuClose">Close</button>
+      </div>
+      <div class="modalBody">
+        <p><b>Customize your explorer</b>, change the world, and set your play style. No real ads, no tracking—only “good ads” that teach helpful stuff.</p>
+
+        <div class="row">
+          <div class="field">
+            <label for="nameInput">Name</label>
+            <input id="nameInput" maxlength="16" placeholder="Explorer" />
+          </div>
+
+          <div class="field">
+            <label for="avatarSelect">Avatar</label>
+            <select id="avatarSelect">
+              <option value="🧒">🧒 Kid</option>
+              <option value="🧑‍🚀">🧑‍🚀 Astronaut</option>
+              <option value="🧙‍♀️">🧙‍♀️ Wizard</option>
+              <option value="🧝‍♂️">🧝‍♂️ Elf</option>
+              <option value="🦊">🦊 Fox</option>
+              <option value="🐻">🐻 Bear</option>
+              <option value="🐬">🐬 Dolphin</option>
+              <option value="🦉">🦉 Owl</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="worldSelect">World</label>
+            <select id="worldSelect">
+              <option value="forest">🏞️ Forest</option>
+              <option value="mountain">🏔️ Mountain</option>
+              <option value="beach">🏝️ Beach</option>
+              <option value="volcano">🌋 Volcano</option>
+              <option value="night">🌙 Night Meadow</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px;">
+          <div class="field">
+            <label for="skySelect">Sky</label>
+            <select id="skySelect">
+              <option value="day">☀️ Day</option>
+              <option value="sunset">🌈 Sunset</option>
+              <option value="night">🌙 Night</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="tileSize">Tile Size</label>
+            <select id="tileSize">
+              <option value="34">Small (more map)</option>
+              <option value="40" selected>Medium</option>
+              <option value="48">Big (easy)</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="sfxToggle">Sounds</label>
+            <select id="sfxToggle">
+              <option value="on" selected>On (gentle)</option>
+              <option value="off">Off</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px;">
+          <div class="field">
+            <label for="adFreq">Good Ad Frequency</label>
+            <select id="adFreq">
+              <option value="rare">Rare</option>
+              <option value="normal" selected>Normal</option>
+              <option value="often">Often</option>
+            </select>
+            <div class="hint">These are positive messages + mini-quizzes. No real ads.</div>
+          </div>
+
+          <div class="field">
+            <label for="movementAssist">Movement Assist</label>
+            <select id="movementAssist">
+              <option value="on" selected>On (smart walking)</option>
+              <option value="off">Off (classic)</option>
+            </select>
+            <div class="hint">Assist helps you slide around small obstacles.</div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:12px;">
+          <button class="btn secondary" id="newWorldBtn">🔄 New Map</button>
+          <button class="btn danger" id="resetBtn">🧼 Reset Stats</button>
+          <div class="badge" id="tipBadge">Tip: Collect ⭐ and find the 🏁 flag!</div>
+        </div>
+      </div>
+      <div class="modalFooter">
+        <button class="btn secondary" id="saveBtn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Good Ad Interstitial Modal -->
+  <div class="overlay" id="adOverlay" role="dialog" aria-modal="true" aria-label="Good Ad">
+    <div class="modal">
+      <div class="modalHeader">
+        <div class="h"><span>🌈</span> <div id="adModalHeader">Good Ad Break</div></div>
+        <button class="btn secondary" id="adCloseBtn" disabled>Skip in <span id="skipCount">3</span>…</button>
+      </div>
+      <div class="modalBody" id="adModalBody"></div>
+      <div class="modalFooter" id="adModalFooter"></div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // --- Emoji palette (user-provided) ---
+  const EMOJIS = ["🌲","🌳","🌿","🍃","🍂","🌾","🌱","🪵","🪨","⛰️","🏔️","🏞️","🌊","🏝️","🌋","🌈","☀️","🌙","⭐️"];
+
+  // --- Game state ---
+  const state = {
+    name: "Explorer",
+    avatar: "🧒",
+    world: "forest",
+    sky: "day",
+    tile: 40,
+    sfx: true,
+    adFreq: "normal",
+    assist: true,
+    mode: "joystick", // joystick | tap
+    points: 0,
+    stars: 0,
+    logs: 0,
+    mapW: 64,
+    mapH: 40,
+    px: 10,
+    py: 10,
+    targetDir: {x:0,y:0},  // for tap mode
+    map: [],
+    solid: new Set(),
+    collectibles: new Set(), // key = "x,y"
+    goal: {x: 52, y: 28},
+    tick: 0,
+    lastMoveAt: 0,
+    moveCooldown: 115, // ms between tile-steps
+    lastAdAt: 0,
+    adEveryMs: 70000, // adjusted by freq
+    paused: false
+  };
+
+  // DOM
+  const canvas = document.getElementById('c');
+  const wrap = document.getElementById('gameWrap');
+  const ctx = canvas.getContext('2d');
+
+  const avatarPreview = document.getElementById('avatarPreview');
+  const playerNameEl = document.getElementById('playerName');
+  const worldBadge = document.getElementById('worldBadge');
+  const starsEl = document.getElementById('stars');
+  const logsEl = document.getElementById('logs');
+  const pointsEl = document.getElementById('points');
+
+  const modeBtn = document.getElementById('modeBtn');
+  const modeLabel = document.getElementById('modeLabel');
+
+  const menuOverlay = document.getElementById('menuOverlay');
+  const menuBtn = document.getElementById('menuBtn');
+  const menuClose = document.getElementById('menuClose');
+  const saveBtn = document.getElementById('saveBtn');
+
+  const nameInput = document.getElementById('nameInput');
+  const avatarSelect = document.getElementById('avatarSelect');
+  const worldSelect = document.getElementById('worldSelect');
+  const skySelect = document.getElementById('skySelect');
+  const tileSize = document.getElementById('tileSize');
+  const sfxToggle = document.getElementById('sfxToggle');
+  const adFreqSel = document.getElementById('adFreq');
+  const assistSel = document.getElementById('movementAssist');
+
+  const newWorldBtn = document.getElementById('newWorldBtn');
+  const resetBtn = document.getElementById('resetBtn');
+
+  const joy = document.getElementById('joy');
+  const stick = document.getElementById('stick');
+  const tapPad = document.getElementById('tapPad');
+  const tapRing = document.getElementById('tapRing');
+  const tapMsg = document.getElementById('tapMsg');
+
+  const adTitle = document.getElementById('adTitle');
+  const adBody  = document.getElementById('adBody');
+  const adNext  = document.getElementById('adNext');
+  const adDo    = document.getElementById('adDo');
+
+  const adOverlay = document.getElementById('adOverlay');
+  const adCloseBtn = document.getElementById('adCloseBtn');
+  const skipCount = document.getElementById('skipCount');
+  const adModalHeader = document.getElementById('adModalHeader');
+  const adModalBody = document.getElementById('adModalBody');
+  const adModalFooter = document.getElementById('adModalFooter');
+
+  // --- Tiny sound (optional) ---
+  let audioCtx = null;
+  function beep(freq=440, dur=0.06, type="sine", vol=0.03){
+    if(!state.sfx) return;
+    try{
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = type;
+      o.frequency.value = freq;
+      g.gain.value = vol;
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start();
+      o.stop(audioCtx.currentTime + dur);
+    }catch(e){}
+  }
+
+  // --- Helpers ---
+  const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+  const key = (x,y)=>`${x},${y}`;
+  function rand(n){ return Math.floor(Math.random()*n); }
+  function pick(arr){ return arr[rand(arr.length)]; }
+
+  function worldName(w){
+    return ({
+      forest:"🏞️ Forest",
+      mountain:"🏔️ Mountain",
+      beach:"🏝️ Beach",
+      volcano:"🌋 Volcano",
+      night:"🌙 Night Meadow"
+    })[w] || "🏞️ Forest";
+  }
+  function applySky(){
+    const body = document.body.style;
+    if(state.sky==="day"){
+      body.background = "radial-gradient(1200px 700px at 20% 10%, #1b2a6a 0%, #0b1020 55%, #070912 100%)";
+    } else if(state.sky==="sunset"){
+      body.background = "radial-gradient(1200px 700px at 20% 10%, #7a2fff 0%, #1b1650 40%, #0b1020 70%, #070912 100%)";
+    } else {
+      body.background = "radial-gradient(1200px 700px at 20% 10%, #0f1a3a 0%, #070a16 55%, #04050d 100%)";
+    }
+  }
+  function setAdFrequency(){
+    state.adEveryMs = (state.adFreq==="rare") ? 120000 : (state.adFreq==="often") ? 45000 : 75000;
+  }
+
+  // --- “Good Ads” content ---
+  const GOOD_ADS = [
+    {
+      kind:"affirmation",
+      title:"Kindness Boost 🌿",
+      body:"You can be kind even when you're tired. One kind sentence can change someone’s whole day."
+    },
+    {
+      kind:"affirmation",
+      title:"Helping at Home 🪵",
+      body:"A great helper looks for tiny jobs: carry a bag, wipe a table, put shoes away, feed a pet."
+    },
+    {
+      kind:"psa",
+      title:"Water Safety 🌊",
+      body:"If you’re near water: stay where a grown-up can see you, walk (don’t run), and listen fast."
+    },
+    {
+      kind:"psa",
+      title:"Phone Manners ⭐️",
+      body:"When someone is talking to you, try: eyes up, phone down, and say “Okay—one sec.”"
+    },
+    {
+      kind:"quiz",
+      title:"Good Manners Quiz 🌈",
+      q:"You need to walk past someone in a tight space. What do you say?",
+      choices:[
+        {t:"“Excuse me, please.”", ok:true,  why:"That’s polite and clear."},
+        {t:"Nothing—just squeeze by.", ok:false, why:"People can get startled or annoyed."},
+        {t:"“MOVE!”", ok:false, why:"That’s not kind."}
+      ]
+    },
+    {
+      kind:"quiz",
+      title:"Helping Mom Quiz ☀️",
+      q:"Mom looks busy carrying things. What’s a good first move?",
+      choices:[
+        {t:"Ask: “Do you want help?”", ok:true, why:"Asking first is thoughtful."},
+        {t:"Ignore it and keep playing.", ok:false, why:"You might miss a chance to help."},
+        {t:"Grab stuff without asking.", ok:false, why:"Helping is great, but ask so you don’t mess up."}
+      ]
+    },
+    {
+      kind:"quiz",
+      title:"Respect Quiz 🌙",
+      q:"Someone says “No thanks.” What does that mean?",
+      choices:[
+        {t:"Stop and respect it.", ok:true, why:"No means no. Respect is powerful."},
+        {t:"Keep asking until they say yes.", ok:false, why:"That can feel pushy."},
+        {t:"Get mad.", ok:false, why:"Better: breathe, accept, move on."}
+      ]
+    },
+    {
+      kind:"affirmation",
+      title:"Brave Feelings 🍂",
+      body:"Being brave doesn’t mean no fear. It means: “I can do it even if I feel nervous.”"
+    }
+  ];
+
+  let bannerAdIndex = 0;
+  function setBannerAd(ad){
+    adTitle.textContent = ad.title;
+    if(ad.kind==="quiz"){
+      adBody.textContent = ad.q;
+    } else {
+      adBody.textContent = ad.body;
+    }
+  }
+  function nextBannerAd(){
+    bannerAdIndex = (bannerAdIndex + 1) % GOOD_ADS.length;
+    setBannerAd(GOOD_ADS[bannerAdIndex]);
+  }
+  function doBannerAd(){
+    showAdInterstitial(GOOD_ADS[bannerAdIndex]);
+  }
+
+  // --- Map generation (emoji tile world) ---
+  // Tiles used by world
+  function paletteForWorld(world){
+    if(world==="forest"){
+      return { floor:["🌱","🌿","🍃","🌾"], wall:["🌲","🌳","🪨","🪵"], water:["🌊"], deco:["🍂"], sky:["☀️","🌈"] };
+    }
+    if(world==="mountain"){
+      return { floor:["🪨","🌾","🌱"], wall:["⛰️","🏔️","🪨"], water:["🌊"], deco:["🪵"], sky:["☀️","⭐️"] };
+    }
+    if(world==="beach"){
+      return { floor:["🏝️","🌾","🌱"], wall:["🪨","🪵","🌳"], water:["🌊"], deco:["🌈","☀️"], sky:["☀️","🌙"] };
+    }
+    if(world==="volcano"){
+      return { floor:["🪨","🪵","🌾"], wall:["⛰️","🌋","🪨"], water:["🌊"], deco:["⭐️","🌈"], sky:["☀️","🌙"] };
+    }
+    // night
+    return { floor:["🌱","🌿","🍃"], wall:["🌲","🌳","🪨"], water:["🌊"], deco:["⭐️","🌙"], sky:["🌙","⭐️"] };
+  }
+
+  function makeEmptyMap(){
+    state.map = Array.from({length:state.mapH}, ()=>Array(state.mapW).fill("🌱"));
+    state.solid = new Set();
+    state.collectibles = new Set();
+  }
+
+  // Place obstacles + zones + collectibles + goal + flag
+  function generateMap(){
+    makeEmptyMap();
+    const pal = paletteForWorld(state.world);
+
+    // Fill base
+    for(let y=0;y<state.mapH;y++){
+      for(let x=0;x<state.mapW;x++){
+        // soft noise-ish: different floor tiles
+        const r = (x*17 + y*31 + rand(999)) % 100;
+        let tile = pal.floor[r % pal.floor.length];
+
+        // create water bands for beach / forest sometimes
+        if(state.world==="beach"){
+          if(y > state.mapH-8) tile = "🌊";
+          if(y===state.mapH-8 && rand(6)===0) tile = "🌊";
+        } else {
+          if(rand(220)===0) tile = "🌊";
+        }
+
+        // decorate sometimes
+        if(rand(28)===0) tile = pick(pal.deco);
+
+        state.map[y][x] = tile;
+      }
+    }
+
+    // Border walls
+    for(let x=0;x<state.mapW;x++){
+      setTile(x,0, pick(pal.wall), true);
+      setTile(x,state.mapH-1, pick(pal.wall), true);
+    }
+    for(let y=0;y<state.mapH;y++){
+      setTile(0,y, pick(pal.wall), true);
+      setTile(state.mapW-1,y, pick(pal.wall), true);
+    }
+
+    // Add clusters of walls (trees/rocks/mountains)
+    const clusters = 18;
+    for(let i=0;i<clusters;i++){
+      const cx = 2 + rand(state.mapW-4);
+      const cy = 2 + rand(state.mapH-4);
+      const radius = 2 + rand(4);
+      const tile = pick(pal.wall);
+      for(let y=cy-radius;y<=cy+radius;y++){
+        for(let x=cx-radius;x<=cx+radius;x++){
+          if(x<1||y<1||x>=state.mapW-1||y>=state.mapH-1) continue;
+          const dx = x-cx, dy = y-cy;
+          if(dx*dx+dy*dy <= radius*radius + rand(2)){
+            // don't wall off too densely
+            if(rand(6)!==0) setTile(x,y,tile,true);
+          }
+        }
+      }
+    }
+
+    // Volcano hazards in volcano world
+    if(state.world==="volcano"){
+      for(let i=0;i<24;i++){
+        const x = 2+rand(state.mapW-4);
+        const y = 2+rand(state.mapH-4);
+        if(rand(4)===0){
+          setTile(x,y,"🌋", true);
+        }
+      }
+    }
+
+    // Place collectibles (stars) + logs
+    let placedStars = 0;
+    let placedLogs  = 0;
+    const wantStars = 18;
+    const wantLogs  = 10;
+    while(placedStars < wantStars){
+      const x = 2+rand(state.mapW-4);
+      const y = 2+rand(state.mapH-4);
+      if(isWalkable(x,y)){
+        state.map[y][x] = "⭐️";
+        state.collectibles.add(key(x,y));
+        placedStars++;
+      }
+    }
+    while(placedLogs < wantLogs){
+      const x = 2+rand(state.mapW-4);
+      const y = 2+rand(state.mapH-4);
+      if(isWalkable(x,y)){
+        state.map[y][x] = "🪵";
+        state.collectibles.add(key(x,y));
+        placedLogs++;
+      }
+    }
+
+    // Place a goal flag (🏁) near a safe spot
+    state.goal = findWalkableFarFrom(state.px, state.py);
+    state.map[state.goal.y][state.goal.x] = "🏁";
+
+    // Place player at a safe spot
+    const start = findWalkableFarFrom(state.goal.x, state.goal.y);
+    state.px = start.x;
+    state.py = start.y;
+
+    // Ensure immediate area is walkable
+    for(const [dx,dy] of [[0,0],[1,0],[-1,0],[0,1],[0,-1]]){
+      const x = state.px+dx, y=state.py+dy;
+      if(inBounds(x,y) && isSolid(x,y)) {
+        state.solid.delete(key(x,y));
+        state.map[y][x] = "🌱";
+      }
+    }
+  }
+
+  function inBounds(x,y){ return x>=0 && y>=0 && x<state.mapW && y<state.mapH; }
+  function setTile(x,y,emoji,solid=false){
+    if(!inBounds(x,y)) return;
+    state.map[y][x]=emoji;
+    const k = key(x,y);
+    if(solid) state.solid.add(k); else state.solid.delete(k);
+  }
+  function isSolid(x,y){ return state.solid.has(key(x,y)); }
+  function isWalkable(x,y){
+    if(!inBounds(x,y)) return false;
+    const t = state.map[y][x];
+    if(isSolid(x,y)) return false;
+    // water treated as solid (walk-around)
+    if(t==="🌊") return false;
+    // volcano is solid too
+    if(t==="🌋") return false;
+    return true;
+  }
+  function findWalkableFarFrom(x0,y0){
+    // sample many random points and pick farthest that is walkable
+    let best = {x: 2, y: 2, d: -1};
+    for(let i=0;i<500;i++){
+      const x = 2 + rand(state.mapW-4);
+      const y = 2 + rand(state.mapH-4);
+      if(!isWalkable(x,y)) continue;
+      const dx = x-x0, dy = y-y0;
+      const d = dx*dx+dy*dy;
+      if(d > best.d){ best={x,y,d}; }
+    }
+    return best;
+  }
+
+  // --- Rendering ---
+  function resizeCanvas(){
+    const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
+    const r = wrap.getBoundingClientRect();
+    canvas.width = Math.floor(r.width * dpr);
+    canvas.height = Math.floor(r.height * dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.imageSmoothingEnabled = true;
+  }
+
+  function draw(){
+    const w = wrap.clientWidth;
+    const h = wrap.clientHeight;
+    const tile = state.tile;
+
+    // camera center on player
+    const camX = state.px*tile + tile/2 - w/2;
+    const camY = state.py*tile + tile/2 - h/2;
+
+    // background haze
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle = "rgba(255,255,255,.02)";
+    ctx.fillRect(0,0,w,h);
+
+    // visible tile range
+    const x0 = Math.floor(camX / tile) - 2;
+    const y0 = Math.floor(camY / tile) - 2;
+    const x1 = x0 + Math.ceil(w / tile) + 4;
+    const y1 = y0 + Math.ceil(h / tile) + 4;
+
+    // draw tiles
+    ctx.font = `${Math.floor(tile*0.88)}px system-ui, Apple Color Emoji, Segoe UI Emoji`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    for(let y=y0;y<y1;y++){
+      for(let x=x0;x<x1;x++){
+        if(!inBounds(x,y)) continue;
+        const t = state.map[y][x];
+
+        const sx = x*tile - camX;
+        const sy = y*tile - camY;
+
+        // subtle tile shading
+        ctx.fillStyle = ((x+y)&1) ? "rgba(0,0,0,.08)" : "rgba(0,0,0,.04)";
+        ctx.fillRect(sx, sy, tile, tile);
+
+        ctx.fillText(t, sx+tile/2, sy+tile/2+1);
+      }
+    }
+
+    // draw player
+    const px = state.px*tile - camX + tile/2;
+    const py = state.py*tile - camY + tile/2;
+    // shadow
+    ctx.fillStyle = "rgba(0,0,0,.25)";
+    ctx.beginPath();
+    ctx.ellipse(px, py + tile*0.28, tile*0.22, tile*0.10, 0, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.font = `${Math.floor(tile*0.95)}px system-ui, Apple Color Emoji, Segoe UI Emoji`;
+    ctx.fillText(state.avatar, px, py);
+
+    // small “direction hint” for tap mode
+    if(state.mode==="tap" && (state.targetDir.x || state.targetDir.y)){
+      ctx.font = `${Math.floor(tile*0.55)}px system-ui, Apple Color Emoji, Segoe UI Emoji`;
+      const arrow = (state.targetDir.y<0)?"⬆️":(state.targetDir.y>0)?"⬇️":(state.targetDir.x<0)?"⬅️":"➡️";
+      ctx.fillText(arrow, px, py - tile*0.85);
+    }
+  }
+
+  // --- Movement + collectibles ---
+  function tryMove(dx,dy){
+    const nx = state.px + dx;
+    const ny = state.py + dy;
+
+    if(isWalkable(nx,ny)){
+      state.px = nx; state.py = ny;
+      onStep();
+      return true;
+    }
+
+    // movement assist: slide around corners
+    if(state.assist && (dx!==0 || dy!==0)){
+      // if blocked, try perpendicular options
+      const opts = (dx!==0) ? [[0,1],[0,-1]] : [[1,0],[-1,0]];
+      for(const [sx,sy] of opts){
+        const ax = state.px + sx;
+        const ay = state.py + sy;
+        if(isWalkable(ax,ay)){
+          state.px = ax; state.py = ay;
+          onStep();
+          return true;
+        }
+      }
+    }
+    // blocked “bump” sound
+    beep(140, 0.04, "square", 0.02);
+    return false;
+  }
+
+  function onStep(){
+    beep(540, 0.03, "sine", 0.02);
+    state.points += 1;
+
+    // collectibles
+    const k = key(state.px, state.py);
+    if(state.collectibles.has(k)){
+      const t = state.map[state.py][state.px];
+      state.collectibles.delete(k);
+      state.map[state.py][state.px] = "🌱";
+      if(t==="⭐️"){ state.stars += 1; state.points += 20; beep(880,0.06,"triangle",0.03); }
+      if(t==="🪵"){ state.logs  += 1; state.points += 12; beep(660,0.05,"triangle",0.03); }
+      updateHUD();
+    }
+
+    // goal?
+    if(state.px===state.goal.x && state.py===state.goal.y){
+      state.points += 100;
+      updateHUD();
+      // new map + “good ad” reward break
+      showAdInterstitial(pick(GOOD_ADS), {reward:true, reason:"You reached the flag 🏁!"});
+      generateMap();
+      updateHUD();
+    }
+
+    updateHUD();
+  }
+
+  function updateHUD(){
+    avatarPreview.textContent = state.avatar;
+    playerNameEl.textContent = state.name || "Explorer";
+    worldBadge.textContent = worldName(state.world);
+    starsEl.textContent = String(state.stars);
+    logsEl.textContent = String(state.logs);
+    pointsEl.textContent = String(state.points);
+    modeLabel.textContent = (state.mode==="joystick") ? "Joystick" : "Tap";
+  }
+
+  // --- Controls ---
+  // Joystick: compute direction by stick vector. Move in cardinal directions only.
+  let joyActive = false;
+  let joyCenter = {x:0,y:0};
+  let joyVec = {x:0,y:0};
+
+  function setStick(vx,vy){
+    const max = 44;
+    const mag = Math.hypot(vx,vy);
+    const s = mag>max ? max/mag : 1;
+    const dx = vx*s, dy = vy*s;
+    stick.style.transform = `translate(${dx}px, ${dy}px)`;
+    joyVec = {x: dx/max, y: dy/max};
+  }
+  function resetStick(){
+    stick.style.transform = `translate(0px, 0px)`;
+    joyVec = {x:0,y:0};
+  }
+
+  function joyPointerDown(e){
+    if(state.mode!=="joystick") return;
+    joyActive = true;
+    joy.setPointerCapture?.(e.pointerId);
+    const r = joy.getBoundingClientRect();
+    joyCenter = { x: r.left + r.width/2, y: r.top + r.height/2 };
+    setStick(e.clientX - joyCenter.x, e.clientY - joyCenter.y);
+    e.preventDefault();
+  }
+  function joyPointerMove(e){
+    if(!joyActive || state.mode!=="joystick") return;
+    setStick(e.clientX - joyCenter.x, e.clientY - joyCenter.y);
+    e.preventDefault();
+  }
+  function joyPointerUp(e){
+    joyActive = false;
+    resetStick();
+    e.preventDefault();
+  }
+  joy.addEventListener('pointerdown', joyPointerDown);
+  window.addEventListener('pointermove', joyPointerMove, {passive:false});
+  window.addEventListener('pointerup', joyPointerUp);
+
+  // Tap pad: sets a direction toward where the user tapped on the pad
+  function tapPadDown(e){
+    if(state.mode!=="tap") return;
+    const r = tapPad.getBoundingClientRect();
+    const x = e.clientX - (r.left + r.width/2);
+    const y = e.clientY - (r.top + r.height/2);
+    // choose cardinal by dominant axis
+    if(Math.abs(x) > Math.abs(y)){
+      state.targetDir = {x: x<0?-1:1, y:0};
+    } else {
+      state.targetDir = {x:0, y: y<0?-1:1};
+    }
+    // ring
+    tapRing.style.left = `${e.clientX - r.left}px`;
+    tapRing.style.top  = `${e.clientY - r.top}px`;
+    tapRing.style.opacity = "1";
+    tapRing.animate([{transform:"translate(-50%,-50%) scale(1)",opacity:1},{transform:"translate(-50%,-50%) scale(5)",opacity:0}], {duration:480, easing:"ease-out"});
+    setTimeout(()=>{ tapRing.style.opacity="0"; }, 480);
+    beep(320,0.03,"sine",0.02);
+    e.preventDefault();
+  }
+  tapPad.addEventListener('pointerdown', tapPadDown);
+
+  // Mode toggle
+  function setMode(m){
+    state.mode = m;
+    if(m==="joystick"){
+      joy.style.display = "";
+      tapMsg.textContent = "Tap mode is off. Use the joystick to walk around!";
+      state.targetDir = {x:0,y:0};
+    } else {
+      joy.style.display = "";
+      tapMsg.textContent = "Tap anywhere on this pad to pick a direction. Your character will step that way automatically.";
+      resetStick();
+    }
+    updateHUD();
+  }
+  modeBtn.addEventListener('click', ()=>{
+    setMode(state.mode==="joystick" ? "tap" : "joystick");
+  });
+
+  // --- Menu ---
+  function openMenu(){
+    state.paused = true;
+    nameInput.value = state.name;
+    avatarSelect.value = state.avatar;
+    worldSelect.value = state.world;
+    skySelect.value = state.sky;
+    tileSize.value = String(state.tile);
+    sfxToggle.value = state.sfx ? "on" : "off";
+    adFreqSel.value = state.adFreq;
+    assistSel.value = state.assist ? "on" : "off";
+    menuOverlay.classList.add('show');
+  }
+  function closeMenu(){
+    menuOverlay.classList.remove('show');
+    state.paused = false;
+  }
+  menuBtn.addEventListener('click', openMenu);
+  menuClose.addEventListener('click', closeMenu);
+  menuOverlay.addEventListener('click', (e)=>{ if(e.target===menuOverlay) closeMenu(); });
+
+  saveBtn.addEventListener('click', ()=>{
+    state.name = (nameInput.value || "Explorer").trim().slice(0,16);
+    state.avatar = avatarSelect.value;
+    state.world = worldSelect.value;
+    state.sky = skySelect.value;
+    state.tile = parseInt(tileSize.value,10);
+    state.sfx = (sfxToggle.value==="on");
+    state.adFreq = adFreqSel.value;
+    state.assist = (assistSel.value==="on");
+    applySky();
+    setAdFrequency();
+    generateMap();
+    updateHUD();
+    closeMenu();
+  });
+
+  newWorldBtn.addEventListener('click', ()=>{
+    generateMap();
+    beep(520,0.05,"triangle",0.03);
+  });
+  resetBtn.addEventListener('click', ()=>{
+    state.points = 0; state.stars = 0; state.logs = 0;
+    updateHUD();
+    beep(220,0.06,"sine",0.02);
+  });
+
+  // --- Good Ad banner behavior ---
+  function refreshBanner(){
+    setBannerAd(GOOD_ADS[bannerAdIndex]);
+  }
+  adNext.addEventListener('click', ()=>{
+    nextBannerAd();
+    beep(420,0.03,"sine",0.02);
+  });
+  adDo.addEventListener('click', ()=>{
+    doBannerAd();
+  });
+
+  // --- Good Ad interstitial modal ---
+  let adSkipTimer = null;
+  function showAdInterstitial(ad, opts={}){
+    state.paused = true;
+    adOverlay.classList.add('show');
+
+    // fake "skip in 3" like an ad, but it’s wholesome
+    let t = 3;
+    skipCount.textContent = String(t);
+    adCloseBtn.disabled = true;
+    adCloseBtn.textContent = `Skip in ${t}…`;
+    clearInterval(adSkipTimer);
+    adSkipTimer = setInterval(()=>{
+      t--;
+      if(t<=0){
+        clearInterval(adSkipTimer);
+        adCloseBtn.disabled = false;
+        adCloseBtn.textContent = "Close";
+      } else {
+        skipCount.textContent = String(t);
+        adCloseBtn.textContent = `Skip in ${t}…`;
+      }
+    }, 900);
+
+    // header + body
+    const rewardNote = opts.reward ? " + Bonus!" : "";
+    adModalHeader.textContent = (opts.reason ? opts.reason : "Good Ad Break") + rewardNote;
+
+    adModalBody.innerHTML = "";
+    adModalFooter.innerHTML = "";
+
+    const intro = document.createElement('p');
+    intro.innerHTML = `<span class="badge">GOOD AD</span> <span style="color:rgba(243,246,255,.86); font-weight:900;">${escapeHtml(ad.title)}</span>`;
+    adModalBody.appendChild(intro);
+
+    if(ad.kind==="quiz"){
+      const q = document.createElement('p');
+      q.textContent = ad.q;
+      adModalBody.appendChild(q);
+
+      const grid = document.createElement('div');
+      grid.className = "choiceGrid";
+      ad.choices.forEach((c, idx)=>{
+        const btn = document.createElement('button');
+        btn.className = "choice";
+        btn.innerHTML = `${idx+1}. ${escapeHtml(c.t)}`;
+        btn.addEventListener('click', ()=>{
+          // result
+          const res = document.createElement('p');
+          res.style.marginTop = "12px";
+          res.innerHTML = c.ok
+            ? `<b style="color:var(--accent)">✅ Nice!</b> ${escapeHtml(c.why)}`
+            : `<b style="color:var(--danger)">🧠 Try again.</b> ${escapeHtml(c.why)}`;
+          // clear old result and add new
+          [...adModalBody.querySelectorAll('.result')].forEach(n=>n.remove());
+          res.classList.add('result');
+          adModalBody.appendChild(res);
+
+          if(c.ok){
+            const bonus = opts.reward ? 35 : 20;
+            state.points += bonus;
+            beep(880,0.07,"triangle",0.04);
+            updateHUD();
+          } else {
+            beep(180,0.05,"square",0.02);
+          }
+        });
+        grid.appendChild(btn);
+      });
+      adModalBody.appendChild(grid);
+
+      const footerNote = document.createElement('p');
+      footerNote.className = "hint";
+      footerNote.textContent = "Tip: There’s no wrong person—only better choices you can practice.";
+      adModalBody.appendChild(footerNote);
+    } else {
+      const p = document.createElement('p');
+      p.textContent = ad.body;
+      adModalBody.appendChild(p);
+
+      const action = document.createElement('p');
+      action.innerHTML = `<b>Mini-mission:</b> Pick ONE thing you could do today (even tiny).`;
+      adModalBody.appendChild(action);
+
+      const grid = document.createElement('div');
+      grid.className = "choiceGrid";
+      const missions = [
+        "Say “please” and “thank you” once each.",
+        "Put one thing away without being asked.",
+        "Ask a grown-up: “Do you want help?”",
+        "Take 3 calm breaths if you feel grumpy.",
+        "Be a good listener for 10 seconds."
+      ];
+      missions.forEach((m)=>{
+        const btn = document.createElement('button');
+        btn.className = "choice";
+        btn.textContent = m;
+        btn.addEventListener('click', ()=>{
+          state.points += (opts.reward ? 30 : 15);
+          updateHUD();
+          beep(740,0.06,"triangle",0.03);
+          btn.textContent = "✅ Chosen! (Nice.)";
+          btn.disabled = true;
+        });
+        grid.appendChild(btn);
+      });
+      adModalBody.appendChild(grid);
+    }
+
+    // footer buttons
+    const okBtn = document.createElement('button');
+    okBtn.className = "btn";
+    okBtn.textContent = opts.reward ? "Back to the map 🏞️ (+bonus)" : "Back to the map 🏞️";
+    okBtn.addEventListener('click', closeAd);
+    adModalFooter.appendChild(okBtn);
+
+    // small extra
+    const nextBtn = document.createElement('button');
+    nextBtn.className = "btn secondary";
+    nextBtn.textContent = "Another good ad";
+    nextBtn.addEventListener('click', ()=>{
+      showAdInterstitial(pick(GOOD_ADS), opts);
+      beep(420,0.03,"sine",0.02);
+    });
+    adModalFooter.appendChild(nextBtn);
+
+    if(opts.reward){
+      // immediate reward for finishing a level
+      state.points += 25;
+      updateHUD();
+    }
+  }
+
+  function closeAd(){
+    adOverlay.classList.remove('show');
+    state.paused = false;
+    state.lastAdAt = performance.now();
+    clearInterval(adSkipTimer);
+  }
+  adCloseBtn.addEventListener('click', ()=>{
+    if(adCloseBtn.disabled) return;
+    closeAd();
+  });
+  adOverlay.addEventListener('click', (e)=>{ if(e.target===adOverlay && !adCloseBtn.disabled) closeAd(); });
+
+  // --- Main loop ---
+  function step(ts){
+    state.tick++;
+    // movement step rate
+    if(!state.paused){
+      const canMove = (ts - state.lastMoveAt) > state.moveCooldown;
+
+      if(canMove){
+        if(state.mode==="joystick"){
+          // turn joystick vector into a cardinal direction if strong enough
+          const vx = joyVec.x, vy = joyVec.y;
+          const dead = 0.28;
+          let dx=0, dy=0;
+          if(Math.abs(vx) > Math.abs(vy)){
+            if(Math.abs(vx) > dead) dx = vx<0 ? -1 : 1;
+          } else {
+            if(Math.abs(vy) > dead) dy = vy<0 ? -1 : 1;
+          }
+          if(dx||dy){
+            tryMove(dx,dy);
+            state.lastMoveAt = ts;
+          }
+        } else {
+          // tap mode: keep stepping in chosen direction
+          const dx = state.targetDir.x, dy = state.targetDir.y;
+          if(dx||dy){
+            const moved = tryMove(dx,dy);
+            state.lastMoveAt = ts;
+            // if blocked, stop after a few bumps
+            if(!moved){
+              state.targetDir = {x:0,y:0};
+            }
+          }
+        }
+      }
+
+      // periodic good ad break (only if player has moved a bit)
+      const sinceAd = ts - state.lastAdAt;
+      const movingRecently = (ts - state.lastMoveAt) < 2500;
+      if(movingRecently && sinceAd > state.adEveryMs){
+        showAdInterstitial(pick(GOOD_ADS));
+      }
+    }
+
+    draw();
+    requestAnimationFrame(step);
+  }
+
+  // --- Safe HTML for modal injection ---
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, (c)=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+  }
+
+  // --- Init ---
+  function loadFromStorage(){
+    try{
+      const raw = localStorage.getItem("natureQuest_v1");
+      if(!raw) return;
+      const d = JSON.parse(raw);
+      Object.assign(state, d);
+      // restore sets
+      state.solid = new Set((d.solidArr||[]));
+      state.collectibles = new Set((d.collectArr||[]));
+    }catch(e){}
+  }
+  function saveToStorage(){
+    try{
+      const d = {
+        name: state.name,
+        avatar: state.avatar,
+        world: state.world,
+        sky: state.sky,
+        tile: state.tile,
+        sfx: state.sfx,
+        adFreq: state.adFreq,
+        assist: state.assist,
+        mode: state.mode,
+        points: state.points,
+        stars: state.stars,
+        logs: state.logs,
+        mapW: state.mapW, mapH: state.mapH,
+        px: state.px, py: state.py,
+        goal: state.goal,
+        map: state.map,
+        solidArr: [...state.solid],
+        collectArr: [...state.collectibles],
+      };
+      localStorage.setItem("natureQuest_v1", JSON.stringify(d));
+    }catch(e){}
+  }
+
+  function rebuildSetsIfNeeded(){
+    // If loading older save, rebuild solid from tiles
+    if(!(state.solid instanceof Set)) state.solid = new Set();
+    if(!(state.collectibles instanceof Set)) state.collectibles = new Set();
+    if(!Array.isArray(state.map) || !state.map.length){
+      generateMap();
+      return;
+    }
+    // ensure goal tile exists
+    if(state.goal && inBounds(state.goal.x, state.goal.y)){
+      state.map[state.goal.y][state.goal.x] = "🏁";
+    }
+  }
+
+  // Save occasionally
+  setInterval(()=>{ saveToStorage(); }, 4000);
+
+  // Make sure mobile browsers allow audio on interaction
+  window.addEventListener('pointerdown', ()=>{
+    if(state.sfx){
+      try{ audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); audioCtx.resume?.(); }catch(e){}
+    }
+  }, {once:true});
+
+  // Resize handling
+  window.addEventListener('resize', ()=>{
+    resizeCanvas();
+  });
+
+  // Startup
+  loadFromStorage();
+  applySky();
+  setAdFrequency();
+  rebuildSetsIfNeeded();
+  resizeCanvas();
+  updateHUD();
+  refreshBanner();
+  requestAnimationFrame(step);
+
+  // First-run gentle intro ad
+  setTimeout(()=>{
+    showAdInterstitial({
+      kind:"affirmation",
+      title:"Welcome 🌿",
+      body:"This game has “Good Ads” that teach kindness and helping at home. No real ads. No tracking. Have fun exploring!"
+    }, {reward:true, reason:"Welcome to Nature Quest!"});
+  }, 300);
+
+})();
+</script>
+</body>
+</html>

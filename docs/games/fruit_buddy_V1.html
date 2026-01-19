@@ -1,0 +1,1485 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Fruit Buddy Club 🍎🍰</title>
+  <style>
+    :root{
+      --bg1:#0b1220;
+      --bg2:#101c33;
+      --card:#121a2a;
+      --card2:#0f1726;
+      --text:#eaf0ff;
+      --muted:#b8c4e6;
+      --accent:#7dd3fc;
+      --accent2:#a7f3d0;
+      --danger:#ff7b7b;
+      --ok:#7CFFB2;
+      --shadow: 0 10px 24px rgba(0,0,0,.28);
+      --radius: 18px;
+      --tap: 52px;
+      --safeTop: env(safe-area-inset-top, 0px);
+      --safeBottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:
+        radial-gradient(1200px 900px at 20% 10%, rgba(125, 211, 252, .22), transparent 55%),
+        radial-gradient(1100px 800px at 80% 30%, rgba(167, 243, 208, .18), transparent 55%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      padding: calc(10px + var(--safeTop)) 10px calc(12px + var(--safeBottom));
+      overflow:hidden;
+      touch-action: manipulation;
+    }
+
+    .app{
+      height:100%;
+      max-width: 860px;
+      margin:0 auto;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 12px;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+    header .left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+    .logo{
+      width:44px;height:44px;
+      border-radius: 14px;
+      display:grid; place-items:center;
+      background: rgba(125,211,252,.18);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+      font-size: 24px;
+      flex:0 0 auto;
+    }
+    .titleWrap{min-width:0}
+    .title{
+      font-weight: 800;
+      letter-spacing:.2px;
+      font-size: 16px;
+      line-height:1.15;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .subtitle{
+      color:var(--muted);
+      font-size: 12px;
+      margin-top:2px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .topBtns{
+      display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;
+    }
+    .btn{
+      border:none;
+      cursor:pointer;
+      color:var(--text);
+      background: rgba(255,255,255,.06);
+      border-radius: 14px;
+      min-height: 44px;
+      padding: 10px 12px;
+      font-weight: 700;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+      transition: transform .08s ease, background .12s ease;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:active{ transform: scale(.98); background: rgba(255,255,255,.09); }
+    .btn.primary{
+      background: linear-gradient(180deg, rgba(125,211,252,.22), rgba(125,211,252,.12));
+    }
+    .btn.good{
+      background: linear-gradient(180deg, rgba(167,243,208,.22), rgba(167,243,208,.12));
+    }
+    .btn.danger{
+      background: linear-gradient(180deg, rgba(255,123,123,.22), rgba(255,123,123,.12));
+    }
+    .btn.small{ min-height: 40px; padding: 8px 10px; border-radius: 12px; font-size: 13px; }
+
+    main{
+      flex:1 1 auto;
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:10px;
+      min-height:0;
+    }
+
+    @media (max-width: 860px){
+      main{ grid-template-columns: 1fr; }
+    }
+
+    .panel{
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+      min-height:0;
+      overflow:hidden;
+      position:relative;
+    }
+
+    .panelHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 12px 12px 10px;
+      gap:10px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .panelHeader h2{
+      margin:0;
+      font-size: 14px;
+      letter-spacing:.2px;
+    }
+    .panelHeader .hint{
+      color:var(--muted);
+      font-size: 12px;
+      white-space:nowrap;
+    }
+
+    .content{
+      padding: 12px;
+      min-height:0;
+      overflow:auto;
+    }
+
+    .card{
+      background: rgba(0,0,0,.22);
+      border-radius: 16px;
+      padding: 12px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+    }
+
+    .gameArea{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-height:0;
+    }
+
+    .stage{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap:10px;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tileBtn{
+      min-height: var(--tap);
+      border-radius: 18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 28px;
+      background: rgba(255,255,255,.05);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+      border:none;
+      cursor:pointer;
+      transition: transform .08s ease, background .12s ease;
+    }
+    .tileBtn:active{ transform: scale(.98); background: rgba(255,255,255,.09); }
+    .tileBtn.correct{ background: rgba(124,255,178,.18); box-shadow: inset 0 0 0 1px rgba(124,255,178,.35); }
+    .tileBtn.wrong{ background: rgba(255,123,123,.16); box-shadow: inset 0 0 0 1px rgba(255,123,123,.35); }
+    .tileBtn.revealed{ background: rgba(125,211,252,.14); box-shadow: inset 0 0 0 1px rgba(125,211,252,.28); }
+    .tileBtn.disabled{ opacity:.55; pointer-events:none; }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .row > *{ flex: 1 1 auto; }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.05);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+      min-height: 44px;
+      font-weight: 800;
+      letter-spacing:.2px;
+    }
+    .pill small{
+      font-weight:700;
+      color:var(--muted);
+      letter-spacing:0;
+    }
+
+    .bigAvatar{
+      font-size: 56px;
+      line-height:1;
+      filter: drop-shadow(0 8px 18px rgba(0,0,0,.35));
+    }
+    .nameTag{
+      margin-top: 6px;
+      font-weight: 900;
+      letter-spacing:.2px;
+      font-size: 14px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    .label{ font-size: 12px; color:var(--muted); margin-bottom:6px; }
+    input[type="text"], select{
+      width:100%;
+      min-height: 44px;
+      border-radius: 14px;
+      padding: 10px 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.2);
+      color: var(--text);
+      outline:none;
+      font-weight: 700;
+    }
+
+    .optGrid{
+      display:grid;
+      grid-template-columns: repeat(6, minmax(0,1fr));
+      gap:8px;
+    }
+    @media (max-width: 420px){
+      .optGrid{ grid-template-columns: repeat(5, minmax(0,1fr)); }
+    }
+    .emojiPick{
+      border:none;
+      cursor:pointer;
+      min-height: 44px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.05);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+      font-size: 22px;
+      transition: transform .08s ease, background .12s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .emojiPick:active{ transform: scale(.98); background: rgba(255,255,255,.09); }
+    .emojiPick.active{
+      background: rgba(167,243,208,.18);
+      box-shadow: inset 0 0 0 1px rgba(167,243,208,.38);
+    }
+
+    /* Tiny “ad” strip (really a kindness/PSA microcard) */
+    .microAd{
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      border-radius: 16px;
+      padding: 10px 12px;
+      background: rgba(0,0,0,.38);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), var(--shadow);
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      backdrop-filter: blur(10px);
+    }
+    .microAd .msg{
+      font-size: 12px;
+      color: var(--text);
+      line-height:1.25;
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      min-width:0;
+    }
+    .microAd .badge{
+      flex:0 0 auto;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(125,211,252,.16);
+      box-shadow: inset 0 0 0 1px rgba(125,211,252,.25);
+      font-weight: 900;
+      font-size: 11px;
+      letter-spacing:.3px;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .microAd .actions{
+      flex:0 0 auto;
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .microAd button{
+      min-height: 38px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border:none;
+      cursor:pointer;
+      color: var(--text);
+      background: rgba(255,255,255,.06);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.10);
+      font-weight: 800;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .microAd button:active{ transform: scale(.98); }
+
+    /* Modal */
+    .modalBack{
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      padding: 12px 12px calc(12px + var(--safeBottom));
+      z-index: 50;
+    }
+    .modalBack.show{ display:flex; }
+    .modal{
+      width: 100%;
+      max-width: 860px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(18,26,42,.98), rgba(15,23,38,.98));
+      box-shadow: 0 16px 40px rgba(0,0,0,.55);
+      border: 1px solid rgba(255,255,255,.10);
+      overflow:hidden;
+    }
+    .modalHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 12px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .modalHead h3{
+      margin:0;
+      font-size: 14px;
+      letter-spacing:.2px;
+    }
+    .modalBody{
+      padding: 12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .qBox{
+      background: rgba(0,0,0,.22);
+      border-radius: 18px;
+      padding: 12px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+    }
+    .qPrompt{
+      font-weight: 900;
+      font-size: 14px;
+      line-height:1.25;
+    }
+    .qPrompt .emoji{ font-size: 22px; margin-right:6px; }
+    .qAnswers{
+      display:grid;
+      gap:8px;
+      margin-top: 10px;
+    }
+    .qAnswers button{
+      min-height: 46px;
+      border-radius: 16px;
+      border:none;
+      cursor:pointer;
+      text-align:left;
+      padding: 10px 12px;
+      color: var(--text);
+      background: rgba(255,255,255,.06);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+      font-weight: 800;
+    }
+    .qAnswers button:active{ transform: scale(.99); }
+    .qAnswers button.good{ background: rgba(124,255,178,.14); box-shadow: inset 0 0 0 1px rgba(124,255,178,.32); }
+    .qAnswers button.bad{ background: rgba(255,123,123,.14); box-shadow: inset 0 0 0 1px rgba(255,123,123,.32); }
+
+    .toast{
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(86px + var(--safeBottom));
+      background: rgba(0,0,0,.65);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: var(--shadow);
+      font-weight: 900;
+      font-size: 13px;
+      display:none;
+      z-index: 60;
+      max-width: 92vw;
+      text-align:center;
+      line-height:1.2;
+    }
+    .toast.show{ display:block; }
+
+    /* Accessibility helpers */
+    .sr{
+      position:absolute !important;
+      width:1px;height:1px;
+      padding:0;margin:-1px;
+      overflow:hidden;clip:rect(0,0,0,0);
+      border:0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app" id="app">
+    <header>
+      <div class="left">
+        <div class="logo" id="logoEmoji">🍓</div>
+        <div class="titleWrap">
+          <div class="title">Fruit Buddy Club</div>
+          <div class="subtitle" id="subline">Tap a game • earn Sprinkles • be kind</div>
+        </div>
+      </div>
+      <div class="topBtns">
+        <button class="btn small primary" id="btnGame1">Quick Tap</button>
+        <button class="btn small" id="btnGame2">Memory</button>
+        <button class="btn small" id="btnGame3">Sort</button>
+        <button class="btn small good" id="btnCustomize">Customize</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- Left: game panel -->
+      <section class="panel" id="gamePanel">
+        <div class="panelHeader">
+          <h2 id="gameTitle">Quick Tap 🍎</h2>
+          <div class="hint" id="gameHint">Tap the matching fruit!</div>
+        </div>
+        <div class="content">
+          <div class="gameArea">
+            <div class="row">
+              <div class="pill" title="Your score">
+                <span>✨</span>
+                <span id="score">0</span>
+                <small>score</small>
+              </div>
+              <div class="pill" title="Sprinkles are fun points you earn">
+                <span>🍭</span>
+                <span id="sprinkles">0</span>
+                <small>sprinkles</small>
+              </div>
+              <div class="pill" title="Your streak">
+                <span>🔥</span>
+                <span id="streak">0</span>
+                <small>streak</small>
+              </div>
+            </div>
+
+            <div class="card" id="taskCard">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                <div style="min-width:0;">
+                  <div class="label">Mission</div>
+                  <div style="font-weight:900;font-size:16px;line-height:1.25;">
+                    Find: <span id="targetEmoji" style="font-size:24px;">🍎</span>
+                    <span id="targetName" style="color:var(--muted);font-size:13px;font-weight:800;margin-left:6px;"></span>
+                  </div>
+                </div>
+                <button class="btn small" id="btnNewRound">New Round</button>
+              </div>
+            </div>
+
+            <div class="stage" id="stage" aria-label="Game grid"></div>
+
+            <div class="card" id="miniControls">
+              <div class="row" style="align-items:flex-end;">
+                <div>
+                  <div class="label">Difficulty</div>
+                  <select id="difficulty">
+                    <option value="easy">Easy (slower)</option>
+                    <option value="normal" selected>Normal</option>
+                    <option value="hard">Hard (faster)</option>
+                  </select>
+                </div>
+                <div>
+                  <div class="label">Sound</div>
+                  <select id="soundMode">
+                    <option value="on" selected>On</option>
+                    <option value="off">Off</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row" style="margin-top:10px;">
+                <button class="btn danger" id="btnReset">Reset Points</button>
+                <button class="btn primary" id="btnHow">How to Play</button>
+              </div>
+            </div>
+
+            <div style="color:var(--muted);font-size:12px;line-height:1.35;">
+              <strong>Privacy:</strong> This app stores your settings <em>only on this device</em>. No internet calls, no tracking, no real ads.
+            </div>
+          </div>
+        </div>
+
+        <!-- Tiny “ad” (really a micro kindness card) -->
+        <div class="microAd" id="microAd" role="note" aria-label="Tiny tip card">
+          <div class="msg">
+            <div class="badge" id="adBadge">Tiny Tip</div>
+            <div style="min-width:0;">
+              <div id="adText" style="font-weight:800;"></div>
+              <div id="adSub" style="color:var(--muted);font-size:11px;margin-top:2px;"></div>
+            </div>
+          </div>
+          <div class="actions">
+            <button id="adQuizBtn" title="Mini quiz">Quiz</button>
+            <button id="adNextBtn" title="Next tip">Next</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: profile / customization panel -->
+      <aside class="panel" id="profilePanel">
+        <div class="panelHeader">
+          <h2>My Buddy</h2>
+          <div class="hint" id="buddyMood">Feeling: 🌈</div>
+        </div>
+        <div class="content">
+          <div class="card" style="display:flex;gap:12px;align-items:center;">
+            <div style="flex:0 0 auto;text-align:center;">
+              <div class="bigAvatar" id="avatarEmoji">🍉</div>
+              <div class="nameTag" id="avatarName">Fruit Buddy</div>
+            </div>
+            <div style="flex:1 1 auto;min-width:0;">
+              <div style="font-weight:900;font-size:14px;">Today’s Power Move</div>
+              <div id="powerMove" style="color:var(--muted);font-size:12px;line-height:1.35;margin-top:4px;">
+                “Help for 60 seconds.” (Pick one tiny helpful thing.)
+              </div>
+              <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="btn small good" id="btnPowerMove">New Power Move</button>
+                <button class="btn small" id="btnParent">Parent Mode</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="height:10px"></div>
+
+          <div class="card">
+            <div class="label">Choose your Buddy emoji</div>
+            <div class="optGrid" id="emojiGrid"></div>
+          </div>
+
+          <div style="height:10px"></div>
+
+          <div class="card">
+            <div class="label">Buddy name</div>
+            <input type="text" id="nameInput" maxlength="18" placeholder="e.g., Captain Kiwi" />
+            <div style="height:10px"></div>
+            <div class="label">Theme</div>
+            <select id="theme">
+              <option value="sky" selected>Sky Splash</option>
+              <option value="mint">Mint Glow</option>
+              <option value="berry">Berry Night</option>
+              <option value="sunset">Sunset Pop</option>
+            </select>
+          </div>
+
+          <div style="height:10px"></div>
+
+          <div class="card">
+            <div class="label">Game mode</div>
+            <select id="mode">
+              <option value="tap" selected>Quick Tap</option>
+              <option value="memory">Memory</option>
+              <option value="sort">Sort</option>
+            </select>
+            <div style="margin-top:10px;color:var(--muted);font-size:12px;line-height:1.35;">
+              Tip: Tap the buttons in the top-right to jump games fast.
+            </div>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <div class="toast" id="toast" aria-live="polite"></div>
+
+    <!-- Modal for quizzes / help / parent mode -->
+    <div class="modalBack" id="modalBack" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modalHead">
+          <h3 id="modalTitle">Mini Quiz</h3>
+          <button class="btn small" id="btnCloseModal">Close</button>
+        </div>
+        <div class="modalBody" id="modalBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Fruit Buddy Club
+    // - Mobile friendly, no external assets, no tracking, no network.
+    // - “Ads” are tiny kindness tips + mini quizzes.
+
+    const EMOJIS = ["🍎","🍐","🍊","🍋","🍌","🍉","🍇","🍓","🫐","🍒","🍑","🥭","🍍","🥝","🍈","🍭","🍰"];
+    const EMOJI_NAMES = {
+      "🍎":"Apple", "🍐":"Pear", "🍊":"Orange", "🍋":"Lemon", "🍌":"Banana",
+      "🍉":"Watermelon", "🍇":"Grapes", "🍓":"Strawberry", "🫐":"Blueberry", "🍒":"Cherry",
+      "🍑":"Peach", "🥭":"Mango", "🍍":"Pineapple", "🥝":"Kiwi", "🍈":"Melon",
+      "🍭":"Lollipop", "🍰":"Cake"
+    };
+
+    // Tiny tip/PSA deck (kept gentle, not preachy)
+    const TIPS = [
+      { badge:"Tiny Tip", text:"Try a “2-minute tidy.” Put 3 things away. ✅", sub:"Small help is real help." , quizId:"tidy"},
+      { badge:"Quick Kindness", text:"Say “please” + “thank you” like magic spells. ✨", sub:"It makes people feel respected.", quizId:"manners"},
+      { badge:"Helper Hack", text:"Ask: “How can I help?” then do the first tiny thing. 🤝", sub:"Grown-ups love tiny wins.", quizId:"help"},
+      { badge:"Cool Kid PSA", text:"When you’re mad: breathe in 4, out 6. 🌬️", sub:"Longer exhale calms the body.", quizId:"calm"},
+      { badge:"Friend Mode", text:"If someone is talking, try “eyes + quiet body.” 👀", sub:"Listening is a superpower.", quizId:"listen"},
+      { badge:"Kitchen Safety", text:"Ask before using sharp or hot things. 🔥", sub:"Safe kids are strong kids.", quizId:"safety"},
+      { badge:"Brain Fuel", text:"Drink water when you feel cranky. 💧", sub:"Sometimes it’s thirst, not drama.", quizId:"water"},
+      { badge:"Good Sport", text:"If you win: “Good game!” If you lose: “Nice one!” 🏅", sub:"Both are champion moves.", quizId:"sports"}
+    ];
+
+    // Mini quizzes for the “ad” button
+    const QUIZZES = {
+      tidy: {
+        title: "2-minute tidy",
+        emoji: "🧹",
+        prompt: "Which is the best “2-minute tidy” move?",
+        answers: [
+          { text:"Put 3 things away", ok:true,  why:"Yes! Small tidy = big feeling." },
+          { text:"Do nothing because it’s hard", ok:false, why:"Try the tiny version first." },
+          { text:"Throw everything on the bed", ok:false, why:"That usually makes a bigger mess." }
+        ],
+        reward: 2
+      },
+      manners: {
+        title: "Magic manners",
+        emoji: "🎩",
+        prompt: "What’s the best way to ask for something?",
+        answers: [
+          { text:"“Please can I have that?”", ok:true, why:"Perfect. Kind + clear." },
+          { text:"“Gimme!”", ok:false, why:"Try again with “please”." },
+          { text:"Grab it without asking", ok:false, why:"Ask first to be respectful." }
+        ],
+        reward: 2
+      },
+      help: {
+        title: "Helping Mom",
+        emoji: "🤝",
+        prompt: "Which help is the MOST helpful?",
+        answers: [
+          { text:"Ask what to do, then do it right away", ok:true, why:"Yes—ask + action!" },
+          { text:"Say you’ll help later (maybe)", ok:false, why:"Better: do a tiny thing now." },
+          { text:"Help only if you get a prize", ok:false, why:"Helping can be its own win." }
+        ],
+        reward: 3
+      },
+      calm: {
+        title: "Calm trick",
+        emoji: "🌬️",
+        prompt: "When you feel angry, what helps your brain cool down?",
+        answers: [
+          { text:"Slow breathing: in 4, out 6", ok:true, why:"Yes. Longer exhale calms you." },
+          { text:"Yell louder", ok:false, why:"That usually makes anger bigger." },
+          { text:"Run away and hide forever", ok:false, why:"Try a calm reset, then talk." }
+        ],
+        reward: 2
+      },
+      listen: {
+        title: "Listening power",
+        emoji: "👂",
+        prompt: "Which is best listening?",
+        answers: [
+          { text:"Look at them + quiet body", ok:true, why:"Exactly. That’s real listening." },
+          { text:"Interrupt with a better story", ok:false, why:"Save it for your turn." },
+          { text:"Stare at a screen while they talk", ok:false, why:"Try “eyes up” for a minute." }
+        ],
+        reward: 2
+      },
+      safety: {
+        title: "Safety",
+        emoji: "🧯",
+        prompt: "You want to use something hot/sharp. What do you do?",
+        answers: [
+          { text:"Ask a grown-up first", ok:true, why:"Correct. Safety = smart." },
+          { text:"Do it fast so nobody sees", ok:false, why:"That’s how accidents happen." },
+          { text:"Try it when you’re tired", ok:false, why:"Best time is calm + supervised." }
+        ],
+        reward: 2
+      },
+      water: {
+        title: "Water check",
+        emoji: "💧",
+        prompt: "You feel cranky and tired. First thing to try?",
+        answers: [
+          { text:"Drink water", ok:true, why:"Nice. Easy reset." },
+          { text:"Start a big argument", ok:false, why:"Try a body reset first." },
+          { text:"Eat only candy", ok:false, why:"Water + snack is a better combo." }
+        ],
+        reward: 2
+      },
+      sports: {
+        title: "Good sport",
+        emoji: "🏅",
+        prompt: "You lose a game. Best response?",
+        answers: [
+          { text:"“Nice one!”", ok:true, why:"That’s champion energy." },
+          { text:"“You cheated!”", ok:false, why:"Try a calm compliment instead." },
+          { text:"Storm off and slam stuff", ok:false, why:"Pause, breathe, then reset." }
+        ],
+        reward: 2
+      }
+    };
+
+    // State (saved locally)
+    const state = {
+      score: 0,
+      sprinkles: 0,
+      streak: 0,
+      buddyEmoji: "🍉",
+      buddyName: "Fruit Buddy",
+      theme: "sky",
+      mode: "tap", // tap | memory | sort
+      difficulty: "normal",
+      sound: "on",
+      adEnabled: true,
+      lastTipIndex: 0,
+      parentUnlocked: false
+    };
+
+    // DOM
+    const $ = (id)=>document.getElementById(id);
+    const stage = $("stage");
+    const scoreEl = $("score");
+    const sprinklesEl = $("sprinkles");
+    const streakEl = $("streak");
+    const targetEmojiEl = $("targetEmoji");
+    const targetNameEl = $("targetName");
+    const gameTitleEl = $("gameTitle");
+    const gameHintEl = $("gameHint");
+    const logoEmojiEl = $("logoEmoji");
+
+    const avatarEmojiEl = $("avatarEmoji");
+    const avatarNameEl = $("avatarName");
+    const nameInputEl = $("nameInput");
+    const themeEl = $("theme");
+    const modeEl = $("mode");
+    const diffEl = $("difficulty");
+    const soundEl = $("soundMode");
+
+    const microAdEl = $("microAd");
+    const adBadgeEl = $("adBadge");
+    const adTextEl = $("adText");
+    const adSubEl = $("adSub");
+    const adQuizBtn = $("adQuizBtn");
+    const adNextBtn = $("adNextBtn");
+
+    const toastEl = $("toast");
+
+    const modalBack = $("modalBack");
+    const modalTitle = $("modalTitle");
+    const modalBody = $("modalBody");
+    const btnCloseModal = $("btnCloseModal");
+
+    const buddyMoodEl = $("buddyMood");
+    const powerMoveEl = $("powerMove");
+
+    // Helpers
+    function randInt(n){ return Math.floor(Math.random()*n); }
+    function pick(arr){ return arr[randInt(arr.length)]; }
+    function clamp(v,a,b){ return Math.max(a, Math.min(b,v)); }
+
+    function save(){
+      try{ localStorage.setItem("fruitBuddyClub_v1", JSON.stringify(state)); }catch(e){}
+    }
+    function load(){
+      try{
+        const raw = localStorage.getItem("fruitBuddyClub_v1");
+        if(raw){
+          const data = JSON.parse(raw);
+          Object.assign(state, data);
+        }
+      }catch(e){}
+    }
+
+    // Sound (tiny beeps; optional)
+    let audioCtx = null;
+    function beep(type="ok"){
+      if(state.sound !== "on") return;
+      try{
+        audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = "sine";
+        const now = audioCtx.currentTime;
+        const f = type==="ok" ? 660 : type==="win" ? 880 : 220;
+        o.frequency.setValueAtTime(f, now);
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.exponentialRampToValueAtTime(0.12, now + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(now);
+        o.stop(now + 0.2);
+      }catch(e){}
+    }
+
+    function toast(msg){
+      toastEl.textContent = msg;
+      toastEl.classList.add("show");
+      clearTimeout(toastEl._t);
+      toastEl._t = setTimeout(()=>toastEl.classList.remove("show"), 1700);
+    }
+
+    function applyTheme(){
+      // Simple theme changes by swapping gradient accents via CSS variables on body
+      const body = document.body;
+      const t = state.theme;
+      const map = {
+        sky:   { a:"rgba(125, 211, 252, .22)", b:"rgba(167, 243, 208, .18)" },
+        mint:  { a:"rgba(167, 243, 208, .25)", b:"rgba(125, 211, 252, .14)" },
+        berry: { a:"rgba(167, 139, 250, .18)", b:"rgba(236, 72, 153, .14)" },
+        sunset:{ a:"rgba(251, 146, 60, .18)",  b:"rgba(244, 63, 94, .14)" }
+      };
+      const v = map[t] || map.sky;
+      body.style.background =
+        `radial-gradient(1200px 900px at 20% 10%, ${v.a}, transparent 55%),
+         radial-gradient(1100px 800px at 80% 30%, ${v.b}, transparent 55%),
+         linear-gradient(180deg, var(--bg1), var(--bg2))`;
+    }
+
+    function updateHeader(){
+      scoreEl.textContent = state.score;
+      sprinklesEl.textContent = state.sprinkles;
+      streakEl.textContent = state.streak;
+
+      avatarEmojiEl.textContent = state.buddyEmoji;
+      logoEmojiEl.textContent = state.buddyEmoji;
+      avatarNameEl.textContent = state.buddyName || "Fruit Buddy";
+      nameInputEl.value = state.buddyName || "";
+
+      themeEl.value = state.theme;
+      modeEl.value = state.mode;
+      diffEl.value = state.difficulty;
+      soundEl.value = state.sound;
+
+      const moods = ["🌈","😄","🧠","⚡","🦄","🍀","✨"];
+      buddyMoodEl.textContent = "Feeling: " + pick(moods);
+    }
+
+    // “Ads” (tiny tips)
+    function showTip(idx){
+      if(!state.adEnabled){
+        microAdEl.style.display = "none";
+        return;
+      }
+      microAdEl.style.display = "flex";
+      const tip = TIPS[idx % TIPS.length];
+      state.lastTipIndex = idx % TIPS.length;
+      adBadgeEl.textContent = tip.badge;
+      adTextEl.textContent = tip.text;
+      adSubEl.textContent = tip.sub || "";
+      save();
+    }
+    function nextTip(){
+      showTip((state.lastTipIndex + 1) % TIPS.length);
+    }
+
+    // Parent Mode (simple, kid-friendly gate: hold button 2 seconds)
+    function openParentMode(){
+      modalTitle.textContent = "Parent Mode";
+      modalBody.innerHTML = "";
+      const box = document.createElement("div");
+      box.className = "qBox";
+      box.innerHTML = `
+        <div class="qPrompt"><span class="emoji">🛡️</span>Parent settings (on this device only)</div>
+        <div style="color:var(--muted);font-size:12px;line-height:1.35;margin-top:6px;">
+          Toggle the tiny tip cards (they look like mini ads, but they’re kindness + PSA).
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+          <button class="btn small ${state.adEnabled ? "good" : ""}" id="toggleAds">${state.adEnabled ? "Tips: ON" : "Tips: OFF"}</button>
+          <button class="btn small" id="clearSave">Clear Save</button>
+        </div>
+        <div style="margin-top:10px;color:var(--muted);font-size:12px;line-height:1.35;">
+          Note: There are <strong>no real ads</strong> and <strong>no tracking</strong> in this app.
+        </div>
+      `;
+      modalBody.appendChild(box);
+
+      openModal();
+
+      setTimeout(()=>{
+        const toggle = document.getElementById("toggleAds");
+        const clear = document.getElementById("clearSave");
+        if(toggle){
+          toggle.onclick = ()=>{
+            state.adEnabled = !state.adEnabled;
+            toggle.textContent = state.adEnabled ? "Tips: ON" : "Tips: OFF";
+            toggle.classList.toggle("good", state.adEnabled);
+            save();
+            showTip(state.lastTipIndex);
+            toast(state.adEnabled ? "Tiny tips ON" : "Tiny tips OFF");
+          };
+        }
+        if(clear){
+          clear.onclick = ()=>{
+            if(confirm("Clear saved points + settings on this device?")){
+              localStorage.removeItem("fruitBuddyClub_v1");
+              location.reload();
+            }
+          };
+        }
+      }, 0);
+    }
+
+    // Modal helpers
+    function openModal(){
+      modalBack.classList.add("show");
+      modalBack.setAttribute("aria-hidden","false");
+    }
+    function closeModal(){
+      modalBack.classList.remove("show");
+      modalBack.setAttribute("aria-hidden","true");
+    }
+
+    btnCloseModal.addEventListener("click", closeModal);
+    modalBack.addEventListener("click", (e)=>{ if(e.target === modalBack) closeModal(); });
+
+    // “Ad quiz”
+    function openTipQuiz(){
+      const tip = TIPS[state.lastTipIndex];
+      const q = QUIZZES[tip.quizId] || pick(Object.values(QUIZZES));
+      modalTitle.textContent = q.title + " " + q.emoji;
+
+      modalBody.innerHTML = "";
+      const qBox = document.createElement("div");
+      qBox.className = "qBox";
+
+      const prompt = document.createElement("div");
+      prompt.className = "qPrompt";
+      prompt.innerHTML = `<span class="emoji">${q.emoji}</span>${q.prompt}`;
+      qBox.appendChild(prompt);
+
+      const answers = document.createElement("div");
+      answers.className = "qAnswers";
+
+      q.answers.forEach(ans=>{
+        const b = document.createElement("button");
+        b.textContent = ans.text;
+        b.onclick = ()=>{
+          // Mark answers
+          [...answers.children].forEach(x=>x.disabled = true);
+          b.classList.add(ans.ok ? "good" : "bad");
+          toast(ans.why);
+
+          if(ans.ok){
+            state.sprinkles += q.reward;
+            state.score += 1;
+            state.streak += 1;
+            beep("win");
+            updateHeader();
+            save();
+            setTimeout(()=>closeModal(), 900);
+          }else{
+            state.streak = 0;
+            beep("no");
+            updateHeader();
+            save();
+          }
+        };
+        answers.appendChild(b);
+      });
+
+      qBox.appendChild(answers);
+
+      const reward = document.createElement("div");
+      reward.style.color = "var(--muted)";
+      reward.style.fontSize = "12px";
+      reward.style.marginTop = "10px";
+      reward.innerHTML = `Correct answer earns <strong>${q.reward} 🍭 sprinkles</strong>.`;
+      qBox.appendChild(reward);
+
+      modalBody.appendChild(qBox);
+      openModal();
+    }
+
+    // Customization grid
+    function buildEmojiGrid(){
+      const grid = $("emojiGrid");
+      grid.innerHTML = "";
+      EMOJIS.forEach(e=>{
+        const b = document.createElement("button");
+        b.className = "emojiPick" + (e === state.buddyEmoji ? " active" : "");
+        b.textContent = e;
+        b.title = EMOJI_NAMES[e] || "Emoji";
+        b.onclick = ()=>{
+          state.buddyEmoji = e;
+          [...grid.children].forEach(x=>x.classList.remove("active"));
+          b.classList.add("active");
+          updateHeader();
+          save();
+          beep("ok");
+          toast("Buddy set to " + (EMOJI_NAMES[e] || "emoji") + "!");
+        };
+        grid.appendChild(b);
+      });
+    }
+
+    // Power moves (gentle, practical)
+    const POWER_MOVES = [
+      "“Help for 60 seconds.” Put one thing away.",
+      "“Kind words.” Say one nice thing to someone.",
+      "“Team moment.” Ask Mom: ‘Anything small I can do?’",
+      "“Reset.” Drink water + take 3 slow breaths.",
+      "“Fast tidy.” Pick up 5 items like a game.",
+      "“Good manners.” Use please/thank you once extra.",
+      "“Listener mode.” Let someone finish their sentence."
+    ];
+    function newPowerMove(){
+      powerMoveEl.textContent = "“" + pick(POWER_MOVES).replace(/“|”/g,"") + "”";
+    }
+
+    // Game implementations
+    let currentGame = "tap";
+    let targetEmoji = "🍎";
+
+    // Quick Tap state
+    let tapGrid = [];
+    let tapTimer = null;
+
+    function difficultyParams(){
+      if(state.difficulty === "easy") return { size: 4, speed: 1200 };
+      if(state.difficulty === "hard") return { size: 4, speed: 750 };
+      return { size: 4, speed: 950 };
+    }
+
+    function setGame(mode){
+      state.mode = mode;
+      currentGame = mode;
+      save();
+      modeEl.value = mode;
+
+      if(tapTimer){ clearInterval(tapTimer); tapTimer = null; }
+
+      if(mode === "tap"){
+        gameTitleEl.textContent = "Quick Tap 🍎";
+        gameHintEl.textContent = "Tap the matching fruit!";
+        $("btnNewRound").style.display = "inline-flex";
+        renderQuickTap(true);
+      }else if(mode === "memory"){
+        gameTitleEl.textContent = "Memory 🧠";
+        gameHintEl.textContent = "Find matching pairs!";
+        $("btnNewRound").style.display = "none";
+        renderMemory(true);
+      }else{
+        gameTitleEl.textContent = "Sort 🧺";
+        gameHintEl.textContent = "Tap fruits into the right basket!";
+        $("btnNewRound").style.display = "none";
+        renderSort(true);
+      }
+      // Rotate a tip sometimes when changing game
+      if(state.adEnabled && Math.random() < 0.7) nextTip();
+    }
+
+    // --- Quick Tap ---
+    function renderQuickTap(forceNew=false){
+      stage.innerHTML = "";
+      const { size } = difficultyParams(); // always 4x4 for now (nice on mobile)
+      const tiles = size * size;
+
+      // choose target from fruit emojis (exclude candy/cake for target sometimes, but allow sometimes)
+      const fruitsOnly = EMOJIS.slice(0, 15);
+      if(forceNew || !targetEmoji) targetEmoji = pick(fruitsOnly);
+
+      targetEmojiEl.textContent = targetEmoji;
+      targetNameEl.textContent = EMOJI_NAMES[targetEmoji] ? ("(" + EMOJI_NAMES[targetEmoji] + ")") : "";
+
+      tapGrid = [];
+      for(let i=0;i<tiles;i++){
+        const b = document.createElement("button");
+        b.className = "tileBtn";
+        const e = pick(EMOJIS);
+        b.textContent = e;
+        b.dataset.emoji = e;
+        b.onclick = ()=> onTapTile(b);
+        tapGrid.push(b);
+        stage.appendChild(b);
+      }
+      // ensure at least one correct tile
+      tapGrid[randInt(tapGrid.length)].textContent = targetEmoji;
+      tapGrid.forEach(btn=>btn.dataset.emoji = btn.textContent);
+
+      // auto shuffle (a little dopamine, still gentle)
+      const { speed } = difficultyParams();
+      tapTimer = setInterval(()=>{
+        if(currentGame !== "tap") return;
+        // shuffle a few tiles
+        for(let k=0;k<4;k++){
+          const idx = randInt(tapGrid.length);
+          if(tapGrid[idx].classList.contains("disabled")) continue;
+          const e = pick(EMOJIS);
+          tapGrid[idx].textContent = e;
+          tapGrid[idx].dataset.emoji = e;
+          tapGrid[idx].classList.remove("correct","wrong");
+        }
+        // keep a correct one around
+        tapGrid[randInt(tapGrid.length)].textContent = targetEmoji;
+        tapGrid.forEach(btn=>btn.dataset.emoji = btn.textContent);
+      }, speed);
+    }
+
+    function onTapTile(btn){
+      const e = btn.dataset.emoji;
+      const ok = (e === targetEmoji);
+      if(ok){
+        btn.classList.add("correct");
+        state.score += 2;
+        state.sprinkles += 1;
+        state.streak += 1;
+        beep("ok");
+        toast("Nice! +" + 2 + " score, +1 sprinkle 🍭");
+        // new target sometimes
+        if(state.streak % 3 === 0){
+          targetEmoji = pick(EMOJIS.slice(0,15));
+          targetEmojiEl.textContent = targetEmoji;
+          targetNameEl.textContent = EMOJI_NAMES[targetEmoji] ? ("(" + EMOJI_NAMES[targetEmoji] + ")") : "";
+          beep("win");
+          toast("New target!");
+        }
+      }else{
+        btn.classList.add("wrong");
+        state.streak = 0;
+        state.score = Math.max(0, state.score - 1);
+        beep("no");
+        toast("Oops—try again!");
+      }
+      updateHeader();
+      save();
+
+      // occasionally surface a micro-quiz after success streak
+      if(state.adEnabled && ok && state.streak > 0 && state.streak % 5 === 0){
+        setTimeout(openTipQuiz, 350);
+      }
+    }
+
+    // --- Memory ---
+    let memoryFirst = null;
+    let memoryLock = false;
+    let memoryTiles = [];
+
+    function renderMemory(reset=true){
+      stage.innerHTML = "";
+      memoryFirst = null;
+      memoryLock = false;
+
+      const pairs = 8; // 16 tiles
+      const fruits = shuffle(EMOJIS.slice(0,15)).slice(0, pairs);
+      const deck = shuffle([...fruits, ...fruits]);
+
+      memoryTiles = deck.map((emoji, i)=>{
+        const b = document.createElement("button");
+        b.className = "tileBtn";
+        b.textContent = "❓";
+        b.dataset.face = emoji;
+        b.dataset.state = "down";
+        b.onclick = ()=> flipMemory(b);
+        stage.appendChild(b);
+        return b;
+      });
+
+      // little preview
+      if(reset){
+        memoryTiles.forEach(b=>{
+          b.textContent = b.dataset.face;
+          b.classList.add("revealed");
+        });
+        setTimeout(()=>{
+          memoryTiles.forEach(b=>{
+            b.textContent = "❓";
+            b.classList.remove("revealed");
+          });
+        }, 900);
+      }
+    }
+
+    function flipMemory(btn){
+      if(memoryLock) return;
+      if(btn.dataset.state === "matched") return;
+      if(btn.dataset.state === "up") return;
+
+      btn.textContent = btn.dataset.face;
+      btn.dataset.state = "up";
+      btn.classList.add("revealed");
+      beep("ok");
+
+      if(!memoryFirst){
+        memoryFirst = btn;
+        return;
+      }
+
+      // second card
+      const a = memoryFirst;
+      const b = btn;
+      memoryLock = true;
+
+      if(a.dataset.face === b.dataset.face){
+        // match!
+        a.dataset.state = "matched";
+        b.dataset.state = "matched";
+        a.classList.remove("revealed"); b.classList.remove("revealed");
+        a.classList.add("correct"); b.classList.add("correct");
+        state.score += 4;
+        state.sprinkles += 2;
+        state.streak += 1;
+        beep("win");
+        toast("Match! +" + 4 + " score, +2 🍭");
+        memoryFirst = null;
+        memoryLock = false;
+        updateHeader(); save();
+
+        // win check
+        if(memoryTiles.every(x=>x.dataset.state==="matched")){
+          state.score += 6;
+          state.sprinkles += 3;
+          beep("win");
+          updateHeader(); save();
+          toast("YOU WIN! Bonus +3 🍭");
+          if(state.adEnabled) setTimeout(openTipQuiz, 500);
+          setTimeout(()=>renderMemory(true), 900);
+        }
+      }else{
+        // not match
+        state.streak = 0;
+        state.score = Math.max(0, state.score - 1);
+        beep("no");
+        updateHeader(); save();
+        setTimeout(()=>{
+          a.textContent = "❓";
+          b.textContent = "❓";
+          a.dataset.state = "down";
+          b.dataset.state = "down";
+          a.classList.remove("revealed","wrong");
+          b.classList.remove("revealed","wrong");
+          memoryFirst = null;
+          memoryLock = false;
+          toast("Try again!");
+        }, 650);
+      }
+    }
+
+    // --- Sort ---
+    let sortTarget = "fruit"; // fruit | treat
+    let sortScoreLocal = 0;
+
+    function renderSort(reset=true){
+      stage.innerHTML = "";
+      sortScoreLocal = 0;
+
+      const card = $("taskCard");
+      card.querySelector(".label").textContent = "Sorting Mission";
+      $("btnNewRound").style.display = "none";
+
+      // target toggles every round
+      sortTarget = (Math.random() < 0.5) ? "fruit" : "treat";
+      const targetLabel = sortTarget === "fruit" ? "Fruit Basket 🧺" : "Treat Tray 🍰";
+      const targetEmojiDisplay = sortTarget === "fruit" ? "🍎" : "🍰";
+      targetEmojiEl.textContent = targetEmojiDisplay;
+      targetNameEl.textContent = "(" + targetLabel + ")";
+
+      // Build tiles (mix fruits + treats)
+      const deck = [];
+      const fruits = EMOJIS.slice(0,15);
+      const treats = ["🍭","🍰"];
+
+      for(let i=0;i<16;i++){
+        const isTreat = Math.random() < 0.22;
+        deck.push(isTreat ? pick(treats) : pick(fruits));
+      }
+
+      deck.forEach(e=>{
+        const b = document.createElement("button");
+        b.className = "tileBtn";
+        b.textContent = e;
+        b.dataset.emoji = e;
+        b.onclick = ()=> onSortTap(b);
+        stage.appendChild(b);
+      });
+
+      $("gameHint").textContent = sortTarget === "fruit"
+        ? "Tap ONLY fruit. Avoid treats!"
+        : "Tap ONLY treats. Skip fruit!";
+    }
+
+    function isTreatEmoji(e){ return e === "🍭" || e === "🍰"; }
+
+    function onSortTap(btn){
+      if(btn.classList.contains("disabled")) return;
+      const e = btn.dataset.emoji;
+      const ok = (sortTarget === "fruit") ? !isTreatEmoji(e) : isTreatEmoji(e);
+
+      btn.classList.add("disabled");
+      if(ok){
+        btn.classList.add("correct");
+        sortScoreLocal++;
+        state.score += 1;
+        state.sprinkles += 1;
+        state.streak += 1;
+        beep("ok");
+      }else{
+        btn.classList.add("wrong");
+        state.streak = 0;
+        state.score = Math.max(0, state.score - 1);
+        beep("no");
+      }
+      updateHeader(); save();
+
+      // if finished round (all tapped or 10 taps)
+      const tapped = [...stage.children].filter(x=>x.classList.contains("disabled")).length;
+      if(tapped >= 10){
+        // bonus if good
+        const bonus = clamp(sortScoreLocal, 0, 6);
+        state.sprinkles += bonus;
+        state.score += bonus;
+        beep("win");
+        updateHeader(); save();
+        toast("Round done! Bonus +" + bonus + " 🍭");
+        if(state.adEnabled && bonus >= 4) setTimeout(openTipQuiz, 450);
+        setTimeout(()=>renderSort(true), 900);
+      }
+    }
+
+    // Shuffle
+    function shuffle(arr){
+      const a = arr.slice();
+      for(let i=a.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i],a[j]] = [a[j],a[i]];
+      }
+      return a;
+    }
+
+    // How-to
+    function openHow(){
+      modalTitle.textContent = "How to Play";
+      modalBody.innerHTML = "";
+      const box = document.createElement("div");
+      box.className = "qBox";
+      box.innerHTML = `
+        <div class="qPrompt"><span class="emoji">🎮</span>Three mini games</div>
+        <div style="color:var(--muted);font-size:12px;line-height:1.45;margin-top:8px;">
+          <div style="margin-bottom:8px;"><strong>Quick Tap</strong>: Tap the target fruit as fast as you can. Streaks earn sprinkles.</div>
+          <div style="margin-bottom:8px;"><strong>Memory</strong>: Find matching pairs. Matches give bonus points.</div>
+          <div style="margin-bottom:8px;"><strong>Sort</strong>: Tap the right kind (Fruit vs Treat). Quick rounds.</div>
+          <div><strong>Tiny Tip cards</strong> at the bottom are not real ads—they’re little kindness/PSA quizzes.</div>
+        </div>
+      `;
+      modalBody.appendChild(box);
+      openModal();
+    }
+
+    // Reset
+    function resetPoints(){
+      if(confirm("Reset score + sprinkles? (Settings stay.)")){
+        state.score = 0; state.sprinkles = 0; state.streak = 0;
+        updateHeader(); save();
+        toast("Reset!");
+      }
+    }
+
+    // Wiring
+    $("btnGame1").onclick = ()=>setGame("tap");
+    $("btnGame2").onclick = ()=>setGame("memory");
+    $("btnGame3").onclick = ()=>setGame("sort");
+    $("btnCustomize").onclick = ()=>{
+      toast("Customize on the right 👉");
+    };
+
+    $("btnNewRound").onclick = ()=>{ if(currentGame==="tap") renderQuickTap(true); };
+    $("btnHow").onclick = openHow;
+    $("btnReset").onclick = resetPoints;
+
+    diffEl.onchange = ()=>{ state.difficulty = diffEl.value; save(); if(currentGame==="tap") renderQuickTap(true); };
+    soundEl.onchange = ()=>{ state.sound = soundEl.value; save(); toast("Sound " + (state.sound==="on"?"ON":"OFF")); };
+
+    themeEl.onchange = ()=>{ state.theme = themeEl.value; applyTheme(); save(); toast("Theme set!"); };
+    modeEl.onchange = ()=>{ setGame(modeEl.value); };
+
+    nameInputEl.oninput = ()=>{
+      const v = nameInputEl.value.trim();
+      state.buddyName = v || "Fruit Buddy";
+      updateHeader();
+      save();
+    };
+
+    adNextBtn.onclick = nextTip;
+    adQuizBtn.onclick = openTipQuiz;
+
+    // Parent Mode: long-press (hold 2 seconds)
+    const btnParent = $("btnParent");
+    let parentHoldTimer = null;
+    btnParent.addEventListener("pointerdown", ()=>{
+      toast("Hold… (Parent Mode)");
+      parentHoldTimer = setTimeout(()=>{
+        beep("win");
+        openParentMode();
+      }, 2000);
+    });
+    ["pointerup","pointercancel","pointerleave"].forEach(ev=>{
+      btnParent.addEventListener(ev, ()=>{ clearTimeout(parentHoldTimer); parentHoldTimer=null; });
+    });
+
+    $("btnPowerMove").onclick = ()=>{
+      newPowerMove();
+      if(state.adEnabled && Math.random() < 0.35) nextTip();
+      toast("New power move!");
+    };
+
+    // Init
+    load();
+    applyTheme();
+    buildEmojiGrid();
+    updateHeader();
+    newPowerMove();
+    showTip(state.lastTipIndex || 0);
+
+    // Start game based on saved mode
+    setGame(state.mode || "tap");
+
+    // Make “Mission” label correct after switching from Sort back to others
+    const _setGame = setGame;
+    setGame = function(mode){
+      // restore mission card label
+      const card = $("taskCard");
+      card.querySelector(".label").textContent = "Mission";
+      return _setGame(mode);
+    };
+
+    // Safety: prevent double-tap zoom in iOS while still allowing pinch zoom if user wants
+    let lastTouchEnd = 0;
+    document.addEventListener("touchend", function (event) {
+      const now = (new Date()).getTime();
+      if (now - lastTouchEnd <= 300) event.preventDefault();
+      lastTouchEnd = now;
+    }, { passive:false });
+
+  </script>
+</body>
+</html>

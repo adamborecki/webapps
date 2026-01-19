@@ -1,0 +1,1653 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0b1220" />
+  <title>Weather Buddy ☀️🌧️🌈</title>
+  <style>
+    :root{
+      --bg1:#0b1220;
+      --bg2:#122a55;
+      --card: rgba(255,255,255,.10);
+      --card2: rgba(255,255,255,.14);
+      --text: rgba(255,255,255,.95);
+      --muted: rgba(255,255,255,.75);
+      --accent: #7dd3fc;
+      --good: #86efac;
+      --warn: #fde68a;
+      --bad:  #fca5a5;
+      --shadow: 0 10px 30px rgba(0,0,0,.30);
+      --radius: 18px;
+      --safeT: env(safe-area-inset-top, 0px);
+      --safeB: env(safe-area-inset-bottom, 0px);
+      --safeL: env(safe-area-inset-left, 0px);
+      --safeR: env(safe-area-inset-right, 0px);
+      --scale: 1;
+      --motion: 1;
+    }
+    *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+    html,body{ height:100%; margin:0; font-family: ui-rounded, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color:var(--text); }
+    body{
+      background: radial-gradient(1200px 800px at 20% 0%, rgba(125,211,252,.20), transparent 55%),
+                  radial-gradient(900px 650px at 90% 30%, rgba(167,139,250,.18), transparent 60%),
+                  linear-gradient(160deg, var(--bg1), var(--bg2));
+      overflow:hidden;
+      transform: scale(var(--scale));
+      transform-origin: top left;
+    }
+
+    /* App Shell */
+    .app{
+      height:100%;
+      display:flex;
+      flex-direction:column;
+      padding: calc(10px + var(--safeT)) calc(12px + var(--safeR)) calc(10px + var(--safeB)) calc(12px + var(--safeL));
+      gap: 10px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.08));
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,.10);
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px; min-width:0;
+    }
+    .logo{
+      width:42px; height:42px; border-radius:14px;
+      display:grid; place-items:center;
+      background: rgba(255,255,255,.14);
+      border:1px solid rgba(255,255,255,.12);
+      font-size: 22px;
+    }
+    .titlewrap{ min-width:0; }
+    .title{
+      font-weight: 800;
+      letter-spacing: .2px;
+      font-size: 16px;
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .subtitle{
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pillrow{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+    .pill{
+      display:flex; align-items:center; gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.10);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .pill strong{ color: var(--text); font-weight:800; }
+    .btn{
+      appearance:none; border:none; cursor:pointer;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.14);
+      color: var(--text);
+      font-weight: 800;
+      box-shadow: 0 6px 20px rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.12);
+      transition: transform .12s ease, background .12s ease;
+      touch-action: manipulation;
+    }
+    .btn:active{ transform: translateY(1px) scale(.99); }
+    .btn.small{ padding: 9px 10px; font-size: 12px; border-radius: 12px; }
+    .btn.ghost{ background: rgba(255,255,255,.10); box-shadow:none; }
+    .btn.primary{ background: linear-gradient(180deg, rgba(125,211,252,.25), rgba(125,211,252,.12)); border-color: rgba(125,211,252,.35); }
+    .btn.good{ background: linear-gradient(180deg, rgba(134,239,172,.22), rgba(134,239,172,.10)); border-color: rgba(134,239,172,.35); }
+    .btn.warn{ background: linear-gradient(180deg, rgba(253,230,138,.22), rgba(253,230,138,.10)); border-color: rgba(253,230,138,.35); }
+    .btn.bad{ background: linear-gradient(180deg, rgba(252,165,165,.22), rgba(252,165,165,.10)); border-color: rgba(252,165,165,.35); }
+
+    /* Main Layout */
+    .main{
+      flex:1;
+      min-height:0;
+      display:grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 10px;
+    }
+
+    .adbar{
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.07));
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .adinner{
+      padding: 10px 12px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .adtag{
+      font-size: 11px;
+      font-weight:900;
+      color: rgba(255,255,255,.9);
+      background: rgba(255,255,255,.14);
+      border:1px solid rgba(255,255,255,.12);
+      padding: 5px 8px;
+      border-radius: 999px;
+      flex: 0 0 auto;
+    }
+    .adcontent{ min-width:0; flex:1; }
+    .adtitle{ font-weight:900; font-size: 13px; line-height:1.15; }
+    .adbody{ color: var(--muted); font-size: 12px; margin-top:2px; line-height:1.25; }
+    .adactions{ display:flex; gap:8px; flex: 0 0 auto; }
+    .progress{
+      height: 3px;
+      background: rgba(255,255,255,.10);
+      position:absolute; left:0; right:0; bottom:0;
+    }
+    .progress > div{
+      height:100%;
+      width: 0%;
+      background: rgba(125,211,252,.7);
+      transition: width linear;
+    }
+
+    .card{
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.11), rgba(255,255,255,.06));
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      min-height:0;
+    }
+    .tabs{
+      display:flex; gap:6px;
+      padding: 10px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      flex-wrap: wrap;
+    }
+    .tab{
+      flex: 1 1 auto;
+      min-width: 92px;
+      text-align:center;
+      font-weight:900;
+      font-size: 12px;
+      padding: 10px 10px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.10);
+      color: var(--muted);
+      cursor:pointer;
+      user-select:none;
+      touch-action: manipulation;
+    }
+    .tab.active{
+      color: var(--text);
+      border-color: rgba(125,211,252,.35);
+      background: linear-gradient(180deg, rgba(125,211,252,.22), rgba(125,211,252,.10));
+    }
+    .panel{
+      display:none;
+      height:100%;
+      min-height:0;
+    }
+    .panel.active{ display:flex; flex-direction:column; min-height:0; }
+
+    .content{
+      padding: 12px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      min-height:0;
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:stretch; }
+    .col{ flex:1 1 220px; min-width: 220px; }
+    .mini{
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.10);
+    }
+    .mini h3{
+      margin: 0 0 6px 0;
+      font-size: 14px;
+      font-weight: 900;
+    }
+    .mini p{ margin: 0; color: var(--muted); font-size: 12px; line-height:1.35; }
+
+    .bigEmoji{
+      font-size: 64px;
+      line-height: 1;
+      text-align:center;
+      margin-top: 6px;
+    }
+    .gridEmoji{
+      display:grid;
+      grid-template-columns: repeat(6, minmax(44px, 1fr));
+      gap: 8px;
+    }
+    .emojiBtn{
+      display:grid;
+      place-items:center;
+      padding: 10px 0;
+      border-radius: 14px;
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.12);
+      font-size: 22px;
+      cursor:pointer;
+      user-select:none;
+      touch-action: manipulation;
+    }
+    .emojiBtn:active{ transform: translateY(1px) scale(.99); }
+    .emojiBtn.selected{
+      border-color: rgba(134,239,172,.45);
+      background: rgba(134,239,172,.14);
+    }
+
+    .forecastLine{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      justify-content:space-between;
+      padding: 10px 10px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .forecastLeft{ display:flex; align-items:center; gap:10px; min-width:0; }
+    .slot{
+      width: 44px; height: 44px;
+      display:grid; place-items:center;
+      border-radius: 14px;
+      background: rgba(255,255,255,.10);
+      border: 1px dashed rgba(255,255,255,.25);
+      font-size: 22px;
+      flex: 0 0 auto;
+    }
+    .slot.filled{ border-style: solid; border-color: rgba(125,211,252,.35); background: rgba(125,211,252,.12); }
+    .ftime{
+      font-weight: 900;
+      font-size: 12px;
+      color: var(--muted);
+      width: 64px;
+      flex: 0 0 auto;
+    }
+    .note{
+      min-width:0;
+      flex:1;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+
+    .input{
+      width:100%;
+      padding: 12px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.12);
+      color: var(--text);
+      font-weight: 700;
+      outline:none;
+      font-size: 14px;
+    }
+    .input::placeholder{ color: rgba(255,255,255,.55); font-weight: 600; }
+
+    .kpi{
+      display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+    }
+    .badge{
+      font-size: 12px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.10);
+      color: var(--muted);
+    }
+    .badge strong{ color:var(--text); }
+
+    .footerbar{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      align-items:center;
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.10);
+    }
+    .smallMuted{ color: var(--muted); font-size: 12px; line-height:1.3; }
+
+    /* Modal */
+    .modalBackdrop{
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      align-items:flex-end;
+      padding: 14px;
+      padding-bottom: calc(14px + var(--safeB));
+    }
+    .modalBackdrop.show{ display:flex; }
+    .modal{
+      width: min(720px, 100%);
+      margin: 0 auto;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(20,35,70,.96), rgba(12,18,32,.96));
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: 0 20px 60px rgba(0,0,0,.55);
+      overflow:hidden;
+    }
+    .modalHeader{
+      padding: 12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+    }
+    .modalHeader h2{
+      margin:0;
+      font-size: 16px;
+      font-weight: 900;
+    }
+    .modalBody{
+      padding: 12px 14px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      max-height: 70vh;
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .settingRow{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      padding: 10px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.10);
+      flex-wrap:wrap;
+    }
+    .settingLeft{
+      min-width: 220px;
+    }
+    .settingLeft .label{
+      font-weight: 900;
+      font-size: 13px;
+      margin: 0 0 2px 0;
+    }
+    .settingLeft .help{
+      font-size: 12px;
+      color: var(--muted);
+      margin:0;
+      line-height:1.25;
+    }
+    .toggle{
+      display:flex; align-items:center; gap:10px;
+    }
+    .switch{
+      width: 52px; height: 30px;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 999px;
+      position:relative;
+      cursor:pointer;
+      flex: 0 0 auto;
+    }
+    .knob{
+      width: 24px; height: 24px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.85);
+      position:absolute;
+      top: 2px;
+      left: 3px;
+      transition: left .18s ease;
+    }
+    .switch.on{ border-color: rgba(134,239,172,.35); background: rgba(134,239,172,.16); }
+    .switch.on .knob{ left: 24px; }
+
+    .seg{
+      display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;
+    }
+    .seg button{ flex:0 0 auto; }
+
+    @media (max-width: 520px){
+      .gridEmoji{ grid-template-columns: repeat(5, minmax(44px, 1fr)); }
+      .col{ min-width: 100%; }
+      .pillrow{ justify-content:flex-start; }
+    }
+
+    /* Motion reduction */
+    @media (prefers-reduced-motion: reduce){
+      :root{ --motion: 0; }
+      .btn, .emojiBtn, .knob{ transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" id="logoEmoji">🌈</div>
+        <div class="titlewrap">
+          <div class="title" id="helloTitle">Weather Buddy</div>
+          <div class="subtitle" id="helloSub">Play with weather emojis + earn Kindness Stars ⭐</div>
+        </div>
+      </div>
+      <div class="pillrow">
+        <div class="pill" title="Kindness Stars">
+          ⭐ <strong id="starsCount">0</strong>
+        </div>
+        <button class="btn small ghost" id="btnAdNow" title="Show a kindness ad">Ad 💡</button>
+        <button class="btn small primary" id="btnSettings" title="Customize">Customize 🎨</button>
+      </div>
+    </div>
+
+    <!-- “Ads” (affirmations / PSA quiz cards) -->
+    <div class="adbar" id="adbar" aria-live="polite">
+      <div class="adinner">
+        <div class="adtag" id="adTag">KINDNESS AD</div>
+        <div class="adcontent">
+          <div class="adtitle" id="adTitle">You’re doing great.</div>
+          <div class="adbody" id="adBody">Tiny kindness = big magic. Want a quick 10-second mini-quiz?</div>
+        </div>
+        <div class="adactions">
+          <button class="btn small good" id="adActionA">Yes ✅</button>
+          <button class="btn small ghost" id="adActionB">Later ⏭️</button>
+        </div>
+      </div>
+      <div class="progress"><div id="adProgress"></div></div>
+    </div>
+
+    <div class="main card">
+      <div class="tabs" role="tablist" aria-label="Screens">
+        <div class="tab active" data-tab="play" role="tab" aria-selected="true">Play 🎮</div>
+        <div class="tab" data-tab="forecast" role="tab" aria-selected="false">Forecast 🗓️</div>
+        <div class="tab" data-tab="learn" role="tab" aria-selected="false">Learn 💡</div>
+        <div class="tab" data-tab="gallery" role="tab" aria-selected="false">Gallery 🧩</div>
+      </div>
+
+      <!-- PLAY -->
+      <div class="panel active" id="panel-play" role="tabpanel">
+        <div class="content">
+          <div class="row">
+            <div class="col mini">
+              <h3>Pick today’s vibe</h3>
+              <p>Tap an emoji. Make a tiny weather story. Earn ⭐ for good choices.</p>
+              <div class="bigEmoji" id="bigEmoji">☀️</div>
+              <div class="kpi" style="margin-top:10px;">
+                <span class="badge">Mood: <strong id="moodText">Sunny</strong></span>
+                <span class="badge">Buddy: <strong id="buddyEmoji">🛰️</strong></span>
+              </div>
+              <div class="row" style="margin-top:10px;">
+                <button class="btn good" id="btnStory">Make a story ✨</button>
+                <button class="btn ghost" id="btnRandom">Random 🎲</button>
+              </div>
+            </div>
+
+            <div class="col mini">
+              <h3>Weather emoji keyboard</h3>
+              <p>Tap to choose. Long-press (hold) to “favorite” ⭐.</p>
+              <div class="gridEmoji" id="emojiGrid"></div>
+              <div class="row" style="margin-top:10px;">
+                <button class="btn primary" id="btnFavs">Favorites ⭐</button>
+                <button class="btn ghost" id="btnClearFavs">Clear</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="mini">
+            <h3>Type a helpful message to Mom</h3>
+            <p>Try: “Can I help with dishes?” or “Thank you for dinner.”</p>
+            <input class="input" id="momMessage" placeholder="Type something kind here…" maxlength="80" />
+            <div class="row" style="margin-top:10px;">
+              <button class="btn good" id="btnSendKind">Send Kindness 💌</button>
+              <button class="btn ghost" id="btnCopy">Copy</button>
+              <button class="btn warn" id="btnIdeas">Ideas 💡</button>
+            </div>
+            <div class="smallMuted" id="kindResult" style="margin-top:8px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORECAST -->
+      <div class="panel" id="panel-forecast" role="tabpanel">
+        <div class="content">
+          <div class="mini">
+            <h3>Make your own forecast timeline</h3>
+            <p>Tap a time slot, then tap an emoji to fill it. Add a note if you want.</p>
+            <div class="row" style="margin-top:10px;">
+              <button class="btn primary" id="btnPickSlot">Pick slot 🎯</button>
+              <button class="btn ghost" id="btnClearForecast">Clear timeline</button>
+              <button class="btn good" id="btnSaveForecast">Save ✅</button>
+            </div>
+          </div>
+
+          <div class="mini" id="timeline"></div>
+
+          <div class="mini">
+            <h3>Note</h3>
+            <p>Optional: a tiny plan like “pack bag” or “help set table.”</p>
+            <input class="input" id="slotNote" placeholder="Tiny note…" maxlength="60" />
+            <div class="row" style="margin-top:10px;">
+              <button class="btn good" id="btnAttachNote">Attach note 📝</button>
+              <button class="btn ghost" id="btnRandomNote">Random helpful note 🎲</button>
+            </div>
+            <div class="smallMuted" id="forecastHint" style="margin-top:8px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LEARN -->
+      <div class="panel" id="panel-learn" role="tabpanel">
+        <div class="content">
+          <div class="mini">
+            <h3>Quick manners + helping mini-quiz</h3>
+            <p>Get ⭐ for thoughtful answers. It’s okay to try again.</p>
+            <div class="badge" id="quizStatus">Question 1 of 6</div>
+            <div style="margin-top:10px; font-size:16px; font-weight:900;" id="quizQ">When someone gives you something, what do you say?</div>
+            <div class="row" style="margin-top:10px;" id="quizChoices"></div>
+            <div class="smallMuted" id="quizFeedback" style="margin-top:8px;"></div>
+            <div class="row" style="margin-top:10px;">
+              <button class="btn ghost" id="btnQuizSkip">Skip ⏭️</button>
+              <button class="btn primary" id="btnQuizNext">Next ▶️</button>
+            </div>
+          </div>
+
+          <div class="mini">
+            <h3>Affirmation generator</h3>
+            <p>Tap for a new one. Save your favorites ⭐.</p>
+            <div style="font-size:18px; font-weight:900; line-height:1.3;" id="affText">I can do hard things, one small step at a time.</div>
+            <div class="row" style="margin-top:10px;">
+              <button class="btn primary" id="btnAffNew">New 💫</button>
+              <button class="btn good" id="btnAffStar">Star it ⭐</button>
+              <button class="btn ghost" id="btnAffCopy">Copy</button>
+            </div>
+            <div class="smallMuted" id="affSaved" style="margin-top:8px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GALLERY -->
+      <div class="panel" id="panel-gallery" role="tabpanel">
+        <div class="content">
+          <div class="mini">
+            <h3>Sticker parade</h3>
+            <p>Build a little “weather parade.” Tap emojis to add them. Remove by tapping a sticker.</p>
+            <div class="row" style="margin-top:10px;">
+              <button class="btn primary" id="btnParadeClear">Clear 🧹</button>
+              <button class="btn good" id="btnParadeSave">Save ⭐</button>
+              <button class="btn ghost" id="btnParadeRandom">Random 🎲</button>
+            </div>
+            <div style="margin-top:10px; padding:10px; border-radius:16px; background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10); min-height:72px;"
+                 id="paradeArea" aria-label="Sticker parade area"></div>
+          </div>
+
+          <div class="mini">
+            <h3>Saved favorites</h3>
+            <p>Your starred affirmations + sticker parades live here (on this device).</p>
+            <div class="row" style="margin-top:10px;">
+              <button class="btn ghost" id="btnExport">Export 📤</button>
+              <button class="btn bad" id="btnResetAll">Reset all 🗑️</button>
+            </div>
+            <pre id="savedDump" style="white-space:pre-wrap; word-break:break-word; margin:10px 0 0 0; color:var(--muted); font-size:12px;"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footerbar">
+      <div class="smallMuted" id="footerTip">Tip: Hold an emoji to favorite it ⭐</div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn small ghost" id="btnNoise">Sound: Off 🔇</button>
+        <button class="btn small ghost" id="btnHelp">Help ❔</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modalBackdrop" id="settingsBackdrop" role="dialog" aria-modal="true" aria-label="Customization">
+    <div class="modal">
+      <div class="modalHeader">
+        <h2>Customize 🎨</h2>
+        <button class="btn small ghost" id="btnCloseSettings">Close ✖️</button>
+      </div>
+      <div class="modalBody">
+        <div class="settingRow">
+          <div class="settingLeft">
+            <p class="label">Kid name</p>
+            <p class="help">Used for greetings. (No internet, stays on this device.)</p>
+          </div>
+          <input class="input" id="kidName" placeholder="Type name…" maxlength="20" style="max-width:240px;" />
+        </div>
+
+        <div class="settingRow">
+          <div class="settingLeft">
+            <p class="label">Buddy emoji</p>
+            <p class="help">Pick a sidekick (like 🛰️ or ⭐).</p>
+          </div>
+          <div class="seg" id="buddyChoices"></div>
+        </div>
+
+        <div class="settingRow">
+          <div class="settingLeft">
+            <p class="label">Theme</p>
+            <p class="help">Choose a background mood.</p>
+          </div>
+          <div class="seg">
+            <button class="btn small ghost" data-theme="night">Night 🌙</button>
+            <button class="btn small ghost" data-theme="sky">Sky ☁️</button>
+            <button class="btn small ghost" data-theme="rainbow">Rainbow 🌈</button>
+            <button class="btn small ghost" data-theme="storm">Storm ⛈️</button>
+          </div>
+        </div>
+
+        <div class="settingRow">
+          <div class="settingLeft">
+            <p class="label">Big text</p>
+            <p class="help">Makes reading easier.</p>
+          </div>
+          <div class="toggle">
+            <div class="switch" id="swBigText"><div class="knob"></div></div>
+          </div>
+        </div>
+
+        <div class="settingRow">
+          <div class="settingLeft">
+            <p class="label">Reduce motion</p>
+            <p class="help">Less animation, calmer feel.</p>
+          </div>
+          <div class="toggle">
+            <div class="switch" id="swMotion"><div class="knob"></div></div>
+          </div>
+        </div>
+
+        <div class="settingRow">
+          <div class="settingLeft">
+            <p class="label">“Kindness Ads” frequency</p>
+            <p class="help">More = more reminders + quizzes.</p>
+          </div>
+          <div class="seg">
+            <button class="btn small ghost" data-adfreq="slow">Slow 🐢</button>
+            <button class="btn small ghost" data-adfreq="normal">Normal 🙂</button>
+            <button class="btn small ghost" data-adfreq="fast">Fast ⚡</button>
+          </div>
+        </div>
+
+        <div class="smallMuted">
+          This app has “ads” but they’re just affirmations + kid-friendly PSA mini-quizzes (helping Mom, manners, kindness).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help Modal -->
+  <div class="modalBackdrop" id="helpBackdrop" role="dialog" aria-modal="true" aria-label="Help">
+    <div class="modal">
+      <div class="modalHeader">
+        <h2>Help ❔</h2>
+        <button class="btn small ghost" id="btnCloseHelp">Close ✖️</button>
+      </div>
+      <div class="modalBody">
+        <div class="mini">
+          <h3>How to play</h3>
+          <p>
+            • Tap weather emojis to pick a vibe.<br/>
+            • Hold an emoji to favorite ⭐.<br/>
+            • “Ads” are kindness reminders + tiny quizzes. Answer well to earn ⭐.<br/>
+            • Forecast screen: pick a slot, then tap an emoji to fill it.<br/>
+            • Gallery: build a sticker parade and save it ⭐.
+          </p>
+        </div>
+        <div class="mini">
+          <h3>Privacy</h3>
+          <p>No accounts, no internet, no tracking. Your saved stuff stays on this device (localStorage).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ====== Emoji set (your list) ======
+    const WEATHER = ["☀️","🌤️","⛅️","🌥️","☁️","🌦️","🌧️","⛈️","🌩️","❄️","🌨️","💨","🌪️","🌫️","🌈","🌙","⭐️","🛰️"];
+
+    // ====== Tiny “mood” names for a few ======
+    const MOODS = {
+      "☀️":"Sunny", "🌤️":"Bright", "⛅️":"Cozy Clouds", "🌥️":"Cloudy", "☁️":"Overcast",
+      "🌦️":"Sunshower", "🌧️":"Rainy", "⛈️":"Stormy", "🌩️":"Lightning",
+      "❄️":"Snowy", "🌨️":"Blizzard", "💨":"Windy", "🌪️":"Tornado Watch", "🌫️":"Foggy",
+      "🌈":"Rainbow", "🌙":"Night", "⭐️":"Sparkly", "🛰️":"Spacey"
+    };
+
+    // ====== Storage ======
+    const LSKEY = "weatherBuddy_v1";
+    const state = {
+      kidName: "",
+      buddy: "🛰️",
+      selected: "☀️",
+      stars: 0,
+      favorites: [],           // emoji favorites
+      adFreq: "normal",        // slow|normal|fast
+      bigText: false,
+      reduceMotion: false,
+      theme: "night",
+      forecast: {},            // slotKey -> {emoji, note}
+      affStars: [],            // starred affirmations
+      parades: []              // saved parades: array of arrays of emojis
+    };
+
+    function load(){
+      try{
+        const saved = JSON.parse(localStorage.getItem(LSKEY) || "null");
+        if(saved && typeof saved === "object"){
+          Object.assign(state, saved);
+        }
+      }catch(e){}
+      applyTheme(state.theme);
+      applyBigText(state.bigText);
+      applyMotion(state.reduceMotion);
+      renderAll();
+    }
+    function save(){
+      localStorage.setItem(LSKEY, JSON.stringify(state));
+      renderSavedDump();
+    }
+
+    // ====== DOM ======
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+    const bigEmoji = $("#bigEmoji");
+    const moodText = $("#moodText");
+    const buddyEmoji = $("#buddyEmoji");
+    const logoEmoji = $("#logoEmoji");
+    const starsCount = $("#starsCount");
+    const footerTip = $("#footerTip");
+
+    // ====== Sound (simple, optional) ======
+    let soundOn = false;
+    const btnNoise = $("#btnNoise");
+    function beep(ok=true){
+      if(!soundOn) return;
+      try{
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = "sine";
+        o.frequency.value = ok ? 740 : 220;
+        g.gain.value = 0.08;
+        o.connect(g); g.connect(ctx.destination);
+        o.start();
+        o.stop(ctx.currentTime + 0.10);
+        setTimeout(()=>ctx.close(), 200);
+      }catch(e){}
+    }
+    btnNoise.addEventListener("click", ()=>{
+      soundOn = !soundOn;
+      btnNoise.textContent = soundOn ? "Sound: On 🔊" : "Sound: Off 🔇";
+      beep(true);
+    });
+
+    // ====== Tabs ======
+    $$(".tab").forEach(t=>{
+      t.addEventListener("click", ()=>{
+        $$(".tab").forEach(x=>x.classList.remove("active"));
+        t.classList.add("active");
+        const key = t.dataset.tab;
+        $$(".panel").forEach(p=>p.classList.remove("active"));
+        $("#panel-"+key).classList.add("active");
+        showAdMaybe("tab");
+      });
+    });
+
+    // ====== Emoji grid ======
+    const grid = $("#emojiGrid");
+    let pressTimer = null;
+    function renderGrid(){
+      grid.innerHTML = "";
+      WEATHER.forEach(e=>{
+        const b = document.createElement("div");
+        b.className = "emojiBtn" + (e===state.selected ? " selected":"");
+        b.textContent = e;
+        b.setAttribute("role","button");
+        b.setAttribute("aria-label","emoji " + (MOODS[e] || "weather"));
+        // tap
+        b.addEventListener("click", ()=>{
+          selectEmoji(e);
+        });
+        // long press favorite
+        b.addEventListener("touchstart", (ev)=>{
+          clearTimeout(pressTimer);
+          pressTimer = setTimeout(()=>{
+            toggleFavorite(e);
+            b.classList.toggle("selected", e===state.selected);
+          }, 520);
+        }, {passive:true});
+        b.addEventListener("touchend", ()=> clearTimeout(pressTimer));
+        b.addEventListener("mousedown", ()=>{
+          clearTimeout(pressTimer);
+          pressTimer = setTimeout(()=> toggleFavorite(e), 520);
+        });
+        b.addEventListener("mouseup", ()=> clearTimeout(pressTimer));
+        b.addEventListener("mouseleave", ()=> clearTimeout(pressTimer));
+        grid.appendChild(b);
+      });
+    }
+
+    function selectEmoji(e){
+      state.selected = e;
+      bigEmoji.textContent = e;
+      moodText.textContent = MOODS[e] || "Weather";
+      logoEmoji.textContent = e === "⭐️" ? "⭐️" : (e === "🌈" ? "🌈" : "☁️");
+      beep(true);
+      renderGrid();
+      save();
+      showAdMaybe("emoji");
+    }
+
+    // ====== Favorites ======
+    function toggleFavorite(e){
+      const i = state.favorites.indexOf(e);
+      if(i>=0){
+        state.favorites.splice(i,1);
+        footerTip.textContent = `Removed favorite: ${e}`;
+        beep(false);
+      }else{
+        state.favorites.push(e);
+        footerTip.textContent = `Favorited: ${e} ⭐`;
+        addStars(1, "Favorite emoji");
+        beep(true);
+      }
+      save();
+    }
+
+    $("#btnFavs").addEventListener("click", ()=>{
+      const list = state.favorites.length ? state.favorites.join(" ") : "(none yet)";
+      toast(`Favorites ⭐: ${list}`);
+      showAdMaybe("favorites");
+    });
+    $("#btnClearFavs").addEventListener("click", ()=>{
+      state.favorites = [];
+      save();
+      toast("Favorites cleared.");
+      beep(false);
+    });
+
+    // ====== Random ======
+    $("#btnRandom").addEventListener("click", ()=>{
+      const e = WEATHER[Math.floor(Math.random()*WEATHER.length)];
+      selectEmoji(e);
+    });
+
+    // ====== Story maker ======
+    const STORY_FRAMES = [
+      (e,b)=>`${b} says: “I see ${e}! Let’s be kind today.”`,
+      (e,b)=>`The sky is ${MOODS[e] || "mysterious"} ${e}. ${b} helps by cleaning up one thing.`,
+      (e,b)=>`${b} whispers: “Small good manners are superpowers.”`,
+      (e,b)=>`Today’s mission: help Mom once + say “please” + say “thank you.” ${e}`
+    ];
+    $("#btnStory").addEventListener("click", ()=>{
+      const b = state.buddy || "🛰️";
+      const e = state.selected;
+      const line = STORY_FRAMES[Math.floor(Math.random()*STORY_FRAMES.length)](e,b);
+      toast(line);
+      addStars(1, "Made a story");
+      beep(true);
+      showAdMaybe("story");
+    });
+
+    // ====== Kind message to Mom ======
+    const momMessage = $("#momMessage");
+    const kindResult = $("#kindResult");
+    $("#btnIdeas").addEventListener("click", ()=>{
+      const ideas = [
+        "Can I help set the table?",
+        "Thank you for dinner!",
+        "I can clean up my toys.",
+        "Do you want a hug?",
+        "I can help with dishes.",
+        "Thanks for taking care of me."
+      ];
+      momMessage.value = ideas[Math.floor(Math.random()*ideas.length)];
+      kindResult.textContent = "Nice! Tap “Send Kindness” to earn ⭐.";
+    });
+
+    $("#btnCopy").addEventListener("click", async ()=>{
+      try{
+        await navigator.clipboard.writeText(momMessage.value || "");
+        toast("Copied!");
+        beep(true);
+      }catch(e){
+        toast("Copy not available here. (It’s okay.)");
+        beep(false);
+      }
+    });
+
+    $("#btnSendKind").addEventListener("click", ()=>{
+      const msg = (momMessage.value || "").trim();
+      if(msg.length < 6){
+        kindResult.textContent = "Try a few more words 🙂";
+        beep(false);
+        return;
+      }
+      kindResult.textContent = `Sent (pretend)! 💌 “${msg}”`;
+      addStars(2, "Kind message");
+      beep(true);
+      showAdMaybe("kindness");
+    });
+
+    // ====== Forecast timeline ======
+    const TIMES = ["7am","9am","11am","1pm","3pm","5pm","7pm"];
+    const timeline = $("#timeline");
+    let activeSlot = null;
+
+    function slotKey(t){ return "slot_"+t; }
+
+    function renderTimeline(){
+      timeline.innerHTML = `<h3 style="margin:0 0 8px 0; font-size:14px; font-weight:900;">Timeline</h3>`;
+      TIMES.forEach(t=>{
+        const key = slotKey(t);
+        const entry = state.forecast[key] || null;
+        const line = document.createElement("div");
+        line.className = "forecastLine";
+        line.style.outline = (activeSlot===key) ? "2px solid rgba(125,211,252,.55)" : "none";
+        const left = document.createElement("div");
+        left.className = "forecastLeft";
+        const time = document.createElement("div");
+        time.className = "ftime";
+        time.textContent = t;
+        const slot = document.createElement("div");
+        slot.className = "slot" + (entry?.emoji ? " filled":"");
+        slot.textContent = entry?.emoji || "➕";
+        const note = document.createElement("div");
+        note.className = "note";
+        note.textContent = entry?.note ? `📝 ${entry.note}` : "Tap to choose emoji + optional note";
+        left.appendChild(time);
+        left.appendChild(slot);
+        left.appendChild(note);
+
+        const right = document.createElement("div");
+        right.style.display = "flex";
+        right.style.gap = "8px";
+        const btnPick = document.createElement("button");
+        btnPick.className = "btn small primary";
+        btnPick.textContent = "Pick";
+        btnPick.addEventListener("click", ()=>{
+          activeSlot = key;
+          $("#forecastHint").textContent = `Selected ${t}. Now tap an emoji in Play screen OR use “Pick slot” + emoji.`;
+          renderTimeline();
+          toast(`Selected ${t}. Now choose an emoji.`);
+        });
+
+        const btnX = document.createElement("button");
+        btnX.className = "btn small ghost";
+        btnX.textContent = "Clear";
+        btnX.addEventListener("click", ()=>{
+          delete state.forecast[key];
+          save();
+          renderTimeline();
+          beep(false);
+        });
+
+        right.appendChild(btnPick);
+        right.appendChild(btnX);
+
+        line.addEventListener("click", ()=>{
+          activeSlot = key;
+          $("#forecastHint").textContent = `Selected ${t}. Now tap an emoji to fill it.`;
+          renderTimeline();
+        });
+
+        line.appendChild(left);
+        line.appendChild(right);
+        timeline.appendChild(line);
+      });
+    }
+
+    function setForecastEmoji(e){
+      if(!activeSlot){
+        toast("Pick a slot first 🎯");
+        beep(false);
+        return;
+      }
+      state.forecast[activeSlot] = state.forecast[activeSlot] || {};
+      state.forecast[activeSlot].emoji = e;
+      save();
+      renderTimeline();
+      addStars(1, "Forecast set");
+      beep(true);
+    }
+
+    $("#btnPickSlot").addEventListener("click", ()=>{
+      // pick next empty or cycle
+      const empty = TIMES.map(t=>slotKey(t)).find(k=>!(state.forecast[k]?.emoji));
+      activeSlot = empty || slotKey(TIMES[0]);
+      renderTimeline();
+      toast("Slot selected. Now choose an emoji.");
+      showAdMaybe("slot");
+    });
+
+    $("#btnAttachNote").addEventListener("click", ()=>{
+      const note = ($("#slotNote").value || "").trim();
+      if(!activeSlot){
+        toast("Pick a slot first 🎯");
+        beep(false);
+        return;
+      }
+      state.forecast[activeSlot] = state.forecast[activeSlot] || {};
+      state.forecast[activeSlot].note = note || "";
+      save();
+      renderTimeline();
+      if(note) addStars(1, "Added note");
+      beep(true);
+      $("#slotNote").value = "";
+      $("#forecastHint").textContent = note ? "Note attached ✅" : "Cleared note ✅";
+    });
+
+    $("#btnRandomNote").addEventListener("click", ()=>{
+      const notes = [
+        "Help set table 🍽️",
+        "Put shoes away 👟",
+        "Feed pet (if you have one) 🐶",
+        "Say ‘please’ once 🙂",
+        "Say ‘thank you’ once 🙏",
+        "Tidy one small thing 🧸",
+        "Ask: “Can I help?” 💛"
+      ];
+      $("#slotNote").value = notes[Math.floor(Math.random()*notes.length)];
+      $("#forecastHint").textContent = "Nice note idea! Attach it 📝";
+    });
+
+    $("#btnClearForecast").addEventListener("click", ()=>{
+      state.forecast = {};
+      activeSlot = null;
+      save();
+      renderTimeline();
+      toast("Timeline cleared.");
+      beep(false);
+    });
+
+    $("#btnSaveForecast").addEventListener("click", ()=>{
+      save();
+      toast("Saved ✅");
+      addStars(1, "Saved forecast");
+      beep(true);
+      showAdMaybe("save");
+    });
+
+    // ====== Learn quiz ======
+    const quiz = [
+      { q:"When someone gives you something, what do you say?", a:0, choices:["Thank you", "Gimme!", "Whatever"] },
+      { q:"If Mom is busy, what’s a good question?", a:1, choices:["Can I have candy now?", "Can I help with anything?", "Why are you slow?"] },
+      { q:"You borrowed something. What’s the best move?", a:2, choices:["Hide it", "Throw it", "Return it + say thanks"] },
+      { q:"Someone is talking. What’s good manners?", a:1, choices:["Interrupt", "Wait your turn", "Yell louder"] },
+      { q:"After dinner, a helpful habit is…", a:0, choices:["Bring plate to sink", "Leave mess", "Drop food on floor"] },
+      { q:"If you feel mad, a smart step is…", a:2, choices:["Break stuff", "Blame people", "Breathe + ask for help"] }
+    ];
+    let qIndex = 0;
+    let choicePicked = null;
+
+    const quizStatus = $("#quizStatus");
+    const quizQ = $("#quizQ");
+    const quizChoices = $("#quizChoices");
+    const quizFeedback = $("#quizFeedback");
+
+    function renderQuiz(){
+      quizStatus.textContent = `Question ${qIndex+1} of ${quiz.length}`;
+      quizQ.textContent = quiz[qIndex].q;
+      quizChoices.innerHTML = "";
+      choicePicked = null;
+      quizFeedback.textContent = "";
+      quiz[qIndex].choices.forEach((c,i)=>{
+        const b = document.createElement("button");
+        b.className = "btn";
+        b.textContent = c;
+        b.addEventListener("click", ()=>{
+          choicePicked = i;
+          const correct = (i === quiz[qIndex].a);
+          if(correct){
+            b.classList.add("good");
+            quizFeedback.textContent = "✅ Nice! That’s a great choice.";
+            addStars(2, "Quiz correct");
+            beep(true);
+          }else{
+            b.classList.add("warn");
+            quizFeedback.textContent = "🙂 Almost. Try again or hit Next.";
+            beep(false);
+          }
+          showAdMaybe("quiz");
+        });
+        quizChoices.appendChild(b);
+      });
+    }
+
+    $("#btnQuizNext").addEventListener("click", ()=>{
+      qIndex = (qIndex + 1) % quiz.length;
+      renderQuiz();
+    });
+    $("#btnQuizSkip").addEventListener("click", ()=>{
+      qIndex = (qIndex + 1) % quiz.length;
+      renderQuiz();
+    });
+
+    // ====== Affirmations ======
+    const AFFS = [
+      "I can do hard things, one small step at a time.",
+      "My words can be kind and strong.",
+      "I can pause, breathe, and choose a good next move.",
+      "Helping at home makes my family feel loved.",
+      "I’m learning every day — mistakes are practice.",
+      "I can be brave and polite at the same time.",
+      "I can ask: “How can I help?”"
+    ];
+    const affText = $("#affText");
+    const affSaved = $("#affSaved");
+
+    function newAff(){
+      const t = AFFS[Math.floor(Math.random()*AFFS.length)];
+      affText.textContent = t;
+      showAdMaybe("aff");
+    }
+    $("#btnAffNew").addEventListener("click", ()=>{
+      newAff();
+      beep(true);
+    });
+    $("#btnAffStar").addEventListener("click", ()=>{
+      const t = affText.textContent.trim();
+      if(!t) return;
+      if(!state.affStars.includes(t)){
+        state.affStars.push(t);
+        addStars(1, "Starred affirmation");
+        affSaved.textContent = "Saved ⭐";
+        save();
+        beep(true);
+      }else{
+        affSaved.textContent = "Already saved ⭐";
+        beep(false);
+      }
+    });
+    $("#btnAffCopy").addEventListener("click", async ()=>{
+      try{
+        await navigator.clipboard.writeText(affText.textContent);
+        toast("Copied!");
+        beep(true);
+      }catch(e){
+        toast("Copy not available here. (It’s okay.)");
+        beep(false);
+      }
+    });
+
+    // ====== Sticker parade ======
+    const paradeArea = $("#paradeArea");
+    let parade = [];
+
+    function renderParade(){
+      paradeArea.innerHTML = "";
+      if(parade.length === 0){
+        paradeArea.innerHTML = `<div class="smallMuted">Tap emojis (in Play) to add stickers here. 🌤️🌧️🌈</div>`;
+        return;
+      }
+      parade.forEach((e, idx)=>{
+        const s = document.createElement("span");
+        s.textContent = e;
+        s.style.fontSize = "28px";
+        s.style.marginRight = "8px";
+        s.style.cursor = "pointer";
+        s.title = "Tap to remove";
+        s.addEventListener("click", ()=>{
+          parade.splice(idx,1);
+          renderParade();
+          beep(false);
+        });
+        paradeArea.appendChild(s);
+      });
+    }
+
+    $("#btnParadeClear").addEventListener("click", ()=>{
+      parade = [];
+      renderParade();
+      toast("Cleared 🧹");
+      beep(false);
+    });
+    $("#btnParadeRandom").addEventListener("click", ()=>{
+      parade = [];
+      const n = 6 + Math.floor(Math.random()*8);
+      for(let i=0;i<n;i++) parade.push(WEATHER[Math.floor(Math.random()*WEATHER.length)]);
+      renderParade();
+      addStars(1, "Random parade");
+      beep(true);
+      showAdMaybe("parade");
+    });
+    $("#btnParadeSave").addEventListener("click", ()=>{
+      if(parade.length === 0){
+        toast("Add some stickers first 🙂");
+        beep(false);
+        return;
+      }
+      state.parades.push([...parade]);
+      addStars(2, "Saved parade");
+      save();
+      toast("Saved ⭐");
+      beep(true);
+      showAdMaybe("save");
+    });
+
+    // ====== Saved dump / export / reset ======
+    const savedDump = $("#savedDump");
+    function renderSavedDump(){
+      const obj = {
+        kidName: state.kidName,
+        stars: state.stars,
+        favorites: state.favorites,
+        affStars: state.affStars,
+        parades: state.parades,
+        forecast: state.forecast
+      };
+      savedDump.textContent = JSON.stringify(obj, null, 2);
+    }
+    $("#btnExport").addEventListener("click", async ()=>{
+      const data = savedDump.textContent || "";
+      try{
+        await navigator.clipboard.writeText(data);
+        toast("Export copied to clipboard 📤");
+        beep(true);
+      }catch(e){
+        toast("Export copy not available here.");
+        beep(false);
+      }
+    });
+    $("#btnResetAll").addEventListener("click", ()=>{
+      localStorage.removeItem(LSKEY);
+      toast("Reset done. Reloading…");
+      setTimeout(()=>location.reload(), 650);
+    });
+
+    // ====== Settings modal ======
+    const settingsBackdrop = $("#settingsBackdrop");
+    const helpBackdrop = $("#helpBackdrop");
+
+    $("#btnSettings").addEventListener("click", ()=> settingsBackdrop.classList.add("show"));
+    $("#btnCloseSettings").addEventListener("click", ()=> settingsBackdrop.classList.remove("show"));
+    settingsBackdrop.addEventListener("click", (e)=>{ if(e.target===settingsBackdrop) settingsBackdrop.classList.remove("show"); });
+
+    $("#btnHelp").addEventListener("click", ()=> helpBackdrop.classList.add("show"));
+    $("#btnCloseHelp").addEventListener("click", ()=> helpBackdrop.classList.remove("show"));
+    helpBackdrop.addEventListener("click", (e)=>{ if(e.target===helpBackdrop) helpBackdrop.classList.remove("show"); });
+
+    $("#kidName").addEventListener("input", ()=>{
+      state.kidName = $("#kidName").value.trim();
+      renderHello();
+      save();
+    });
+
+    // Buddy choices
+    const buddyChoices = $("#buddyChoices");
+    function renderBuddyChoices(){
+      buddyChoices.innerHTML = "";
+      const opts = ["🛰️","⭐️","🌈","🌙","☀️","☁️"];
+      opts.forEach(e=>{
+        const b = document.createElement("button");
+        b.className = "btn small " + (state.buddy===e ? "primary":"ghost");
+        b.textContent = e;
+        b.addEventListener("click", ()=>{
+          state.buddy = e;
+          buddyEmoji.textContent = e;
+          renderBuddyChoices();
+          save();
+          beep(true);
+        });
+        buddyChoices.appendChild(b);
+      });
+    }
+
+    // Theme
+    function applyTheme(theme){
+      state.theme = theme;
+      const r = document.documentElement.style;
+      if(theme==="night"){
+        r.setProperty("--bg1","#081024"); r.setProperty("--bg2","#142a55"); r.setProperty("--accent","#7dd3fc");
+      }else if(theme==="sky"){
+        r.setProperty("--bg1","#081a2a"); r.setProperty("--bg2","#1b4b7a"); r.setProperty("--accent","#a7f3d0");
+      }else if(theme==="rainbow"){
+        r.setProperty("--bg1","#1a1040"); r.setProperty("--bg2","#0b3a4d"); r.setProperty("--accent","#fda4af");
+      }else if(theme==="storm"){
+        r.setProperty("--bg1","#0b0f18"); r.setProperty("--bg2","#1c2433"); r.setProperty("--accent","#fde68a");
+      }
+      save();
+    }
+    $$("[data-theme]").forEach(b=>{
+      b.addEventListener("click", ()=> applyTheme(b.dataset.theme));
+    });
+
+    // Big text toggle
+    const swBigText = $("#swBigText");
+    function applyBigText(on){
+      state.bigText = !!on;
+      swBigText.classList.toggle("on", state.bigText);
+      document.body.style.fontSize = state.bigText ? "18px" : "";
+      // Slightly scale UI (keeps tap targets comfy)
+      document.documentElement.style.setProperty("--scale", "1");
+      save();
+    }
+    swBigText.addEventListener("click", ()=> applyBigText(!state.bigText));
+
+    // Motion toggle
+    const swMotion = $("#swMotion");
+    function applyMotion(reduce){
+      state.reduceMotion = !!reduce;
+      swMotion.classList.toggle("on", state.reduceMotion);
+      // If reduced, avoid progress animations feeling “busy”
+      save();
+    }
+    swMotion.addEventListener("click", ()=> applyMotion(!state.reduceMotion));
+
+    // Ad frequency
+    $$("[data-adfreq]").forEach(b=>{
+      b.addEventListener("click", ()=>{
+        state.adFreq = b.dataset.adfreq;
+        toast(`Ad speed set: ${state.adFreq}`);
+        save();
+      });
+    });
+
+    // ====== “Kindness Ads” system ======
+    const adTitle = $("#adTitle");
+    const adBody = $("#adBody");
+    const adActionA = $("#adActionA");
+    const adActionB = $("#adActionB");
+    const btnAdNow = $("#btnAdNow");
+    const adProgress = $("#adProgress");
+
+    const AD_DECK = [
+      {
+        title:"Affirmation: I’m learning 👣",
+        body:"Even when it’s hard, I can take one small step.",
+        a:"Star ⭐", b:"Next ⏭️",
+        onA: ()=>{ starAff(affText.textContent || "I’m learning."); addStars(1,"Starred from ad"); toast("Starred ⭐"); }
+      },
+      {
+        title:"PSA Quiz: Table manners 🍽️",
+        body:"What’s a polite thing to do while someone is talking at the table?",
+        quiz:{ q:"Pick one:", choices:["Listen quietly","Talk over them","Make rude noises"], a:0 }
+      },
+      {
+        title:"Help Mom mission 💛",
+        body:"Choose a mini-help: (1) tidy 1 thing, (2) bring plate, (3) ask ‘Can I help?’",
+        a:"I’ll do it ✅", b:"Later ⏭️",
+        onA: ()=>{ addStars(2,"Help mission"); toast("Nice! ⭐⭐"); }
+      },
+      {
+        title:"Manners Quiz: ‘Please’ 🙂",
+        body:"You want something. What’s the best first word?",
+        quiz:{ q:"Pick one:", choices:["Please","Now","Gimme"], a:0 }
+      },
+      {
+        title:"Calm power 🌬️",
+        body:"If you feel mad: stop → breathe 3 times → say what you need.",
+        a:"Practice ✅", b:"Next ⏭️",
+        onA: ()=>{ addStars(1,"Calm practice"); toast("Breathe: in… out… ⭐"); }
+      }
+    ];
+
+    let adIndex = 0;
+    let adTimer = null;
+    let adIntervalMs = 18000;
+
+    function computeAdInterval(){
+      if(state.adFreq==="slow") return 26000;
+      if(state.adFreq==="fast") return 12000;
+      return 18000;
+    }
+
+    function showAd(card = null){
+      const c = card || AD_DECK[adIndex % AD_DECK.length];
+      adIndex++;
+
+      // Default actions
+      adActionA.className = "btn small good";
+      adActionB.className = "btn small ghost";
+      adActionA.textContent = c.a || "Ok ✅";
+      adActionB.textContent = c.b || "Next ⏭️";
+
+      // Remove old listeners by cloning buttons (simple + reliable)
+      const aNew = adActionA.cloneNode(true);
+      const bNew = adActionB.cloneNode(true);
+      adActionA.replaceWith(aNew);
+      adActionB.replaceWith(bNew);
+
+      // Rebind vars
+      const aBtn = $("#adActionA");
+      const bBtn = $("#adActionB");
+
+      adTitle.textContent = c.title;
+      adBody.textContent = c.body;
+
+      if(c.quiz){
+        aBtn.textContent = c.quiz.choices[0];
+        bBtn.textContent = c.quiz.choices[1];
+        const cBtn = document.createElement("button");
+        cBtn.className = "btn small ghost";
+        cBtn.textContent = c.quiz.choices[2];
+        cBtn.id = "adActionC";
+        cBtn.addEventListener("click", ()=> gradeAdQuiz(2, c.quiz));
+        // ensure only one extra button exists
+        const actions = $(".adactions");
+        const oldC = $("#adActionC");
+        if(oldC) oldC.remove();
+        actions.appendChild(cBtn);
+
+        aBtn.addEventListener("click", ()=> gradeAdQuiz(0, c.quiz));
+        bBtn.addEventListener("click", ()=> gradeAdQuiz(1, c.quiz));
+      }else{
+        const oldC = $("#adActionC");
+        if(oldC) oldC.remove();
+
+        aBtn.addEventListener("click", ()=>{
+          if(typeof c.onA === "function") c.onA();
+          else { addStars(1,"Good click"); toast("Nice choice ⭐"); }
+          beep(true);
+          showAdMaybe("adA", true);
+        });
+        bBtn.addEventListener("click", ()=>{
+          toast("Okay! Next time 🙂");
+          beep(true);
+          showAdMaybe("adB", true);
+        });
+      }
+
+      restartAdProgress();
+    }
+
+    function gradeAdQuiz(pick, quiz){
+      const correct = pick === quiz.a;
+      if(correct){
+        toast("✅ Correct! ⭐⭐");
+        addStars(2, "Ad quiz correct");
+        beep(true);
+      }else{
+        toast("🙂 Good try! The kindest answer is better. ⭐");
+        addStars(1, "Ad quiz try");
+        beep(false);
+      }
+      showAdMaybe("adQuiz", true);
+    }
+
+    function restartAdProgress(){
+      if(state.reduceMotion){
+        adProgress.style.transition = "none";
+        adProgress.style.width = "0%";
+        return;
+      }
+      const ms = computeAdInterval();
+      adIntervalMs = ms;
+      adProgress.style.transition = "none";
+      adProgress.style.width = "0%";
+      // next tick animate
+      requestAnimationFrame(()=>{
+        requestAnimationFrame(()=>{
+          adProgress.style.transition = `width ${ms}ms linear`;
+          adProgress.style.width = "100%";
+        });
+      });
+      clearInterval(adTimer);
+      adTimer = setInterval(()=> showAd(), ms);
+    }
+
+    btnAdNow.addEventListener("click", ()=> showAd());
+    $("#adActionB").addEventListener("click", ()=> showAd());
+
+    function showAdMaybe(reason, force=false){
+      // small probability bump on interactions; always if force
+      const r = Math.random();
+      const chance = (state.adFreq==="fast") ? 0.35 : (state.adFreq==="slow" ? 0.12 : 0.22);
+      if(force || r < chance){
+        showAd();
+      }
+    }
+
+    // ====== Stars ======
+    function addStars(n, why=""){
+      state.stars = Math.max(0, (state.stars|0) + (n|0));
+      starsCount.textContent = state.stars;
+      if(why) footerTip.textContent = `+${n} ⭐ — ${why}`;
+      save();
+    }
+
+    // ====== Toast (simple, safe) ======
+    let toastEl = null;
+    let toastTimeout = null;
+    function toast(msg){
+      if(!toastEl){
+        toastEl = document.createElement("div");
+        toastEl.style.position = "fixed";
+        toastEl.style.left = "50%";
+        toastEl.style.bottom = "calc(18px + var(--safeB))";
+        toastEl.style.transform = "translateX(-50%)";
+        toastEl.style.maxWidth = "min(720px, 92vw)";
+        toastEl.style.padding = "12px 14px";
+        toastEl.style.borderRadius = "16px";
+        toastEl.style.background = "rgba(0,0,0,.65)";
+        toastEl.style.border = "1px solid rgba(255,255,255,.14)";
+        toastEl.style.color = "rgba(255,255,255,.95)";
+        toastEl.style.fontWeight = "800";
+        toastEl.style.fontSize = "13px";
+        toastEl.style.boxShadow = "0 14px 40px rgba(0,0,0,.45)";
+        toastEl.style.zIndex = "9999";
+        toastEl.style.pointerEvents = "none";
+        document.body.appendChild(toastEl);
+      }
+      toastEl.textContent = msg;
+      toastEl.style.opacity = "1";
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(()=>{ toastEl.style.opacity = "0"; }, 2000);
+    }
+
+    // ====== Connect Play emoji taps to forecast + parade ======
+    function hookEmojiToExtras(e){
+      // add sticker
+      parade.push(e);
+      if(parade.length > 30) parade.shift();
+      renderParade();
+      // also fill forecast if slot is active
+      setForecastEmoji(e);
+    }
+
+    // Override selectEmoji to also add extras
+    const _selectEmoji = selectEmoji;
+    selectEmoji = function(e){
+      _selectEmoji(e);
+      hookEmojiToExtras(e);
+    };
+
+    // ====== Hello render ======
+    function renderHello(){
+      const name = (state.kidName || "").trim();
+      $("#helloTitle").textContent = name ? `Weather Buddy — Hi, ${name}!` : "Weather Buddy";
+      $("#helloSub").textContent = "Play with weather emojis + earn Kindness Stars ⭐";
+      $("#kidName").value = state.kidName || "";
+      buddyEmoji.textContent = state.buddy || "🛰️";
+      starsCount.textContent = state.stars || 0;
+    }
+
+    // ====== Helpers ======
+    function starAff(text){
+      const t = (text || "").trim();
+      if(!t) return;
+      if(!state.affStars.includes(t)){
+        state.affStars.push(t);
+        save();
+      }
+    }
+
+    // ====== Render all ======
+    function renderAll(){
+      renderHello();
+      renderBuddyChoices();
+      renderGrid();
+      bigEmoji.textContent = state.selected;
+      moodText.textContent = MOODS[state.selected] || "Weather";
+      buddyEmoji.textContent = state.buddy || "🛰️";
+      starsCount.textContent = state.stars || 0;
+
+      // settings toggles
+      swBigText.classList.toggle("on", !!state.bigText);
+      swMotion.classList.toggle("on", !!state.reduceMotion);
+
+      // quiz
+      renderQuiz();
+
+      // affirmation
+      if(!affText.textContent || affText.textContent.trim().length < 2) newAff();
+      affSaved.textContent = "";
+
+      // forecast + parade + dump
+      renderTimeline();
+      renderParade();
+      renderSavedDump();
+
+      // start ads
+      showAd(AD_DECK[0]);
+      restartAdProgress();
+    }
+
+    // ====== Extra buttons ======
+    $("#btnAdNow").addEventListener("click", ()=> showAd());
+    $("#btnClearForecast").addEventListener("click", ()=> showAdMaybe("clear"));
+    $("#btnSendKind").addEventListener("click", ()=> showAdMaybe("sendKind"));
+    $("#btnParadeSave").addEventListener("click", ()=> showAdMaybe("saveParade"));
+
+    // ====== Boot ======
+    load();
+
+    // Keep things stable if app regains focus
+    document.addEventListener("visibilitychange", ()=>{
+      if(!document.hidden){
+        restartAdProgress();
+      }
+    });
+  </script>
+</body>
+</html>
