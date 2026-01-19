@@ -1,6 +1,6 @@
-title: (think outside the cube?)
-description: A webapp visualizer that compares psychedelics / altered states of consciousness to spatial dimensions.
-show_downloads: true
+title: webapps
+description: A showcase of web creations like visualizers, kids games, and music tech webapps.
+show_downloads: false
 google_analytics:
 theme: jekyll-theme-midnight
 github:
