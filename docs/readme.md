@@ -6,7 +6,7 @@ A showcase of web creations like visualizers, kids games, and music tech webapps
 
 
 ## How to play
-# Click on links below
+Click on links below
 
 	•	[games/weather_buddy_V1.html] (games/weather_buddy_V1.html)
 	•	[games/nature_quest_V1.html] (games/nature_quest_V1.html)
