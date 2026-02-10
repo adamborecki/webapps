@@ -8,7 +8,7 @@ Click on the links below for interactive music technology demos.
 
 ** CubeStem Mixer**
 Mix "stems" (technically multitracks) my moving bubbles inside a 3D cube. Inspired by David Gibson's "Art of Mixing", vibe coded in about 3 hours using GPT 5.2 thinking.
-- [musictech/cubestem_mixer_v4.html](musictech/cubestem_mixer_v4.html)
+- [musictech/cubestem_v4.html](musictech/cubestem_v4.html)
 
 
 
