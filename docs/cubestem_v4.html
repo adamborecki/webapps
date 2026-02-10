@@ -1,0 +1,2212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+  <title>CubeStem Mixer — Mix stems by moving bubbles inside a 3D cube.</title>
+  <style>
+    :root{
+      --bg:#0b0f14; --panel:#0f1621cc; --text:#e7eef9; --muted:#9fb0c6;
+      --accent:#66d9ff; --danger:#ff6b6b; --ok:#7CFFB2;
+      --shadow: 0 10px 30px rgba(0,0,0,.35); --radius:16px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    html,body{height:100%; margin:0; background:radial-gradient(1200px 900px at 25% 10%, #162133 0%, var(--bg) 55%); color:var(--text); font-family:var(--font);}
+    button, input, select { font-family: inherit; }
+    .app{height:100%; display:grid; grid-template-rows:auto 1fr auto;}
+    .topbar{
+      display:flex; gap:12px; align-items:center; justify-content:space-between;
+      padding:12px 12px 10px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      background: linear-gradient(180deg, rgba(15,22,33,.75), rgba(15,22,33,.25));
+      backdrop-filter: blur(10px);
+      position:sticky; top:0; z-index:10;
+    }
+    .brand{display:flex; flex-direction:column; gap:2px; min-width: 180px;}
+    .brand .title{font-weight:800; letter-spacing:.2px; font-size:15px; line-height:1;}
+    .brand .tag{font-size:12px; color:var(--muted); line-height:1.1;}
+    .topbar .actions{display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end;}
+    .btn{
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color:var(--text);
+      padding:8px 10px;
+      border-radius:12px;
+      cursor:pointer;
+      transition: transform .06s ease, background .15s ease, border-color .15s ease, opacity .15s ease;
+      user-select:none;
+      touch-action: manipulation;
+      font-size: 13px;
+      white-space:nowrap;
+    }
+    .btn:hover{background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.18)}
+    .btn:active{transform: translateY(1px);}
+    .btn.primary{ background: rgba(102,217,255,.14); border-color: rgba(102,217,255,.32); }
+    .btn.danger{ background: rgba(255,107,107,.12); border-color: rgba(255,107,107,.30); }
+    .btn.ghost{ background: rgba(0,0,0,.12); border-color: rgba(255,255,255,.10); }
+
+    .content{
+      display:grid; grid-template-columns: 360px 1fr;
+      gap:12px; padding:12px; min-height:0;
+    }
+    .panel{
+      background: var(--panel);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      backdrop-filter: blur(10px);
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+    }
+    .panelHeader{
+      padding:12px 12px 10px;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.03);
+      flex:0 0 auto;
+    }
+    .panelHeader .h{font-weight:700; font-size:13px;}
+    .panelHeader .sub{font-size:12px; color: var(--muted);}
+    /* Entire left panel scrolls (Option 1B) */
+    .panelBody{
+      padding:12px;
+      overflow:auto;
+      min-height:0;
+      flex:1 1 auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .stack{display:flex; flex-direction:column; gap:10px;}
+    .row{display:flex; gap:10px; align-items:center;}
+    .small{font-size:12px; color: var(--muted);}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      font-size:12px;
+      color: var(--muted);
+    }
+    .dot{width:10px; height:10px; border-radius:999px; background: #fff; box-shadow: 0 0 0 2px rgba(0,0,0,.25); flex:0 0 auto;}
+    .field{display:flex; flex-direction:column; gap:6px;}
+    .label{font-size:12px; color: var(--muted); display:flex; justify-content:space-between; gap:10px;}
+    input[type="range"]{width:100%;}
+    .select{
+      width:100%; padding:10px 10px; border-radius:12px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.25); color: var(--text);
+      font-size:13px; outline:none;
+    }
+
+    details.adv{
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.14);
+      overflow:hidden;
+    }
+    details.adv summary{
+      cursor:pointer;
+      padding:10px 10px;
+      font-size:12.5px;
+      font-weight:650;
+      color: var(--text);
+      user-select:none;
+      list-style:none;
+    }
+    details.adv summary::-webkit-details-marker{display:none;}
+    .advBody{padding:10px; border-top:1px solid rgba(255,255,255,.08); display:flex; flex-direction:column; gap:10px;}
+
+    /* Stem list is NOT its own scroll region (panel scrolls) */
+    .stemList{
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      overflow: hidden;
+    }
+    .stemHeaderRow{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:10px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      background: rgba(255,255,255,.03);
+    }
+    .stemHeaderRow .left{display:flex; align-items:center; gap:10px;}
+    .stemHeaderRow .right{display:flex; align-items:center; gap:8px;}
+
+    .stemItem{
+      display:grid;
+      grid-template-columns: 16px 1fr auto;
+      gap:10px; padding:10px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      cursor:pointer; user-select:none;
+    }
+    .stemItem:last-child{border-bottom:none;}
+    .stemItem:hover{background: rgba(255,255,255,.04);}
+    .stemItem.selected{
+      background: rgba(102,217,255,.10);
+      outline: 1px solid rgba(102,217,255,.22);
+    }
+    .stemItem.inactive{
+      opacity: 0.55;
+    }
+    .stemName{font-size: 12.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+    .aliasRow{margin-top:6px; display:none; gap:8px; align-items:center;}
+    .aliasRow.on{display:flex;}
+    .aliasInput{
+      width:100%;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.22);
+      color: var(--text);
+      padding:7px 8px;
+      font-size:12px;
+      outline:none;
+    }
+    .aliasInput:focus{border-color: rgba(102,217,255,.4);}
+
+    .msWrap{display:flex; gap:6px; align-items:center;}
+    .msBtn{
+      width:30px; height:24px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.16);
+      color: rgba(231,238,249,.88);
+      font-weight:750;
+      font-size:12px;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer;
+      user-select:none;
+      transition: background .12s ease, border-color .12s ease, transform .06s ease;
+    }
+    .msBtn:active{transform: translateY(1px);}
+    .msBtn.m.on{
+      background: rgba(255,107,107,.18);
+      border-color: rgba(255,107,107,.35);
+      color: rgba(255,255,255,.95);
+    }
+    .msBtn.s.on{
+      background: rgba(102,217,255,.16);
+      border-color: rgba(102,217,255,.35);
+      color: rgba(255,255,255,.95);
+    }
+
+    .status{
+      border-radius: 12px; border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.16); padding: 10px;
+      font-size: 12px; color: var(--muted);
+      max-height: 160px; overflow:auto; white-space: pre-wrap;
+    }
+    .spinner{
+      width:14px; height:14px; border-radius:999px;
+      border:2px solid rgba(255,255,255,.18);
+      border-top-color: rgba(102,217,255,.9);
+      animation: spin 1s linear infinite; display:inline-block;
+    }
+    @keyframes spin{to{transform: rotate(360deg)}}
+
+    #cubeWrap{position:relative; min-height: 320px; height: calc(100vh - 190px); overflow:hidden;}
+    #three{position:absolute; inset:0; width:100%; height:100%; touch-action:none;}
+
+    /* Desktop overlay inspector (toggleable) */
+    .hud{
+      position:absolute; left:12px; top:12px;
+      display:flex; flex-direction:column; gap:8px;
+      z-index:2;
+      pointer-events:none;
+    }
+    .hud.hidden{display:none;}
+    .hud .hudCard{
+      background: rgba(15,22,33,.62);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 14px;
+      padding:10px 10px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+      max-width: min(520px, calc(100vw - 48px));
+      pointer-events:none;
+    }
+    .hudTitle{font-weight:700; font-size:12.5px;}
+    .hudMeta{font-size:12px; color: var(--muted); margin-top:4px;}
+    .hudGrid{display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:8px; margin-top:10px;}
+    .kv{padding:8px 8px; border-radius:12px; border:1px solid rgba(255,255,255,.08); background: rgba(0,0,0,.16);}
+    .kv .k{font-size:11px; color: var(--muted);}
+    .kv .v{font-size:12.5px; margin-top:4px; font-weight:650;}
+
+    /* HUD toggle button in cube (desktop only) */
+    .hudToggle{
+      position:absolute;
+      right:12px; top:12px;
+      z-index:4;
+      pointer-events:auto;
+    }
+
+    /* Mini Z slider under selected bubble */
+    .miniZ{
+      position:absolute;
+      z-index:3;
+      width: 170px;
+      transform: translate(-50%, 0);
+      pointer-events:auto;
+      opacity: 0;
+      transition: opacity .12s ease;
+    }
+    .miniZ.on{opacity: 1;}
+    .miniZ .card{
+      background: rgba(15,22,33,.72);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: 12px;
+      padding: 8px 10px 8px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+    .miniZ .top{
+      display:flex; justify-content:space-between; align-items:center;
+      font-size:11px; color: var(--muted);
+      margin-bottom:6px;
+    }
+    .miniZ input[type="range"]{width:100%;}
+    .miniZ.faint{opacity: 0.55;}
+    .snapAnim{transition: left .12s ease, top .12s ease;}
+
+    /* Bandpass ruler overlay (selected stem only) */
+    .ruler{
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.14);
+      padding:10px;
+      display:none;
+    }
+    .ruler.on{display:block;}
+    .rulerHead{
+      display:flex; justify-content:space-between; align-items:center;
+      font-size:12px; color: var(--muted); margin-bottom:8px;
+    }
+    .rulerGrid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:6px;
+    }
+    .anchor{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.12);
+      cursor:pointer;
+      user-select:none;
+      font-size:12.5px;
+    }
+    .anchor:hover{background: rgba(255,255,255,.04);}
+    .anchor .hz{color: var(--text); font-weight:650;}
+    .anchor .vowel{color: var(--muted); font-size:12px;}
+    .anchor .pill2{
+      font-size:11px;
+      padding:3px 8px;
+      border-radius:999px;
+      border:1px solid rgba(102,217,255,.20);
+      background: rgba(102,217,255,.10);
+      color: rgba(231,238,249,.95);
+    }
+
+    /* EQ preview */
+    .eqPreviewWrap{
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.14);
+      padding:10px;
+    }
+    canvas#eqPreview{
+      width:100%;
+      height:92px;
+      display:block;
+      border-radius:10px;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.07);
+    }
+    .eqHelp{font-size:12px; color: var(--muted); line-height:1.35;}
+
+    .transport{
+      position:sticky; bottom:0; z-index:10;
+      padding:10px 12px;
+      border-top:1px solid rgba(255,255,255,.08);
+      background: linear-gradient(0deg, rgba(15,22,33,.85), rgba(15,22,33,.35));
+      backdrop-filter: blur(10px);
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px; flex-wrap:wrap;
+    }
+    .time{
+      font-variant-numeric: tabular-nums;
+      font-size:13px; color: var(--muted);
+      padding:6px 10px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.2);
+      border-radius:999px;
+    }
+
+    .overlay{
+      position:fixed; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      background: rgba(0,0,0,.65);
+      backdrop-filter: blur(8px);
+      z-index:100;
+    }
+    .overlay .card{
+      width:min(520px, calc(100vw - 32px));
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(15,22,33,.95);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+    .overlay h2{margin:0 0 8px; font-size:16px;}
+    .overlay p{margin:0 0 12px; color: var(--muted); font-size:13px; line-height:1.35;}
+    .overlay .row{justify-content:flex-end;}
+    .overlay .fine{font-size:12px; color: var(--muted); margin-top:10px;}
+    .hidden{display:none !important;}
+
+    /* Mobile hybrid inspector: show in left panel, hide overlay */
+    .inspectorMobile{display:none;}
+    @media (max-width: 920px){
+      .content{grid-template-columns: 1fr;}
+      #cubeWrap{height: 52vh; min-height: 320px;}
+      .hudToggle{display:none;}
+      .hud{display:none;}
+      .inspectorMobile{display:block;}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="title">CubeStem Mixer</div>
+      <div class="tag">Mix stems by moving bubbles inside a 3D cube.</div>
+    </div>
+    <div class="actions">
+      <label class="btn" style="display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
+        <input id="fileInput" type="file" accept=".wav,audio/wav" multiple style="display:none" />
+        <span>Load WAV stems…</span>
+      </label>
+      <button id="demoBtn" class="btn">Demo mode</button>
+      <button id="resetBtn" class="btn">Reset positions</button>
+      <button id="exportBtn" class="btn">Export preset</button>
+      <button id="importBtn" class="btn">Import preset</button>
+      <input id="importFile" type="file" accept="application/json,.json" style="display:none" />
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="panel">
+      <div class="panelHeader">
+        <div>
+          <div class="h">Stems</div>
+          <div class="sub" id="stemCountSub">0 loaded • client-side only</div>
+        </div>
+        <div class="pill" id="audioStatePill"><span class="dot" style="background:#999"></span><span id="audioStateTxt">Audio: off</span></div>
+      </div>
+
+      <div class="panelBody">
+        <div class="stack">
+
+          <!-- Mobile inspector (hybrid) -->
+          <details class="adv inspectorMobile" id="inspectorMobileDetails" open>
+            <summary>Inspector</summary>
+            <div class="advBody">
+              <div class="hudTitle" id="m_selTitle">No stem selected</div>
+              <div class="hudMeta" id="m_selMeta">Tap a bubble or a stem in the list. Tap empty space to deselect.</div>
+              <div class="hudGrid" id="m_selGrid" style="display:none;">
+                <div class="kv"><div class="k">X</div><div class="v" id="m_valX">0.00</div></div>
+                <div class="kv"><div class="k">Y</div><div class="v" id="m_valY">0.00</div></div>
+                <div class="kv"><div class="k">Z</div><div class="v" id="m_valZ">0.70</div></div>
+                <div class="kv"><div class="k">Pan</div><div class="v" id="m_valPan">0.00</div></div>
+                <div class="kv"><div class="k">EQ</div><div class="v" id="m_valEQ">—</div></div>
+                <div class="kv"><div class="k">Vol</div><div class="v" id="m_valVol">-6.0 dB</div></div>
+              </div>
+            </div>
+          </details>
+
+          <div class="field" id="zField">
+            <div class="label"><span>Z depth (Volume) — selected stem</span><span id="zLabel">0.70</span></div>
+            <input id="zSlider" type="range" min="0" max="1" step="0.001" value="0.7" />
+          </div>
+
+          <div class="field">
+            <div class="label"><span>EQ mode</span><span class="small">(per stem)</span></div>
+            <select id="eqMode" class="select">
+              <option value="tilt" selected>Mode 1 — Tilt EQ</option>
+              <option value="bandpass">Mode 2 — Bandpass</option>
+              <option value="morph_hi">Mode 3 — 3-band morph (exaggerated)</option>
+              <option value="morph_lo">Mode 4 — 3-band morph (subtle)</option>
+            </select>
+            <div class="eqHelp" id="eqHelp"></div>
+          </div>
+
+          <div class="eqPreviewWrap">
+            <div class="label"><span>EQ preview (selected stem)</span><span class="small" id="eqPreviewTag">—</span></div>
+            <canvas id="eqPreview" width="600" height="180"></canvas>
+          </div>
+
+          <div class="field" id="bwField" style="display:none;">
+            <div class="label"><span>Bandpass bandwidth — selected stem</span><span id="bwLabel">Wide</span></div>
+            <input id="bwSlider" type="range" min="0" max="1" step="0.001" value="0.25" />
+            <div class="small">Wide ↔ Narrow (controls the filter bandwidth; per stem)</div>
+          </div>
+
+          <div class="ruler" id="ruler">
+            <div class="rulerHead">
+              <span>Bandpass center (snap points)</span>
+              <span class="small">Tap to snap</span>
+            </div>
+            <div class="rulerGrid" id="rulerGrid"></div>
+          </div>
+
+          <details class="adv" id="advDetails">
+            <summary>Advanced</summary>
+            <div class="advBody">
+              <div class="field">
+                <div class="label"><span>Bubble size reacts to audio</span><span class="small">RMS</span></div>
+                <div class="row">
+                  <button id="reactBtn" class="btn primary">On</button>
+                  <div class="small">Per-stem analyser (default ON).</div>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="label"><span>Show bubble labels</span><span class="small">sprite</span></div>
+                <div class="row">
+                  <button id="labelsBtn" class="btn">Off</button>
+                  <div class="small">When Off: only selected stem label shows.</div>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="label"><span>Enable custom alias</span><span class="small">inputs</span></div>
+                <div class="row">
+                  <button id="aliasBtn" class="btn">Off</button>
+                  <div class="small">When On: show alias inputs for all stems.</div>
+                </div>
+              </div>
+            </div>
+          </details>
+
+          <div class="stemList">
+            <div class="stemHeaderRow">
+              <div class="left">
+                <div class="small">Tracks</div>
+                <span class="pill" id="soloPill" style="display:none;"><span class="dot" style="background:var(--accent)"></span><span>Solo active</span></span>
+              </div>
+              <div class="right">
+                <button id="soloClearBtn" class="btn ghost" disabled style="opacity:.55;">Clear Solo</button>
+              </div>
+            </div>
+            <div id="stemList"></div>
+          </div>
+
+          <div class="field">
+            <div class="label"><span>Decode / status</span><span id="decodeSpinner" class="hidden"><span class="spinner"></span></span></div>
+            <div class="status" id="statusLog">Tap “Load WAV stems…” or “Demo mode”.</div>
+          </div>
+
+          <div class="small">
+            Mapping: <b>X</b> pan • <b>Y</b> EQ • <b>Z</b> volume. Drag bubbles in XY; use Z slider.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="cubeWrap">
+      <canvas id="three"></canvas>
+
+      <div class="hudToggle">
+        <button id="hudToggleBtn" class="btn">Inspector: On</button>
+      </div>
+
+      <div class="hud" id="hud">
+        <div class="hudCard">
+          <div class="hudTitle" id="selTitle">No stem selected</div>
+          <div class="hudMeta" id="selMeta">Tap a bubble or a stem in the list. Click empty space to deselect.</div>
+          <div class="hudGrid" id="selGrid" style="display:none;">
+            <div class="kv"><div class="k">X</div><div class="v" id="valX">0.00</div></div>
+            <div class="kv"><div class="k">Y</div><div class="v" id="valY">0.00</div></div>
+            <div class="kv"><div class="k">Z</div><div class="v" id="valZ">0.70</div></div>
+            <div class="kv"><div class="k">Pan</div><div class="v" id="valPan">0.00</div></div>
+            <div class="kv"><div class="k">EQ</div><div class="v" id="valEQ">—</div></div>
+            <div class="kv"><div class="k">Vol</div><div class="v" id="valVol">-6.0 dB</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="miniZ" id="miniZ">
+        <div class="card">
+          <div class="top"><span>Z depth</span><span id="miniZDb">—</span></div>
+          <input id="miniZSlider" type="range" min="0" max="1" step="0.001" value="0.7" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="transport">
+    <div class="row" style="flex-wrap:wrap;">
+      <button id="playBtn" class="btn primary">Play</button>
+      <button id="restartBtn" class="btn">Restart</button>
+      <button id="loopBtn" class="btn primary">Loop: On</button>
+      <span class="time" id="timeTxt">00:00</span>
+    </div>
+    <div class="row" style="flex-wrap:wrap;">
+      <span class="pill"><span class="dot" style="background:#66d9ff"></span><span>Master: -6 dB</span></span>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="tapOverlay">
+  <div class="card">
+    <h2>Tap to enable audio</h2>
+    <p>
+      Browsers (especially iOS/Safari) require a user gesture to start Web Audio.
+      This app runs entirely client-side — no uploads, no server calls.
+    </p>
+    <div class="row">
+      <button id="enableAudioBtn" class="btn primary">Enable Audio</button>
+    </div>
+    <div class="fine">Tip: If audio glitches, try Pause → Play again (rebuilds sources in sync).</div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+<script>
+(() => {
+  // ---------- utils ----------
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+  const lerp  = (a,b,t) => a + (b-a)*t;
+  const fmt2  = (n) => (Math.round(n*100)/100).toFixed(2);
+  const mmss = (sec) => {
+    sec = Math.max(0, sec);
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return String(m).padStart(2,'0') + ":" + String(s).padStart(2,'0');
+  };
+  const dbFromZ = (z) => lerp(-60, 0, clamp(z,0,1));
+  const gainFromDb = (db) => Math.pow(10, db/20);
+
+  // log mapping for bandpass center: y[-1..1] -> 20..20000 (log)
+  function yToHz(y){
+    y = clamp(y, -1, 1);
+    const t = (y + 1) / 2;
+    const min = 20, max = 20000;
+    const logMin = Math.log10(min), logMax = Math.log10(max);
+    return Math.pow(10, lerp(logMin, logMax, t));
+  }
+  function hzToY(hz){
+    const min = 20, max = 20000;
+    hz = clamp(hz, min, max);
+    const logMin = Math.log10(min), logMax = Math.log10(max);
+    const t = (Math.log10(hz) - logMin) / (logMax - logMin);
+    return clamp(t*2 - 1, -1, 1);
+  }
+
+  function hslToRgb(h, s, l){
+    h = ((h % 360) + 360) % 360;
+    s /= 100; l /= 100;
+    const c = (1 - Math.abs(2*l - 1)) * s;
+    const x = c * (1 - Math.abs(((h/60) % 2) - 1));
+    const m = l - c/2;
+    let r=0,g=0,b=0;
+    if (h < 60){ r=c; g=x; b=0; }
+    else if (h < 120){ r=x; g=c; b=0; }
+    else if (h < 180){ r=0; g=c; b=x; }
+    else if (h < 240){ r=0; g=x; b=c; }
+    else if (h < 300){ r=x; g=0; b=c; }
+    else { r=c; g=0; b=x; }
+    return { r: Math.round((r+m)*255), g: Math.round((g+m)*255), b: Math.round((b+m)*255) };
+  }
+  function rgbToHex({r,g,b}){
+    const to = (n)=> n.toString(16).padStart(2,'0');
+    return `#${to(r)}${to(g)}${to(b)}`;
+  }
+  function paletteColor(i){
+    const h = (i * 137.508) % 360;
+    return rgbToHex(hslToRgb(h, 85, 60));
+  }
+  function stripPath(name){
+    const parts = (name || "").split(/[\\/]/);
+    return parts[parts.length - 1] || name || "";
+  }
+  function prettyStemName(filename){
+    let base = stripPath(filename);
+    base = base.replace(/\.(wav|wave)$/i, '');
+    base = base.replace(/^\s*\d+\s*[_-]\s*/g, '');
+    base = base.replace(/_/g, ' ');
+    base = base.replace(/\s+/g, ' ').trim();
+    return base || "Stem";
+  }
+  function autoAbbrev(name){
+    const n = (name || "").trim();
+    if (!n) return "ST";
+    const tokens = n.split(/[\s\-]+/).filter(Boolean);
+    if (tokens.length === 1){
+      const t = tokens[0];
+      const caps = (t.match(/[A-Z]/g) || []).join('');
+      const digits = (t.match(/\d+/g) || []).join('');
+      if (caps.length >= 2) return (caps.slice(0,3) + digits).slice(0,4);
+      return (t.replace(/[^a-z0-9]/ig,'').slice(0,4)).toUpperCase();
+    }
+    let out = "";
+    for (const tok of tokens){
+      const clean = tok.replace(/[^a-z0-9]/ig,'');
+      if (!clean) continue;
+      const first = clean[0].toUpperCase();
+      const digits = (clean.match(/\d+/g) || []).join('');
+      out += first;
+      if (digits && out.length < 4) out += digits.slice(0,2);
+      if (out.length >= 4) break;
+    }
+    return out.slice(0,4) || "ST";
+  }
+
+  // Bandwidth slider [0..1] -> Q [0.5..8] (wide..narrow)
+  function bwToQ(bw){ bw = clamp(bw, 0, 1); return lerp(0.5, 8.0, bw); }
+  function qToBw(q){ q = clamp(q, 0.5, 8.0); return (q - 0.5) / (8.0 - 0.5); }
+  function bwLabel(bw){
+    if (bw < 0.25) return "Very wide";
+    if (bw < 0.45) return "Wide";
+    if (bw < 0.65) return "Medium";
+    if (bw < 0.85) return "Narrow";
+    return "Very narrow";
+  }
+
+  // ---------- DOM ----------
+  const fileInput = document.getElementById('fileInput');
+  const stemListEl = document.getElementById('stemList');
+  const stemCountSub = document.getElementById('stemCountSub');
+  const statusLog = document.getElementById('statusLog');
+  const decodeSpinner = document.getElementById('decodeSpinner');
+
+  const playBtn = document.getElementById('playBtn');
+  const restartBtn = document.getElementById('restartBtn');
+  const loopBtn = document.getElementById('loopBtn');
+  const timeTxt = document.getElementById('timeTxt');
+
+  const resetBtn = document.getElementById('resetBtn');
+  const exportBtn = document.getElementById('exportBtn');
+  const importBtn = document.getElementById('importBtn');
+  const importFile = document.getElementById('importFile');
+  const demoBtn = document.getElementById('demoBtn');
+
+  const soloPill = document.getElementById('soloPill');
+  const soloClearBtn = document.getElementById('soloClearBtn');
+
+  const zSlider = document.getElementById('zSlider');
+  const zLabel = document.getElementById('zLabel');
+
+  const eqModeSel = document.getElementById('eqMode');
+  const eqHelp = document.getElementById('eqHelp');
+  const eqPreview = document.getElementById('eqPreview');
+  const eqPreviewTag = document.getElementById('eqPreviewTag');
+  const eqCtx2d = eqPreview.getContext('2d');
+
+  const bwField = document.getElementById('bwField');
+  const bwSlider = document.getElementById('bwSlider');
+  const bwLabelEl = document.getElementById('bwLabel');
+
+  const ruler = document.getElementById('ruler');
+  const rulerGrid = document.getElementById('rulerGrid');
+
+  const reactBtn = document.getElementById('reactBtn');
+  const labelsBtn = document.getElementById('labelsBtn');
+  const aliasBtn = document.getElementById('aliasBtn');
+
+  const hud = document.getElementById('hud');
+  const hudToggleBtn = document.getElementById('hudToggleBtn');
+
+  const selTitle = document.getElementById('selTitle');
+  const selMeta = document.getElementById('selMeta');
+  const selGrid = document.getElementById('selGrid');
+  const valX = document.getElementById('valX');
+  const valY = document.getElementById('valY');
+  const valZ = document.getElementById('valZ');
+  const valPan = document.getElementById('valPan');
+  const valEQ = document.getElementById('valEQ');
+  const valVol = document.getElementById('valVol');
+
+  // mobile inspector mirrors
+  const m_selTitle = document.getElementById('m_selTitle');
+  const m_selMeta = document.getElementById('m_selMeta');
+  const m_selGrid = document.getElementById('m_selGrid');
+  const m_valX = document.getElementById('m_valX');
+  const m_valY = document.getElementById('m_valY');
+  const m_valZ = document.getElementById('m_valZ');
+  const m_valPan = document.getElementById('m_valPan');
+  const m_valEQ = document.getElementById('m_valEQ');
+  const m_valVol = document.getElementById('m_valVol');
+
+  const tapOverlay = document.getElementById('tapOverlay');
+  const enableAudioBtn = document.getElementById('enableAudioBtn');
+  const audioStatePill = document.getElementById('audioStatePill');
+  const audioStateTxt = document.getElementById('audioStateTxt');
+
+  const cubeWrap = document.getElementById('cubeWrap');
+  const miniZ = document.getElementById('miniZ');
+  const miniZSlider = document.getElementById('miniZSlider');
+  const miniZDb = document.getElementById('miniZDb');
+
+  // ---------- state ----------
+  const state = {
+    stems: [],
+    selected: -1,
+    loop: true,
+    eqMode: "tilt",          // reordered modes
+    bubbleReact: true,
+    showLabels: false,       // default OFF
+    enableAliasInputs: false,
+    showHUD: true,           // desktop overlay inspector toggle
+    playing: false,
+    position: 0,
+    startTime: 0,
+    offsetAtStart: 0,
+    duration: 0,
+    demoMode: false,
+  };
+
+  // ---------- logging ----------
+  function log(msg){
+    statusLog.textContent += (statusLog.textContent ? "\n" : "") + msg;
+    statusLog.scrollTop = statusLog.scrollHeight;
+  }
+  function setLoading(on){ decodeSpinner.classList.toggle('hidden', !on); }
+
+  // ---------- audio ----------
+  let audioCtx = null;
+  let masterGain = null;
+  let masterComp = null;
+
+  function ensureAudioContext(){
+    if (!audioCtx){
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
+      masterGain = audioCtx.createGain();
+      masterGain.gain.value = gainFromDb(-6);
+      masterComp = audioCtx.createDynamicsCompressor();
+      masterComp.threshold.value = -12;
+      masterComp.knee.value = 8;
+      masterComp.ratio.value = 3;
+      masterComp.attack.value = 0.003;
+      masterComp.release.value = 0.15;
+      masterGain.connect(masterComp);
+      masterComp.connect(audioCtx.destination);
+      updateAudioStateUI();
+    }
+    return audioCtx;
+  }
+  function updateAudioStateUI(){
+    const running = audioCtx && audioCtx.state === 'running';
+    const dot = audioStatePill.querySelector('.dot');
+    dot.style.background = running ? '#7CFFB2' : '#999';
+    audioStateTxt.textContent = running ? 'Audio: on' : 'Audio: off';
+  }
+  async function enableAudio(){
+    ensureAudioContext();
+    try{
+      await audioCtx.resume();
+      updateAudioStateUI();
+      tapOverlay.classList.add('hidden');
+      log("Audio enabled.");
+    }catch(e){
+      log("Audio enable failed: " + (e?.message || e));
+    }
+  }
+
+  function makeStem({name, pretty, color, buffer, pos, muted=false}){
+    return {
+      name, pretty, alias: "",
+      color,
+      buffer,
+      pos: {x: pos.x, y: pos.y, z: pos.z},
+      muted,
+      solo: false,
+
+      bandpassQ: 1.2, // per-stem
+
+      src: null,
+      eqLow: null, eqMid: null, eqHigh: null,
+      bandpass: null,
+      panner: null, gain: null,
+      analyser: null,
+    };
+  }
+
+  function disposeSources(){
+    for (const s of state.stems){
+      if (s.src){
+        try { s.src.onended = null; s.src.stop(0); } catch {}
+      }
+      s.src = null;
+    }
+  }
+
+  function buildChainForStem(stem){
+    const eqLow = audioCtx.createBiquadFilter();
+    eqLow.type = 'lowshelf'; eqLow.frequency.value = 200; eqLow.gain.value = 0;
+
+    const eqMid = audioCtx.createBiquadFilter();
+    eqMid.type = 'peaking'; eqMid.Q.value = 0.9; eqMid.frequency.value = 1000; eqMid.gain.value = 0;
+
+    const eqHigh = audioCtx.createBiquadFilter();
+    eqHigh.type = 'highshelf'; eqHigh.frequency.value = 4000; eqHigh.gain.value = 0;
+
+    const bandpass = audioCtx.createBiquadFilter();
+    bandpass.type = 'bandpass'; bandpass.frequency.value = 1000; bandpass.Q.value = stem.bandpassQ;
+
+    const panner = audioCtx.createStereoPanner();
+    const gain = audioCtx.createGain();
+
+    const analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 512;
+    analyser.smoothingTimeConstant = 0.65;
+
+    eqLow.connect(eqMid);
+    eqMid.connect(eqHigh);
+    eqHigh.connect(panner);
+    bandpass.connect(panner);
+    panner.connect(gain);
+    gain.connect(masterGain);
+    gain.connect(analyser);
+
+    stem.eqLow = eqLow; stem.eqMid = eqMid; stem.eqHigh = eqHigh;
+    stem.bandpass = bandpass;
+    stem.panner = panner; stem.gain = gain;
+    stem.analyser = analyser;
+
+    applyParamsFromPos(stem);
+  }
+
+  function createSourceForStem(stem){
+    const src = audioCtx.createBufferSource();
+    src.buffer = stem.buffer;
+    if (state.eqMode === 'bandpass') src.connect(stem.bandpass);
+    else src.connect(stem.eqLow);
+    stem.src = src;
+    return src;
+  }
+
+  function computeDuration(){
+    let d = 0;
+    for (const s of state.stems) if (s.buffer) d = Math.max(d, s.buffer.duration);
+    state.duration = d || 0;
+  }
+
+  function anySolo(){
+    return state.stems.some(s => s.solo);
+  }
+  function isAudible(idx){
+    const s = state.stems[idx];
+    const soloActive = anySolo();
+    if (soloActive) return (s.solo && !s.muted); // mute still mutes, even if soloed
+    return !s.muted;
+  }
+
+  function applyParamsFromPos(stem){
+    if (!stem.panner) return;
+
+    stem.panner.pan.value = clamp(stem.pos.x, -1, 1);
+    const y = clamp(stem.pos.y, -1, 1);
+
+    if (state.eqMode === 'morph_hi' || state.eqMode === 'morph_lo'){
+      const MAX = (state.eqMode === 'morph_hi') ? 18 : 6;
+
+      const lowBoost  =  MAX * Math.max(0, -y);
+      const highBoost =  MAX * Math.max(0,  y);
+      const midBoost  =  MAX * (1 - Math.abs(y));
+      const nonFocusCut = -MAX * 0.7 * Math.abs(y);
+
+      stem.eqLow.gain.value  = lowBoost  + nonFocusCut;
+      stem.eqHigh.gain.value = highBoost + nonFocusCut;
+      stem.eqMid.gain.value  = midBoost  - (MAX * 0.20);
+
+      const t = (y + 1) / 2;
+      stem.eqMid.frequency.value = lerp(400, 2500, t);
+      stem.eqMid.Q.value = 0.9;
+
+      stem.bandpass.Q.value = stem.bandpassQ;
+      stem.bandpass.frequency.value = 1000;
+    }
+    else if (state.eqMode === 'bandpass'){
+      const hz = yToHz(y);
+      stem.bandpass.frequency.value = hz;
+      stem.bandpass.Q.value = stem.bandpassQ;
+
+      stem.eqLow.gain.value = 0;
+      stem.eqMid.gain.value = 0;
+      stem.eqHigh.gain.value = 0;
+    }
+    else if (state.eqMode === 'tilt'){
+      const MAX = 12;
+      stem.eqLow.gain.value  =  MAX * (-y);
+      stem.eqHigh.gain.value =  MAX * ( y);
+
+      stem.eqMid.gain.value = -2 * Math.abs(y);
+      stem.eqMid.frequency.value = 1000;
+      stem.eqMid.Q.value = 0.8;
+
+      stem.bandpass.frequency.value = 1000;
+      stem.bandpass.Q.value = stem.bandpassQ;
+    }
+  }
+
+  function applyAudibilityAll(){
+    // Update audio gains + bubble visibility + list dimming in one place
+    const soloActive = anySolo();
+    soloPill.style.display = soloActive ? "inline-flex" : "none";
+    soloClearBtn.disabled = !soloActive;
+    soloClearBtn.style.opacity = soloActive ? "1" : ".55";
+
+    for (let i=0;i<state.stems.length;i++){
+      const s = state.stems[i];
+      const audible = isAudible(i);
+
+      // gain: if not audible -> 0, else mapped by Z
+      if (s.gain){
+        s.gain.gain.value = audible ? gainFromDb(dbFromZ(s.pos.z)) : 0;
+      }
+
+      // visuals: if not audible -> hidden bubble/label
+      setBubbleVisible(i, audible);
+
+      // list dimming
+      const row = stemListEl.querySelector(`.stemItem[data-idx="${i}"]`);
+      if (row){
+        row.classList.toggle('inactive', !audible);
+      }
+    }
+
+    // If selected stem becomes hidden, deselect + hide mini slider
+    if (state.selected >= 0 && !isAudible(state.selected)){
+      deselect();
+    } else {
+      // ensure mini slider is only visible when selection exists
+      if (state.selected >= 0) miniZ.classList.add('on');
+    }
+  }
+
+  function startPlayback(){
+    ensureAudioContext();
+    if (!audioCtx || state.stems.length === 0){
+      log("Nothing to play. Load stems or use Demo mode.");
+      return;
+    }
+    if (audioCtx.state !== 'running'){
+      tapOverlay.classList.remove('hidden');
+      return;
+    }
+
+    disposeSources();
+    for (const s of state.stems){
+      if (!s.gain) buildChainForStem(s);
+      applyParamsFromPos(s);
+    }
+    computeDuration();
+    applyAudibilityAll();
+
+    const offset = clamp(state.position, 0, state.duration || 0);
+    const when = audioCtx.currentTime + 0.06;
+
+    let endedCount = 0;
+    const activeCount = state.stems.length;
+
+    for (const s of state.stems){
+      const src = createSourceForStem(s);
+      src.onended = () => {
+        endedCount++;
+        if (!state.playing) return;
+        if (endedCount >= activeCount){
+          if (state.loop){
+            state.position = 0;
+            disposeSources();
+            state.playing = false;
+            startPlayback();
+          }else{
+            state.playing = false;
+            playBtn.textContent = "Play";
+            state.position = state.duration || 0;
+          }
+        }
+      };
+
+      const remain = Math.max(0, (s.buffer?.duration || 0) - offset);
+      try{
+        if (remain > 0.01) src.start(when, offset);
+      }catch(e){
+        log(`Start failed for "${s.pretty}": ${e?.message || e}`);
+      }
+    }
+
+    state.playing = true;
+    state.startTime = when;
+    state.offsetAtStart = offset;
+    playBtn.textContent = "Pause";
+  }
+
+  function pausePlayback(){
+    if (!audioCtx || !state.playing) return;
+    const now = audioCtx.currentTime;
+    const elapsed = Math.max(0, now - state.startTime);
+    state.position = clamp(state.offsetAtStart + elapsed, 0, state.duration || Infinity);
+    disposeSources();
+    state.playing = false;
+    playBtn.textContent = "Play";
+  }
+
+  function restartPlayback(){
+    state.position = 0;
+    timeTxt.textContent = "00:00";
+    if (state.playing){
+      pausePlayback();
+      startPlayback();
+    }else{
+      renderInspector();
+    }
+  }
+
+  function setLoop(on){
+    state.loop = !!on;
+    loopBtn.textContent = "Loop: " + (state.loop ? "On" : "Off");
+    loopBtn.classList.toggle('primary', state.loop);
+  }
+
+  function transportTick(){
+    if (audioCtx && state.playing){
+      const now = audioCtx.currentTime;
+      const elapsed = Math.max(0, now - state.startTime);
+      state.position = state.offsetAtStart + elapsed;
+    }
+    timeTxt.textContent = mmss(state.position);
+    requestAnimationFrame(transportTick);
+  }
+
+  // ---------- demo ----------
+  function genDemoBuffers(){
+    ensureAudioContext();
+    const sr = audioCtx.sampleRate;
+    const lengthSec = 20;
+    const length = Math.floor(sr * lengthSec);
+    const freqs = [110, 146.83, 196, 220, 293.66, 329.63, 392, 440];
+    const stemsN = 6;
+    const buffers = [];
+    for (let i=0;i<stemsN;i++){
+      const buf = audioCtx.createBuffer(2, length, sr);
+      const f = freqs[i % freqs.length] * (i%2 ? 1 : 0.5);
+      const l = buf.getChannelData(0);
+      const r = buf.getChannelData(1);
+      for (let n=0;n<length;n++){
+        const t = n/sr;
+        const am = 0.5 + 0.5*Math.sin(2*Math.PI*(0.15 + i*0.03)*t);
+        const s1 = Math.sin(2*Math.PI*f*t);
+        const s2 = Math.sin(2*Math.PI*(f*1.01)*t);
+        const noise = (Math.random()*2-1) * 0.02;
+        l[n] = (s1*0.25 + noise) * (0.25 + 0.75*am);
+        r[n] = (s2*0.25 + noise) * (0.25 + 0.75*am);
+      }
+      buffers.push(buf);
+    }
+    return buffers;
+  }
+
+  function loadDemo(){
+    ensureAudioContext();
+    if (audioCtx.state !== 'running'){
+      tapOverlay.classList.remove('hidden');
+      log("Tap to enable audio first.");
+      return;
+    }
+    statusLog.textContent = "";
+    disposeSources();
+    state.playing = false;
+    playBtn.textContent = "Play";
+    state.position = 0;
+    state.stems = [];
+    state.selected = -1;
+
+    const bufs = genDemoBuffers();
+    for (let i=0;i<bufs.length;i++){
+      const pos = { x: (Math.random()*1.0 - 0.5), y: (Math.random()*1.0 - 0.5), z: 0.72 };
+      const pretty = `Demo Stem ${i+1}`;
+      state.stems.push(makeStem({ name: pretty, pretty, color: paletteColor(i), buffer: bufs[i], pos }));
+    }
+    state.demoMode = true;
+    computeDuration();
+    log(`Demo mode: ${state.stems.length} stems (${fmt2(state.duration)}s).`);
+    rebuildUI();
+    selectStem(0);
+  }
+
+  // ---------- load WAV ----------
+  async function loadFiles(files){
+    ensureAudioContext();
+    setLoading(true);
+    try{
+      statusLog.textContent = "";
+      disposeSources();
+      state.playing = false;
+      playBtn.textContent = "Play";
+      state.position = 0;
+      state.stems = [];
+      state.selected = -1;
+
+      const list = Array.from(files || []).filter(f => (f.name||"").toLowerCase().endsWith('.wav') || (f.type||"").includes('wav'));
+      if (list.length === 0){
+        log("No WAV files found in selection.");
+        rebuildUI();
+        return;
+      }
+
+      log(`Decoding ${list.length} file(s)…`);
+      let idx=0;
+
+      for (const f of list){
+        const base = stripPath(f.name || `Stem ${idx+1}`);
+        const pretty = prettyStemName(base);
+        try{
+          const ab = await f.arrayBuffer();
+          const buf = await audioCtx.decodeAudioData(ab.slice(0));
+          const pos = { x: (Math.random()*1.2 - 0.6), y: (Math.random()*1.2 - 0.6), z: 0.70 };
+          state.stems.push(makeStem({ name: base, pretty, color: paletteColor(idx), buffer: buf, pos }));
+          log(`✅ Decoded: ${pretty} (${fmt2(buf.duration)}s)`);
+        }catch(e){
+          log(`❌ Decode failed: ${base} — ${e?.message || e}`);
+        }
+        idx++;
+      }
+
+      state.demoMode = false;
+      computeDuration();
+      log(`Ready. Duration (max): ${fmt2(state.duration)}s`);
+      rebuildUI();
+      if (state.stems.length > 0) selectStem(0);
+    } finally{
+      setLoading(false);
+    }
+  }
+
+  // ---------- presets ----------
+  function exportPreset(){
+    const payload = {
+      app: "CubeStem Mixer",
+      version: 4.0,
+      createdAt: new Date().toISOString(),
+      loop: state.loop,
+      eqMode: state.eqMode,
+      bubbleReact: state.bubbleReact,
+      showLabels: state.showLabels,
+      enableAliasInputs: state.enableAliasInputs,
+      showHUD: state.showHUD,
+      stems: state.stems.map((s, i) => ({
+        index: i, name: s.name, pretty: s.pretty, alias: s.alias || "",
+        color: s.color, muted: !!s.muted, solo: !!s.solo,
+        pos: { x: s.pos.x, y: s.pos.y, z: s.pos.z },
+        bandpassQ: s.bandpassQ
+      }))
+    };
+    const json = JSON.stringify(payload, null, 2);
+    const blob = new Blob([json], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'cubestem_preset.json';
+    document.body.appendChild(a);
+    a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    log("Exported preset JSON.");
+  }
+
+  async function importPresetFile(file){
+    try{
+      const text = await file.text();
+      const data = JSON.parse(text);
+      if (!data || !Array.isArray(data.stems)){
+        log("Invalid preset JSON.");
+        return;
+      }
+      setLoop(!!data.loop);
+
+      state.bubbleReact = data.bubbleReact !== false;
+      reactBtn.textContent = state.bubbleReact ? "On" : "Off";
+      reactBtn.classList.toggle('primary', state.bubbleReact);
+
+      state.showLabels = !!data.showLabels;
+      labelsBtn.textContent = state.showLabels ? "On" : "Off";
+      labelsBtn.classList.toggle('primary', state.showLabels);
+
+      state.enableAliasInputs = !!data.enableAliasInputs;
+      aliasBtn.textContent = state.enableAliasInputs ? "On" : "Off";
+      aliasBtn.classList.toggle('primary', state.enableAliasInputs);
+
+      state.showHUD = data.showHUD !== false;
+      setHudVisible(state.showHUD);
+
+      const modes = new Set(["tilt","bandpass","morph_hi","morph_lo"]);
+      if (modes.has(data.eqMode)) state.eqMode = data.eqMode;
+      eqModeSel.value = state.eqMode;
+      refreshEqModeUI();
+
+      const byName = new Map(state.stems.map((s, i) => [s.name, i]));
+      for (const ps of data.stems){
+        let idx = -1;
+        if (ps.name && byName.has(ps.name)) idx = byName.get(ps.name);
+        else if (Number.isFinite(ps.index)) idx = ps.index;
+        if (idx < 0 || idx >= state.stems.length) continue;
+
+        const s = state.stems[idx];
+        if (ps.pos){
+          s.pos.x = clamp(ps.pos.x ?? s.pos.x, -1, 1);
+          s.pos.y = clamp(ps.pos.y ?? s.pos.y, -1, 1);
+          s.pos.z = clamp(ps.pos.z ?? s.pos.z, 0, 1);
+        }
+        s.muted = !!ps.muted;
+        s.solo = !!ps.solo;
+        s.alias = (ps.alias || "").slice(0, 12);
+        if (typeof ps.bandpassQ === 'number') s.bandpassQ = clamp(ps.bandpassQ, 0.5, 8.0);
+
+        if (s.gain){
+          applyParamsFromPos(s);
+        }
+      }
+
+      rebuildUI();
+      applyAudibilityAll();
+      if (state.selected >= 0) selectStem(state.selected);
+      log("Imported preset.");
+    }catch(e){
+      log("Preset import failed: " + (e?.message || e));
+    }
+  }
+
+  // ---------- UI ----------
+  function displayLabelForStem(s){
+    if (s.alias && s.alias.trim()) return s.alias.trim().toUpperCase().slice(0,4);
+    return autoAbbrev(s.pretty);
+  }
+
+  function rebuildRuler(){
+    const points = [
+      { hz: 125, vowel: "" },
+      { hz: 250, vowel: "OO" },
+      { hz: 500, vowel: "O" },
+      { hz: 1000, vowel: "AH" },
+      { hz: 2000, vowel: "A" },
+      { hz: 4000, vowel: "EE" },
+      { hz: 8000, vowel: "" },
+    ];
+    rulerGrid.innerHTML = "";
+    for (const p of points){
+      const el = document.createElement('div');
+      el.className = 'anchor';
+      const left = document.createElement('div');
+      left.innerHTML = `<span class="hz">${p.hz >= 1000 ? (p.hz/1000) + "k" : p.hz} Hz</span> <span class="vowel">${p.vowel}</span>`;
+      const right = document.createElement('div');
+      right.className = 'pill2';
+      right.textContent = "Snap";
+      el.appendChild(left);
+      el.appendChild(right);
+      el.addEventListener('click', () => {
+        if (state.selected < 0) return;
+        const s = state.stems[state.selected];
+        s.pos.y = hzToY(p.hz);
+        applyParamsFromPos(s);
+        syncSelectedToUI();
+        updateBubbleFromStem(state.selected);
+        drawEqPreview();
+      });
+      rulerGrid.appendChild(el);
+    }
+  }
+
+  function rebuildUI(){
+    stemCountSub.textContent = `${state.stems.length} loaded • client-side only${state.demoMode ? " • demo" : ""}`;
+    stemListEl.innerHTML = "";
+
+    state.stems.forEach((s, idx) => {
+      const item = document.createElement('div');
+      item.className = 'stemItem' + (idx === state.selected ? ' selected' : '');
+      item.dataset.idx = String(idx);
+
+      const dot = document.createElement('div');
+      dot.className = 'dot';
+      dot.style.background = s.color;
+
+      const nameWrap = document.createElement('div');
+      const name = document.createElement('div');
+      name.className = 'stemName';
+      name.textContent = s.pretty;
+
+      const aliasRow = document.createElement('div');
+      aliasRow.className = 'aliasRow' + (state.enableAliasInputs ? ' on' : '');
+      const aliasInput = document.createElement('input');
+      aliasInput.className = 'aliasInput';
+      aliasInput.placeholder = "alias (optional) — e.g., KICK, HH1, VOX";
+      aliasInput.value = s.alias || "";
+      aliasInput.addEventListener('input', (e) => {
+        s.alias = (e.target.value || "").slice(0, 12);
+        updateBubbleLabel(idx);
+        if (state.selected === idx) renderInspector();
+      });
+      aliasRow.appendChild(aliasInput);
+
+      nameWrap.appendChild(name);
+      nameWrap.appendChild(aliasRow);
+
+      const ms = document.createElement('div');
+      ms.className = 'msWrap';
+
+      const mBtn = document.createElement('div');
+      mBtn.className = 'msBtn m' + (s.muted ? ' on' : '');
+      mBtn.textContent = "M";
+      mBtn.title = "Mute";
+
+      const sBtn = document.createElement('div');
+      sBtn.className = 'msBtn s' + (s.solo ? ' on' : '');
+      sBtn.textContent = "S";
+      sBtn.title = "Solo";
+
+      ms.appendChild(mBtn);
+      ms.appendChild(sBtn);
+
+      item.appendChild(dot);
+      item.appendChild(nameWrap);
+      item.appendChild(ms);
+
+      item.addEventListener('click', (e) => {
+        const t = e.target;
+        if (t && (t.classList.contains('msBtn') || t.classList.contains('aliasInput'))) return;
+        selectStem(idx);
+      });
+
+      mBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        s.muted = !s.muted;
+        mBtn.classList.toggle('on', s.muted);
+        applyAudibilityAll();
+        renderInspector();
+      });
+
+      sBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        s.solo = !s.solo;
+        sBtn.classList.toggle('on', s.solo);
+        applyAudibilityAll();
+        renderInspector();
+      });
+
+      stemListEl.appendChild(item);
+    });
+
+    rebuildSceneObjects();
+    refreshEqModeUI();
+    rebuildRuler();
+    renderInspector();
+    drawEqPreview();
+    applyAudibilityAll();
+  }
+
+  function deselect(){
+    state.selected = -1;
+    [...stemListEl.children].forEach(el => el.classList.remove('selected'));
+    highlightBubble(-1);
+    applyLabelVisibility();
+    renderInspector();
+    drawEqPreview();
+    miniZ.classList.remove('on');   // important: hide mini slider on deselect
+    ruler.classList.remove('on');
+    bwField.style.display = "none";
+  }
+
+  function selectStem(idx){
+    if (state.stems.length === 0) return;
+    idx = clamp(idx, 0, state.stems.length-1);
+
+    if (!isAudible(idx)){
+      // If user taps an inactive/hidden stem, still allow selection in list,
+      // but it won't show a bubble. Better UX: refuse selection and just deselect.
+      deselect();
+      return;
+    }
+
+    state.selected = idx;
+
+    [...stemListEl.children].forEach((el,i) => el.classList.toggle('selected', i === idx));
+
+    const s = state.stems[idx];
+    syncSelectedToUI();
+    highlightBubble(idx);
+    applyLabelVisibility();
+    renderInspector();
+    refreshEqModeUI();
+    drawEqPreview();
+
+    miniZ.classList.add('on');
+    updateMiniZPosition(true);
+  }
+
+  function syncSelectedToUI(){
+    const idx = state.selected;
+    if (idx < 0) return;
+    const s = state.stems[idx];
+
+    zSlider.value = String(s.pos.z);
+    zLabel.textContent = fmt2(s.pos.z);
+
+    miniZSlider.value = String(s.pos.z);
+    miniZDb.textContent = `${fmt2(dbFromZ(s.pos.z))} dB`;
+
+    if (state.eqMode === 'bandpass'){
+      bwField.style.display = "block";
+      bwSlider.value = String(qToBw(s.bandpassQ));
+      bwLabelEl.textContent = bwLabel(qToBw(s.bandpassQ));
+      ruler.classList.add('on');
+    } else {
+      bwField.style.display = "none";
+      ruler.classList.remove('on');
+    }
+  }
+
+  function refreshEqModeUI(){
+    eqModeSel.value = state.eqMode;
+
+    let help = "";
+    if (state.eqMode === "tilt"){
+      help = "Tilt EQ (±12 dB): Y=-1 warms (low up / high down), Y=+1 brightens (low down / high up).";
+      eqPreviewTag.textContent = "Tilt";
+    } else if (state.eqMode === "bandpass"){
+      help = "Bandpass: Y sets center frequency (20 Hz → 20 kHz, log). Use snap points to jump to vowel-ish regions.";
+      eqPreviewTag.textContent = "Bandpass";
+    } else if (state.eqMode === "morph_hi"){
+      help = "Exaggerated 3-band morph (±18 dB). Bottom=bass-heavy, middle=mid-forward, top=bright.";
+      eqPreviewTag.textContent = "Morph (exaggerated)";
+    } else if (state.eqMode === "morph_lo"){
+      help = "Subtle 3-band morph (±6 dB). Same behavior as Mode 3, but gentler.";
+      eqPreviewTag.textContent = "Morph (subtle)";
+    }
+    eqHelp.textContent = help;
+
+    if (state.selected >= 0) syncSelectedToUI();
+    else { bwField.style.display = "none"; ruler.classList.remove('on'); }
+
+    for (const s of state.stems){
+      if (s.gain) applyParamsFromPos(s);
+    }
+    // routing changes apply on next Play; still fine for stability
+  }
+
+  function renderInspector(){
+    const renderTo = (titleEl, metaEl, gridEl, xEl, yEl, zEl, panEl, eqEl, volEl) => {
+      if (state.selected < 0 || state.selected >= state.stems.length){
+        titleEl.textContent = "No stem selected";
+        metaEl.textContent = "Tap a bubble or a stem in the list. Click/tap empty space to deselect.";
+        gridEl.style.display = "none";
+        return;
+      }
+      const s = state.stems[state.selected];
+      titleEl.textContent = `${s.pretty}${s.muted ? " (MUTED)" : ""}${s.solo ? " (SOLO)" : ""} — ${displayLabelForStem(s)}`;
+      metaEl.textContent = "Drag in XY • Z via slider • X→Pan • Y→EQ • Z→Vol";
+      gridEl.style.display = "grid";
+
+      const x = clamp(s.pos.x, -1, 1);
+      const y = clamp(s.pos.y, -1, 1);
+      const z = clamp(s.pos.z, 0, 1);
+
+      xEl.textContent = fmt2(x);
+      yEl.textContent = fmt2(y);
+      zEl.textContent = fmt2(z);
+      panEl.textContent = fmt2(x);
+      eqEl.textContent = state.eqMode === "bandpass" ? `${Math.round(yToHz(y))} Hz` : state.eqMode;
+      volEl.textContent = `${fmt2(dbFromZ(z))} dB`;
+    };
+
+    renderTo(selTitle, selMeta, selGrid, valX, valY, valZ, valPan, valEQ, valVol);
+    renderTo(m_selTitle, m_selMeta, m_selGrid, m_valX, m_valY, m_valZ, m_valPan, m_valEQ, m_valVol);
+  }
+
+  function setHudVisible(on){
+    state.showHUD = !!on;
+    hud.classList.toggle('hidden', !state.showHUD);
+    hudToggleBtn.textContent = "Inspector: " + (state.showHUD ? "On" : "Off");
+  }
+
+  // ---------- EQ preview drawing (A1) ----------
+  function drawEqPreview(){
+    const w = eqPreview.width, h = eqPreview.height;
+    eqCtx2d.clearRect(0,0,w,h);
+
+    eqCtx2d.fillStyle = "rgba(0,0,0,0.10)";
+    eqCtx2d.fillRect(0,0,w,h);
+
+    eqCtx2d.strokeStyle = "rgba(255,255,255,0.07)";
+    eqCtx2d.lineWidth = 1;
+    for (let i=1;i<6;i++){
+      const y = (h*i)/6;
+      eqCtx2d.beginPath(); eqCtx2d.moveTo(0,y); eqCtx2d.lineTo(w,y); eqCtx2d.stroke();
+    }
+    for (let i=1;i<8;i++){
+      const x = (w*i)/8;
+      eqCtx2d.beginPath(); eqCtx2d.moveTo(x,0); eqCtx2d.lineTo(x,h); eqCtx2d.stroke();
+    }
+
+    if (state.selected < 0 || state.selected >= state.stems.length){
+      eqCtx2d.fillStyle = "rgba(231,238,249,0.55)";
+      eqCtx2d.font = "600 20px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+      eqCtx2d.textAlign = "center";
+      eqCtx2d.textBaseline = "middle";
+      eqCtx2d.fillText("Select a stem to preview EQ", w/2, h/2);
+      return;
+    }
+
+    const s = state.stems[state.selected];
+    const y = clamp(s.pos.y, -1, 1);
+    const logMin = Math.log10(20), logMax = Math.log10(20000);
+
+    const topDb = 18, botDb = -18;
+    function yForDb(db){
+      const t = (db - botDb) / (topDb - botDb);
+      return h - clamp(t,0,1) * h;
+    }
+
+    eqCtx2d.strokeStyle = s.color;
+    eqCtx2d.lineWidth = 3;
+    eqCtx2d.beginPath();
+
+    for (let i=0;i<=200;i++){
+      const t = i/200;
+      const f = Math.pow(10, lerp(logMin, logMax, t));
+
+      let db = 0;
+
+      if (state.eqMode === "morph_hi" || state.eqMode === "morph_lo"){
+        const MAX = (state.eqMode === "morph_hi") ? 18 : 6;
+
+        const lowBoost  =  MAX * Math.max(0, -y);
+        const highBoost =  MAX * Math.max(0,  y);
+        const midBoost  =  MAX * (1 - Math.abs(y));
+        const nonFocusCut = -MAX * 0.7 * Math.abs(y);
+
+        const midF = lerp(400, 2500, (y+1)/2);
+        const bell = Math.exp(-Math.pow(Math.log(f/midF),2) / (2*Math.pow(0.55,2)));
+        const lowShelf  = 1 / (1 + Math.pow(f/200, 2));
+        const highShelf = 1 / (1 + Math.pow(4000/f, 2));
+
+        db =
+          (lowBoost + nonFocusCut) * lowShelf +
+          (highBoost + nonFocusCut) * highShelf +
+          (midBoost - (MAX*0.20)) * bell;
+      }
+      else if (state.eqMode === "bandpass"){
+        const center = yToHz(y);
+        const Q = s.bandpassQ;
+        const bwOct = 1 / Math.max(0.001, Q);
+        const sigma = Math.max(0.20, bwOct);
+        const bell = Math.exp(-Math.pow(Math.log(f/center),2) / (2*Math.pow(sigma,2)));
+        db = 18 * bell - 12*(1-bell);
+      }
+      else if (state.eqMode === "tilt"){
+        const MAX = 12;
+        const lowDb  = MAX * (-y);
+        const highDb = MAX * ( y);
+        const lowShelf  = 1 / (1 + Math.pow(f/350, 2));
+        const highShelf = 1 / (1 + Math.pow(3500/f, 2));
+        db = lowDb*lowShelf + highDb*highShelf;
+      }
+
+      db = clamp(db, -18, 18);
+      const x = t*w;
+      const yy = yForDb(db);
+      if (i === 0) eqCtx2d.moveTo(x, yy);
+      else eqCtx2d.lineTo(x, yy);
+    }
+    eqCtx2d.stroke();
+
+    eqCtx2d.strokeStyle = "rgba(255,255,255,0.14)";
+    eqCtx2d.lineWidth = 1.5;
+    eqCtx2d.beginPath();
+    eqCtx2d.moveTo(0, yForDb(0));
+    eqCtx2d.lineTo(w, yForDb(0));
+    eqCtx2d.stroke();
+
+    eqCtx2d.fillStyle = "rgba(231,238,249,0.65)";
+    eqCtx2d.font = "600 14px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+    eqCtx2d.textAlign = "left";
+    eqCtx2d.textBaseline = "top";
+    eqCtx2d.fillText("Low", 10, 8);
+    eqCtx2d.textAlign = "center";
+    eqCtx2d.fillText("Mid", w/2, 8);
+    eqCtx2d.textAlign = "right";
+    eqCtx2d.fillText("High", w-10, 8);
+  }
+
+  // ---------- 3D ----------
+  const canvas = document.getElementById('three');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+
+  const scene = new THREE.Scene();
+
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 100);
+  camera.position.set(0, 0, 3.2);
+  camera.lookAt(0,0,0);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.75));
+  const dir = new THREE.DirectionalLight(0xffffff, 0.55);
+  dir.position.set(2,3,3);
+  scene.add(dir);
+
+  const cubeGroup = new THREE.Group();
+  scene.add(cubeGroup);
+
+  const cubeSize = 2;
+  const cubeGeo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+  const edges = new THREE.EdgesGeometry(cubeGeo);
+  const lineMat = new THREE.LineBasicMaterial({ color: 0x7aa7ff, transparent: true, opacity: 0.45 });
+  cubeGroup.add(new THREE.LineSegments(edges, lineMat));
+
+  const floorGeo = new THREE.PlaneGeometry(2.2, 2.2);
+  const floorMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.04, side: THREE.DoubleSide });
+  const floor = new THREE.Mesh(floorGeo, floorMat);
+  floor.rotation.x = Math.PI/2;
+  floor.position.y = -1;
+  cubeGroup.add(floor);
+
+  const bubbleGroup = new THREE.Group();
+  scene.add(bubbleGroup);
+
+  let bubbleMeshes = [];
+  let bubbleLabels = [];
+
+  function makeBubble(colorHex){
+    const geo = new THREE.SphereGeometry(0.09, 24, 24);
+    const color = new THREE.Color(colorHex);
+    const mat = new THREE.MeshStandardMaterial({
+      color,
+      transparent: true,
+      opacity: 0.92,
+      roughness: 0.25,
+      metalness: 0.05,
+      emissive: color.clone(),
+      emissiveIntensity: 0.22,
+    });
+    return new THREE.Mesh(geo, mat);
+  }
+
+  function roundRect(ctx, x, y, w, h, r){
+    const rr = Math.min(r, w/2, h/2);
+    ctx.beginPath();
+    ctx.moveTo(x+rr, y);
+    ctx.arcTo(x+w, y, x+w, y+h, rr);
+    ctx.arcTo(x+w, y+h, x, y+h, rr);
+    ctx.arcTo(x, y+h, x, y, rr);
+    ctx.arcTo(x, y, x+w, y, rr);
+    ctx.closePath();
+  }
+
+  function makeLabelSprite(text, colorHex){
+    const c = document.createElement('canvas');
+    const ctx = c.getContext('2d');
+    const W = 256, H = 128;
+    c.width = W; c.height = H;
+
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = "rgba(0,0,0,0.55)";
+    roundRect(ctx, 14, 38, W-28, 52, 20);
+    ctx.fill();
+
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = colorHex;
+    ctx.globalAlpha = 0.9;
+    roundRect(ctx, 14, 38, W-28, 52, 20);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    ctx.fillStyle = "rgba(255,255,255,0.95)";
+    ctx.font = "800 40px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, W/2, 64);
+
+    const tex = new THREE.CanvasTexture(c);
+    tex.minFilter = THREE.LinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+
+    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
+    const spr = new THREE.Sprite(mat);
+    spr.scale.set(0.48, 0.24, 1);
+    return spr;
+  }
+
+  function posToScene(p){
+    return new THREE.Vector3(
+      clamp(p.x, -1, 1),
+      clamp(p.y, -1, 1),
+      clamp(p.z, 0, 1)*2 - 1
+    );
+  }
+  function sceneToPos(v){
+    return { x: clamp(v.x,-1,1), y: clamp(v.y,-1,1), z: clamp((v.z+1)/2,0,1) };
+  }
+
+  function rebuildSceneObjects(){
+    for (const m of bubbleMeshes){
+      if (m?.parent) m.parent.remove(m);
+      if (m?.geometry) m.geometry.dispose();
+      if (m?.material) m.material.dispose();
+    }
+    for (const s of bubbleLabels){
+      if (s?.parent) s.parent.remove(s);
+      if (s?.material?.map) s.material.map.dispose();
+      if (s?.material) s.material.dispose();
+    }
+    bubbleMeshes = [];
+    bubbleLabels = [];
+
+    state.stems.forEach((stem, idx) => {
+      const mesh = makeBubble(stem.color);
+      mesh.position.copy(posToScene(stem.pos));
+      mesh.userData.idx = idx;
+      bubbleGroup.add(mesh);
+      bubbleMeshes[idx] = mesh;
+
+      const spr = makeLabelSprite(displayLabelForStem(stem), stem.color);
+      spr.position.copy(mesh.position).add(new THREE.Vector3(0, 0.18, 0));
+      spr.userData.idx = idx;
+      scene.add(spr);
+      bubbleLabels[idx] = spr;
+    });
+
+    highlightBubble(state.selected);
+    applyLabelVisibility();
+  }
+
+  function updateBubbleLabel(idx){
+    const s = state.stems[idx];
+    const old = bubbleLabels[idx];
+    if (old){
+      if (old.parent) old.parent.remove(old);
+      if (old.material?.map) old.material.map.dispose();
+      if (old.material) old.material.dispose();
+    }
+    const mesh = bubbleMeshes[idx];
+    if (!mesh) return;
+    const spr = makeLabelSprite(displayLabelForStem(s), s.color);
+    spr.position.copy(mesh.position).add(new THREE.Vector3(0, 0.18, 0));
+    spr.userData.idx = idx;
+    scene.add(spr);
+    bubbleLabels[idx] = spr;
+    applyLabelVisibility();
+  }
+
+  function applyLabelVisibility(){
+    for (let i=0;i<bubbleLabels.length;i++){
+      const spr = bubbleLabels[i];
+      if (!spr) continue;
+      if (!state.showLabels){
+        spr.visible = (i === state.selected) && isAudible(i);
+      }else{
+        spr.visible = isAudible(i);
+      }
+    }
+  }
+
+  function setBubbleVisible(idx, vis){
+    const m = bubbleMeshes[idx];
+    const s = bubbleLabels[idx];
+    if (m) m.visible = !!vis;
+    if (s){
+      if (state.showLabels) s.visible = !!vis;
+      else s.visible = !!vis && (idx === state.selected);
+    }
+    // Mini Z slider must disappear if selected bubble disappears
+    if (idx === state.selected && !vis){
+      miniZ.classList.remove('on');
+    }
+  }
+
+  function highlightBubble(idx){
+    bubbleMeshes.forEach((m, i) => {
+      if (!m) return;
+      const sel = (i === idx);
+      m.scale.setScalar(sel ? 1.28 : 1.0);
+      m.material.opacity = sel ? 0.98 : 0.92;
+      m.material.emissiveIntensity = sel ? 0.36 : 0.22;
+    });
+    bubbleLabels.forEach((s, i) => {
+      if (!s) return;
+      s.scale.setScalar(i === idx ? 1.06 : 1.0);
+    });
+  }
+
+  function updateBubbleFromStem(idx){
+    const s = state.stems[idx];
+    const m = bubbleMeshes[idx];
+    const spr = bubbleLabels[idx];
+    if (!m) return;
+    m.position.copy(posToScene(s.pos));
+    if (spr) spr.position.copy(m.position).add(new THREE.Vector3(0,0.18,0));
+    if (idx === state.selected) updateMiniZPosition(false);
+    renderInspector();
+  }
+
+  function resize(){
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.max(2, rect.width);
+    const h = Math.max(2, rect.height);
+    renderer.setSize(w, h, false);
+    camera.aspect = w/h;
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize);
+
+  // Interaction: drag bubbles in XY + click empty space to deselect
+  const raycaster = new THREE.Raycaster();
+  const pointer = new THREE.Vector2();
+  let draggingXY = false;
+  let dragIdx = -1;
+  let dragPlane = new THREE.Plane();
+  let dragOffset = new THREE.Vector3();
+
+  function setPointerFromEvent(e){
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+    pointer.x = x * 2 - 1;
+    pointer.y = -(y * 2 - 1);
+  }
+  function pickBubble(e){
+    setPointerFromEvent(e);
+    raycaster.setFromCamera(pointer, camera);
+    const hits = raycaster.intersectObjects(bubbleGroup.children, false);
+    if (hits.length){
+      const obj = hits[0].object;
+      const idx = obj.userData.idx;
+      if (idx != null) return idx;
+    }
+    return -1;
+  }
+
+  function onPointerDown(e){
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (state.stems.length === 0) return;
+
+    const idx = pickBubble(e);
+    if (idx < 0){
+      deselect();
+      return;
+    }
+
+    if (!isAudible(idx)){
+      deselect();
+      return;
+    }
+
+    selectStem(idx);
+
+    draggingXY = true;
+    dragIdx = idx;
+
+    const bubble = bubbleMeshes[idx];
+    const zConst = bubble.position.z;
+    dragPlane.setFromNormalAndCoplanarPoint(new THREE.Vector3(0,0,1), new THREE.Vector3(0,0,zConst));
+
+    setPointerFromEvent(e);
+    raycaster.setFromCamera(pointer, camera);
+    const hitPoint = new THREE.Vector3();
+    raycaster.ray.intersectPlane(dragPlane, hitPoint);
+    dragOffset.copy(bubble.position).sub(hitPoint);
+
+    canvas.setPointerCapture?.(e.pointerId);
+  }
+
+  function onPointerMove(e){
+    if (!draggingXY || dragIdx < 0) return;
+    const bubble = bubbleMeshes[dragIdx];
+    if (!bubble) return;
+
+    setPointerFromEvent(e);
+    raycaster.setFromCamera(pointer, camera);
+
+    const hitPoint = new THREE.Vector3();
+    const ok = raycaster.ray.intersectPlane(dragPlane, hitPoint);
+    if (!ok) return;
+
+    hitPoint.add(dragOffset);
+    bubble.position.x = clamp(hitPoint.x, -1, 1);
+    bubble.position.y = clamp(hitPoint.y, -1, 1);
+
+    const spr = bubbleLabels[dragIdx];
+    if (spr) spr.position.copy(bubble.position).add(new THREE.Vector3(0, 0.18, 0));
+
+    const s = state.stems[dragIdx];
+    const p = sceneToPos(bubble.position);
+    s.pos.x = p.x;
+    s.pos.y = p.y;
+
+    applyParamsFromPos(s);
+    renderInspector();
+    drawEqPreview();
+
+    if (dragIdx === state.selected) updateMiniZPosition(false);
+  }
+
+  function onPointerUp(){
+    draggingXY = false;
+    dragIdx = -1;
+  }
+
+  canvas.addEventListener('pointerdown', onPointerDown);
+  canvas.addEventListener('pointermove', onPointerMove);
+  canvas.addEventListener('pointerup', onPointerUp);
+  canvas.addEventListener('pointercancel', onPointerUp);
+
+  // Bubble RMS react
+  const tmpTimeData = new Float32Array(512);
+  function computeRMS(analyser){
+    if (!analyser) return 0;
+    analyser.getFloatTimeDomainData(tmpTimeData);
+    let sum = 0;
+    for (let i=0;i<tmpTimeData.length;i++){
+      const v = tmpTimeData[i];
+      sum += v*v;
+    }
+    return Math.sqrt(sum / tmpTimeData.length);
+  }
+
+  // Mini Z slider positioning / behavior
+  let miniPinned = false;
+
+  function bubbleScreenPosition(idx){
+    const mesh = bubbleMeshes[idx];
+    if (!mesh) return null;
+    const v = mesh.position.clone();
+    v.project(camera);
+    const rect = canvas.getBoundingClientRect();
+    const x = (v.x * 0.5 + 0.5) * rect.width + rect.left;
+    const y = (-v.y * 0.5 + 0.5) * rect.height + rect.top;
+    return { x, y };
+  }
+
+  function updateMiniZPosition(withSnapAnim){
+    if (state.selected < 0) return;
+    if (miniPinned) return;
+    if (!isAudible(state.selected)) return;
+
+    const pos = bubbleScreenPosition(state.selected);
+    if (!pos) return;
+
+    const rect = cubeWrap.getBoundingClientRect();
+    const left = pos.x - rect.left;
+    const top = (pos.y - rect.top) + 18;
+
+    if (withSnapAnim){
+      miniZ.classList.add('snapAnim');
+      miniZ.style.left = left + "px";
+      miniZ.style.top  = top + "px";
+      window.setTimeout(() => miniZ.classList.remove('snapAnim'), 140);
+    } else {
+      miniZ.style.left = left + "px";
+      miniZ.style.top  = top + "px";
+    }
+  }
+
+  function setSelectedZ(z){
+    if (state.selected < 0) return;
+    const s = state.stems[state.selected];
+    s.pos.z = clamp(z, 0, 1);
+
+    zSlider.value = String(s.pos.z);
+    zLabel.textContent = fmt2(s.pos.z);
+
+    miniZSlider.value = String(s.pos.z);
+    miniZDb.textContent = `${fmt2(dbFromZ(s.pos.z))} dB`;
+
+    const m = bubbleMeshes[state.selected];
+    const spr = bubbleLabels[state.selected];
+    if (m){
+      m.position.z = s.pos.z*2 - 1;
+      if (spr) spr.position.copy(m.position).add(new THREE.Vector3(0,0.18,0));
+    }
+
+    // if audible, update gain; if not, keep 0
+    applyAudibilityAll();
+    renderInspector();
+  }
+
+  // animate
+  function animate(){
+    resize();
+    cubeGroup.rotation.set(0,0,0);
+
+    if (state.bubbleReact && audioCtx){
+      for (let i=0;i<state.stems.length;i++){
+        const s = state.stems[i];
+        const m = bubbleMeshes[i];
+        if (!m) continue;
+
+        if (!isAudible(i) || !m.visible){
+          m.scale.setScalar(i === state.selected ? 1.28 : 1.0);
+          continue;
+        }
+        const rms = computeRMS(s.analyser);
+        const t = clamp(rms * 6.0, 0, 1);
+        const base = (i === state.selected) ? 1.28 : 1.0;
+        m.scale.setScalar(base * (1.0 + 0.55*t));
+      }
+    }
+
+    if (state.selected >= 0 && miniZ.classList.contains('on') && !miniPinned){
+      updateMiniZPosition(false);
+    }
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+
+  // ---------- events ----------
+  enableAudioBtn.addEventListener('click', enableAudio);
+
+  fileInput.addEventListener('change', async (e) => {
+    await loadFiles(e.target.files);
+    fileInput.value = "";
+  });
+
+  demoBtn.addEventListener('click', loadDemo);
+
+  playBtn.addEventListener('click', () => {
+    ensureAudioContext();
+    if (audioCtx && audioCtx.state !== 'running'){
+      tapOverlay.classList.remove('hidden');
+      return;
+    }
+    if (!state.playing) startPlayback();
+    else pausePlayback();
+  });
+
+  restartBtn.addEventListener('click', restartPlayback);
+  loopBtn.addEventListener('click', () => setLoop(!state.loop));
+
+  resetBtn.addEventListener('click', () => {
+    for (let i=0;i<state.stems.length;i++){
+      const s = state.stems[i];
+      s.pos.x = (Math.random()*1.0 - 0.5);
+      s.pos.y = (Math.random()*1.0 - 0.5);
+      s.pos.z = 0.70;
+      applyParamsFromPos(s);
+      updateBubbleFromStem(i);
+    }
+    applyAudibilityAll();
+    if (state.selected >= 0) selectStem(state.selected);
+    log("Reset positions.");
+  });
+
+  zSlider.addEventListener('input', () => {
+    if (state.selected < 0) return;
+    setSelectedZ(parseFloat(zSlider.value));
+  });
+
+  miniZSlider.addEventListener('pointerdown', () => { miniPinned = true; miniZ.classList.remove('snapAnim'); });
+  miniZSlider.addEventListener('pointerup', () => { miniPinned = false; updateMiniZPosition(true); });
+  miniZSlider.addEventListener('pointercancel', () => { miniPinned = false; updateMiniZPosition(true); });
+  miniZSlider.addEventListener('input', () => {
+    if (state.selected < 0) return;
+    setSelectedZ(parseFloat(miniZSlider.value));
+  });
+
+  eqModeSel.addEventListener('change', () => {
+    state.eqMode = eqModeSel.value;
+    refreshEqModeUI();
+    drawEqPreview();
+    log("EQ mode: " + eqModeSel.options[eqModeSel.selectedIndex].text);
+    // keep audio stable; routing updates next Play
+    if (state.selected >= 0){
+      applyParamsFromPos(state.stems[state.selected]);
+      applyAudibilityAll();
+    }
+  });
+
+  bwSlider.addEventListener('input', () => {
+    if (state.selected < 0) return;
+    const s = state.stems[state.selected];
+    const bw = parseFloat(bwSlider.value);
+    s.bandpassQ = bwToQ(bw);
+    bwLabelEl.textContent = bwLabel(bw);
+    if (s.bandpass) s.bandpass.Q.value = s.bandpassQ;
+    drawEqPreview();
+  });
+
+  reactBtn.addEventListener('click', () => {
+    state.bubbleReact = !state.bubbleReact;
+    reactBtn.textContent = state.bubbleReact ? "On" : "Off";
+    reactBtn.classList.toggle('primary', state.bubbleReact);
+  });
+
+  labelsBtn.addEventListener('click', () => {
+    state.showLabels = !state.showLabels;
+    labelsBtn.textContent = state.showLabels ? "On" : "Off";
+    labelsBtn.classList.toggle('primary', state.showLabels);
+    applyLabelVisibility();
+  });
+
+  aliasBtn.addEventListener('click', () => {
+    state.enableAliasInputs = !state.enableAliasInputs;
+    aliasBtn.textContent = state.enableAliasInputs ? "On" : "Off";
+    aliasBtn.classList.toggle('primary', state.enableAliasInputs);
+
+    const rows = stemListEl.querySelectorAll('.aliasRow');
+    rows.forEach(r => r.classList.toggle('on', state.enableAliasInputs));
+  });
+
+  soloClearBtn.addEventListener('click', () => {
+    for (const s of state.stems) s.solo = false;
+    // update buttons
+    stemListEl.querySelectorAll('.stemItem').forEach((row) => {
+      const idx = parseInt(row.dataset.idx, 10);
+      const sbtn = row.querySelector('.msBtn.s');
+      if (sbtn) sbtn.classList.toggle('on', !!state.stems[idx].solo);
+    });
+    applyAudibilityAll();
+    log("Cleared solo.");
+  });
+
+  exportBtn.addEventListener('click', exportPreset);
+  importBtn.addEventListener('click', () => importFile.click());
+  importFile.addEventListener('change', async (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    await importPresetFile(f);
+    importFile.value = "";
+  });
+
+  hudToggleBtn.addEventListener('click', () => setHudVisible(!state.showHUD));
+
+  document.addEventListener('visibilitychange', () => { if (audioCtx) updateAudioStateUI(); });
+
+  function init(){
+    stemCountSub.textContent = "0 loaded • client-side only";
+    setLoop(true);
+
+    reactBtn.textContent = "On";
+    reactBtn.classList.add('primary');
+
+    // labels default OFF
+    labelsBtn.textContent = "Off";
+    labelsBtn.classList.remove('primary');
+
+    aliasBtn.textContent = "Off";
+    aliasBtn.classList.remove('primary');
+
+    setHudVisible(true);
+    updateAudioStateUI();
+    transportTick();
+    rebuildRuler();
+    refreshEqModeUI();
+    drawEqPreview();
+  }
+  init();
+})();
+</script>
+</body>
+</html>
