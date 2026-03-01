@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="dark light" />
+  <meta name="theme-color" content="#071018" />
+  <title>Adam Borecki — Web Apps</title>
+
+  <style>
+    /* ============================================
+       Adam's Webapps Portal — single-file index.html
+       - mobile-first
+       - automatic dark mode
+       - optional thumbnails in /assets/thumbs/*.png
+       ============================================ */
+
+    :root{
+      --bg0:#071018;
+      --bg1:#0b1220;
+      --panel: rgba(255,255,255,.08);
+      --panel2: rgba(255,255,255,.06);
+      --stroke: rgba(255,255,255,.14);
+      --stroke2: rgba(255,255,255,.10);
+      --text:#e9eef7;
+      --muted: rgba(233,238,247,.72);
+      --muted2: rgba(233,238,247,.55);
+      --accent:#58f0d0;    /* teal/green */
+      --accent2:#7ea3ff;   /* blue */
+      --warn:#ffce5a;
+      --shadow: 0 14px 46px rgba(0,0,0,.45);
+      --blur: 14px;
+      --r1: 18px;
+      --r2: 14px;
+      --tap: 44px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg0:#f7fafc;
+        --bg1:#eef3f9;
+        --panel: rgba(10,20,30,.06);
+        --panel2: rgba(10,20,30,.05);
+        --stroke: rgba(10,20,30,.12);
+        --stroke2: rgba(10,20,30,.10);
+        --text:#0c1522;
+        --muted: rgba(12,21,34,.70);
+        --muted2: rgba(12,21,34,.55);
+        --shadow: 0 14px 38px rgba(10,20,30,.12);
+        --accent:#0bbfa6;
+        --accent2:#406cff;
+      }
+    }
+
+    *{ box-sizing:border-box }
+    html,body{ height:100% }
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background:
+        radial-gradient(1100px 620px at 12% 0%, rgba(88,240,208,.18), transparent 55%),
+        radial-gradient(1100px 620px at 86% 10%, rgba(126,163,255,.18), transparent 55%),
+        radial-gradient(800px 520px at 50% 120%, rgba(255,206,90,.10), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow-x:hidden;
+    }
+
+    a{ color:inherit; text-decoration:none }
+    .wrap{ max-width:1060px; margin:0 auto; padding:18px 14px 48px }
+
+    .glass{
+      background: linear-gradient(180deg, var(--panel), var(--panel2));
+      border:1px solid var(--stroke);
+      border-radius: var(--r1);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(var(--blur));
+      -webkit-backdrop-filter: blur(var(--blur));
+    }
+
+    header{
+      position:sticky; top:0; z-index:30;
+      backdrop-filter: blur(var(--blur));
+      -webkit-backdrop-filter: blur(var(--blur));
+      background: linear-gradient(180deg, rgba(7,16,24,.85), rgba(7,16,24,.55));
+      border-bottom:1px solid rgba(255,255,255,.10);
+    }
+    @media (prefers-color-scheme: light){
+      header{ background: linear-gradient(180deg, rgba(247,250,252,.86), rgba(247,250,252,.62)); }
+    }
+
+    .head{
+      max-width:1060px; margin:0 auto;
+      padding:14px 14px 12px;
+      display:flex; gap:12px; align-items:flex-start; justify-content:space-between;
+    }
+
+    .brand{ min-width:0 }
+    .brand h1{
+      margin:0;
+      font-size:18px;
+      letter-spacing:.2px;
+      line-height:1.1;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+    .brand p{
+      margin:6px 0 0;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.35;
+      max-width: 70ch;
+    }
+
+    .top-actions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end }
+    .btn{
+      min-height: var(--tap);
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
+      color:var(--text);
+      cursor:pointer;
+      display:inline-flex; align-items:center; gap:8px;
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+      user-select:none;
+      box-shadow: 0 10px 22px rgba(0,0,0,.20);
+    }
+    .btn:hover{ border-color: rgba(255,255,255,.22) }
+    .btn:active{ transform: scale(.98) }
+    .btn .ic{ width:18px; height:18px; opacity:.9 }
+    .btn.primary{
+      border-color: rgba(88,240,208,.35);
+      background: radial-gradient(180px 60px at 30% 30%, rgba(88,240,208,.22), rgba(255,255,255,.06));
+    }
+
+    .grid{ display:grid; grid-template-columns: 1fr; gap:12px; margin-top:14px }
+    @media (min-width: 820px){
+      .grid{ grid-template-columns: 1.35fr .65fr }
+    }
+
+    .card{ padding:14px }
+    .about{ padding:14px }
+    .about h2{ margin:0 0 8px; font-size:13px; color:var(--muted); letter-spacing:.2px }
+    .about .blurb{ margin:0; font-size:14px; line-height:1.5; color:var(--text) }
+    .about .blurb b{ color:var(--text) }
+
+    .search{
+      padding:14px;
+      display:flex; flex-direction:column; gap:10px;
+    }
+    .search label{ font-size:12px; color:var(--muted); letter-spacing:.2px }
+    .search-row{
+      display:flex; gap:10px; align-items:center;
+      border:1px solid var(--stroke);
+      border-radius:14px;
+      background: rgba(0,0,0,.18);
+      padding:10px 12px;
+    }
+    @media (prefers-color-scheme: light){
+      .search-row{ background: rgba(255,255,255,.65) }
+    }
+    .search-row input{
+      width:100%;
+      border:none; outline:none;
+      background: transparent;
+      color:var(--text);
+      font-size:14px;
+    }
+    .pill-row{ display:flex; flex-wrap:wrap; gap:8px }
+    .pill{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid var(--stroke2);
+      background: rgba(255,255,255,.06);
+      font-size:12px;
+      color:var(--muted);
+      cursor:pointer;
+      user-select:none;
+      transition: transform .12s ease, border-color .12s ease, background .12s ease, color .12s ease;
+    }
+    .pill:hover{ border-color: rgba(255,255,255,.22); color:var(--text) }
+    .pill.active{
+      border-color: rgba(88,240,208,.40);
+      background: rgba(88,240,208,.10);
+      color: var(--text);
+    }
+
+    section{ margin-top:14px }
+    .section-head{
+      display:flex; align-items:flex-end; justify-content:space-between; gap:10px;
+      padding: 8px 2px;
+    }
+    .section-head h3{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      letter-spacing:.2px;
+    }
+    .section-head .count{ font-family:var(--mono); font-size:12px; color:var(--muted2) }
+
+    .cards{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+    }
+    @media (min-width: 700px){
+      .cards{ grid-template-columns: 1fr 1fr }
+    }
+    @media (min-width: 1040px){
+      .cards{ grid-template-columns: 1fr 1fr 1fr }
+    }
+
+    .app{
+      overflow:hidden;
+      position:relative;
+      display:flex;
+      flex-direction:column;
+      min-height: 156px;
+    }
+    .app .top{
+      display:flex;
+      gap:12px;
+      padding:14px;
+      align-items:flex-start;
+    }
+
+    .thumb{
+      width:56px; height:56px;
+      border-radius:16px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      display:flex; align-items:center; justify-content:center;
+      overflow:hidden;
+      flex:0 0 auto;
+      box-shadow: 0 10px 22px rgba(0,0,0,.18);
+    }
+    .thumb img{
+      width:100%; height:100%;
+      object-fit:cover;
+      display:none; /* enabled once loaded */
+    }
+    .thumb .emoji{
+      font-size:26px;
+      filter: saturate(1.05);
+    }
+
+    .meta{ min-width:0; flex:1 }
+    .meta .title{
+      margin:0;
+      font-size:15px;
+      font-weight:800;
+      letter-spacing:.1px;
+      line-height:1.2;
+    }
+    .meta .desc{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.35;
+    }
+
+    .badges{ margin-top:10px; display:flex; flex-wrap:wrap; gap:8px }
+    .badge{
+      font-family:var(--mono);
+      font-size:11px;
+      padding:2px 7px;
+      border-radius:999px;
+      border:1px solid var(--stroke2);
+      background: rgba(0,0,0,.18);
+      color:var(--muted);
+    }
+    @media (prefers-color-scheme: light){
+      .badge{ background: rgba(255,255,255,.75) }
+    }
+    .badge.kind{ border-color: rgba(126,163,255,.40); color: rgba(126,163,255,.95) }
+    .badge.multi{ border-color: rgba(255,206,90,.40); color: rgba(255,206,90,.95) }
+    .badge.legacy{ border-color: rgba(255,255,255,.18); color: var(--muted) }
+
+    .app .actions{
+      margin-top:auto;
+      padding: 12px 14px 14px;
+      border-top:1px solid rgba(255,255,255,.10);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .links{ display:flex; gap:10px; flex-wrap:wrap; align-items:center }
+    .link{
+      display:inline-flex; align-items:center; gap:7px;
+      font-size:12px;
+      color:var(--text);
+      opacity:.92;
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px solid var(--stroke2);
+      background: rgba(255,255,255,.05);
+      transition: transform .12s ease, border-color .12s ease, background .12s ease, opacity .12s ease;
+      min-height: 36px;
+    }
+    .link:hover{ opacity:1; border-color: rgba(255,255,255,.22) }
+    .link:active{ transform: scale(.98) }
+    .link.live{
+      border-color: rgba(88,240,208,.35);
+      background: radial-gradient(160px 54px at 30% 30%, rgba(88,240,208,.18), rgba(255,255,255,.05));
+    }
+    .link .ic{ width:16px; height:16px; opacity:.9 }
+
+    .hint{
+      margin-top:12px;
+      color:var(--muted2);
+      font-size:11px;
+      line-height:1.45;
+      padding:0 2px;
+    }
+
+    .footer{
+      margin-top:22px;
+      color:var(--muted2);
+      font-size:11px;
+      line-height:1.45;
+      padding: 10px 2px 0;
+    }
+
+    .hide{ display:none !important; }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .btn,.link,.pill{ transition:none }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="head">
+      <div class="brand">
+        <h1>Web Apps — Adam Borecki</h1>
+        <p>
+          A small portfolio of interactive web experiments — mostly music-tech teaching tools,
+          audio playgrounds, and visual sketches. Many are single-file HTML/JS prototypes hosted on GitHub Pages.
+        </p>
+      </div>
+
+      <div class="top-actions">
+        <a class="btn primary" id="btnAllLive" href="#" title="Open all live apps (new tabs)">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M7 7h10v10H7z" stroke="currentColor" stroke-width="2" opacity=".55"/>
+            <path d="M9 9h10v10H9z" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          All Live
+        </a>
+        <a class="btn" id="btnGithub" href="https://github.com/adamborecki" target="_blank" rel="noreferrer">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M9 19c-4 1-4-2-6-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M15 19v-3c0-1 .2-1.7.7-2.2 2.3-.3 4.8-1.1 4.8-5.1 0-1.1-.4-2.1-1.1-2.9.1-.3.5-1.5-.1-3.1 0 0-.9-.3-3 1.1-.9-.2-1.8-.3-2.8-.3s-1.9.1-2.8.3c-2.1-1.4-3-1.1-3-1.1-.6 1.6-.2 2.8-.1 3.1C5.9 6.4 5.5 7.4 5.5 8.5c0 4 2.5 4.8 4.8 5.1.4.4.7 1 .7 2v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          GitHub
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="grid">
+      <div class="about glass">
+        <h2>About</h2>
+        <p class="blurb">
+          I build <b>interactive web apps</b> as teaching tools, creative sketches, and quick prototypes.
+          Most are designed to be <b>fast</b>, <b>mobile-friendly</b>, and easy to share.
+        </p>
+        <div class="hint">
+          Tip: add thumbnails later at <span style="font-family:var(--mono)">assets/thumbs/&lt;repo&gt;.png</span>
+          (e.g. <span style="font-family:var(--mono)">assets/thumbs/eq-webapp.png</span>).
+        </div>
+      </div>
+
+      <div class="search glass">
+        <div>
+          <label for="q">Search</label>
+          <div class="search-row">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="opacity:.85">
+              <path d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" stroke="currentColor" stroke-width="2"/>
+              <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <input id="q" type="search" placeholder="Type to filter… (e.g. eq, harmonic, visuals)" autocomplete="off" />
+          </div>
+        </div>
+
+        <div>
+          <label>Quick filters</label>
+          <div class="pill-row" id="pills"></div>
+        </div>
+
+        <div class="hint">
+          This is intentionally “Linktree-simple”: edit one list in the JS section to add/remove apps.
+        </div>
+      </div>
+    </div>
+
+    <section>
+      <div class="section-head">
+        <h3>Featured</h3>
+        <div class="count" id="countFeatured"></div>
+      </div>
+      <div class="cards" id="featured"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h3>Teaching (Music Tech)</h3>
+        <div class="count" id="countTeaching"></div>
+      </div>
+      <div class="cards" id="teaching"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h3>Music / Audio Experiments</h3>
+        <div class="count" id="countMusic"></div>
+      </div>
+      <div class="cards" id="music"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h3>Art / Animation / Visuals</h3>
+        <div class="count" id="countVisuals"></div>
+      </div>
+      <div class="cards" id="visuals"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h3>Kids / Legacy / Archives</h3>
+        <div class="count" id="countLegacy"></div>
+      </div>
+      <div class="cards" id="legacy"></div>
+      <div class="hint">
+        Some entries are “multi-app repos” (several HTML pages inside one repo) or older archives.
+        Those get a slightly different badge.
+      </div>
+    </section>
+
+    <div class="footer">
+      Built as a single static HTML file (no Jekyll). Works on GitHub Pages.
+    </div>
+  </main>
+
+  <script>
+    // =========================
+    // DATA (edit this list only)
+    // =========================
+    const USER = "adamborecki";
+    const PAGES_ROOT = `https://${USER}.github.io`;
+
+    /**
+     * type:
+     *  - "single"  -> one app per repo (assume live at /<repo>/)
+     *  - "multi"   -> repo contains multiple apps/pages (still has a Pages root, plus repo link)
+     *  - "legacy"  -> older /webapps archive or similar
+     */
+    const APPS = [
+      // --- Featured (pick 1–2; you can change later) ---
+      {
+        repo: "eq-webapp",
+        title: "EQ Webapp",
+        desc: "Ear-training playground: EQ / masking / mixing fundamentals.",
+        topic: "Teaching (Music Tech)",
+        type: "single",
+        featured: true,
+        emoji: "🎛️"
+      },
+      {
+        repo: "harmonic-series-builder-gen3",
+        title: "Harmonic Series Builder (Gen 3)",
+        desc: "Interactive harmonic series visualization + notation-style practice flow.",
+        topic: "Teaching (Music Tech)",
+        type: "single",
+        featured: true,
+        emoji: "🎼"
+      },
+
+      // --- Teaching / Music Tech ---
+      {
+        repo: "oo-o-ah-a-ee",
+        title: "OO–O–AH–A–EE",
+        desc: "Vowel-formant EQ mapping trainer (250 / 500 / 1k / 2k / 4k).",
+        topic: "Teaching (Music Tech)",
+        type: "single",
+        featured: false,
+        emoji: "🗣️"
+      },
+      {
+        repo: "mixcube",
+        title: "Mixcube",
+        desc: "A repo of mix / audio experiments and mini tools (multi-app).",
+        topic: "Teaching (Music Tech)",
+        type: "multi",
+        featured: false,
+        emoji: "🧊"
+      },
+      {
+        repo: "misc-music-webapps",
+        title: "Misc Music Webapps",
+        desc: "A grab-bag of small music web apps (multi-app).",
+        topic: "Teaching (Music Tech)",
+        type: "multi",
+        featured: false,
+        emoji: "🧰"
+      },
+
+      // --- Music / Audio Experiments ---
+      {
+        repo: "sock-piano",
+        title: "Sock Piano",
+        desc: "A playful music UI / instrument experiment.",
+        topic: "Music / Audio",
+        type: "single",
+        featured: false,
+        emoji: "🧦"
+      },
+      {
+        repo: "consciousness",
+        title: "Consciousness",
+        desc: "An exploratory interactive page (concept sketch / idea toy).",
+        topic: "Music / Audio",
+        type: "single",
+        featured: false,
+        emoji: "🧠"
+      },
+
+      // --- Visuals / Art ---
+      {
+        repo: "spirograph",
+        title: "Spirograph",
+        desc: "Generative spirograph drawing / animation sketches.",
+        topic: "Visuals",
+        type: "single",
+        featured: false,
+        emoji: "🌀"
+      },
+      {
+        repo: "optics",
+        title: "Optics",
+        desc: "Light / optics themed visual experiments.",
+        topic: "Visuals",
+        type: "single",
+        featured: false,
+        emoji: "🔭"
+      },
+
+      // --- Legacy / Archives ---
+      {
+        repo: "webapps",
+        title: "Webapps Archive (Legacy)",
+        desc: "Older single-page experiments collected in one place.",
+        topic: "Legacy",
+        type: "legacy",
+        featured: false,
+        emoji: "🗃️",
+        liveOverride: `${PAGES_ROOT}/webapps/`,
+        repoOverride: `https://github.com/${USER}/webapps`
+      }
+    ];
+
+    // =========================
+    // DERIVED LINKS + HELPERS
+    // =========================
+    function repoUrl(app){
+      return app.repoOverride || `https://github.com/${USER}/${app.repo}`;
+    }
+
+    function liveUrl(app){
+      if(app.liveOverride) return app.liveOverride;
+      // assumption: GitHub Pages per repo => https://USER.github.io/<repo>/
+      return `${PAGES_ROOT}/${app.repo}/`;
+    }
+
+    // optional thumbnails: assets/thumbs/<repo>.png
+    function thumbUrl(app){
+      // use relative path so it works locally + on Pages
+      return `assets/thumbs/${app.repo}.png`;
+    }
+
+    function icon(svgName){
+      // tiny inline icons
+      const common = 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+      if(svgName === "live"){
+        return `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path ${common} d="M14 3h7v7"/><path ${common} d="M10 14 21 3"/><path ${common} d="M21 14v7h-7"/><path ${common} d="M3 10v11h11"/></svg>`;
+      }
+      if(svgName === "code"){
+        return `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path ${common} d="M16 18l6-6-6-6"/><path ${common} d="M8 6l-6 6 6 6"/></svg>`;
+      }
+      if(svgName === "list"){
+        return `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path ${common} d="M8 6h13"/><path ${common} d="M8 12h13"/><path ${common} d="M8 18h13"/><path ${common} d="M3 6h.01"/><path ${common} d="M3 12h.01"/><path ${common} d="M3 18h.01"/></svg>`;
+      }
+      return "";
+    }
+
+    function badgeForType(type){
+      if(type === "multi") return `<span class="badge multi">multi-app</span>`;
+      if(type === "legacy") return `<span class="badge legacy">legacy</span>`;
+      return `<span class="badge kind">single</span>`;
+    }
+
+    function escapeHtml(s){
+      return String(s)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function appCard(app){
+      const live = liveUrl(app);
+      const repo = repoUrl(app);
+      const typeBadge = badgeForType(app.type);
+
+      // For multi-app repos: optionally show a "Browse" link that goes to live root anyway
+      const browseLabel = (app.type === "multi") ? "Browse" : "Open";
+
+      return `
+        <article class="app glass" data-topic="${escapeHtml(app.topic)}" data-search="${escapeHtml((app.title+' '+app.desc+' '+app.repo+' '+app.topic).toLowerCase())}">
+          <div class="top">
+            <div class="thumb" aria-hidden="true">
+              <img alt="" loading="lazy" src="${thumbUrl(app)}" onload="this.style.display='block'; this.parentNode.querySelector('.emoji').style.display='none';" onerror="this.style.display='none';" />
+              <div class="emoji">${escapeHtml(app.emoji || "✨")}</div>
+            </div>
+
+            <div class="meta">
+              <h4 class="title">${escapeHtml(app.title)}</h4>
+              <p class="desc">${escapeHtml(app.desc)}</p>
+              <div class="badges">
+                ${typeBadge}
+                <span class="badge">${escapeHtml(app.topic)}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <div class="links">
+              <a class="link live" href="${live}" target="_blank" rel="noreferrer">
+                ${icon("live")} ${browseLabel}
+              </a>
+              <a class="link" href="${repo}" target="_blank" rel="noreferrer">
+                ${icon("code")} GitHub
+              </a>
+            </div>
+            <div style="font-family:var(--mono);font-size:11px;color:var(--muted2)">
+              /${escapeHtml(app.repo)}
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    // =========================
+    // RENDER
+    // =========================
+    const elFeatured = document.getElementById("featured");
+    const elTeaching = document.getElementById("teaching");
+    const elMusic = document.getElementById("music");
+    const elVisuals = document.getElementById("visuals");
+    const elLegacy = document.getElementById("legacy");
+
+    const countFeatured = document.getElementById("countFeatured");
+    const countTeaching = document.getElementById("countTeaching");
+    const countMusic = document.getElementById("countMusic");
+    const countVisuals = document.getElementById("countVisuals");
+    const countLegacy = document.getElementById("countLegacy");
+
+    function render(){
+      const featured = APPS.filter(a => !!a.featured);
+      const teaching = APPS.filter(a => a.topic === "Teaching (Music Tech)" && !a.featured);
+      const music = APPS.filter(a => a.topic === "Music / Audio");
+      const visuals = APPS.filter(a => a.topic === "Visuals");
+      const legacy = APPS.filter(a => a.topic === "Legacy");
+
+      elFeatured.innerHTML = featured.map(appCard).join("");
+      elTeaching.innerHTML = teaching.map(appCard).join("");
+      elMusic.innerHTML = music.map(appCard).join("");
+      elVisuals.innerHTML = visuals.map(appCard).join("");
+      elLegacy.innerHTML = legacy.map(appCard).join("");
+
+      countFeatured.textContent = `${featured.length}`;
+      countTeaching.textContent = `${teaching.length}`;
+      countMusic.textContent = `${music.length}`;
+      countVisuals.textContent = `${visuals.length}`;
+      countLegacy.textContent = `${legacy.length}`;
+    }
+    render();
+
+    // =========================
+    // SEARCH + FILTERS
+    // =========================
+    const q = document.getElementById("q");
+    const pillsEl = document.getElementById("pills");
+    const topics = ["All", "Featured", "Teaching (Music Tech)", "Music / Audio", "Visuals", "Legacy"];
+
+    let activeTopic = "All";
+    function renderPills(){
+      pillsEl.innerHTML = topics.map(t => {
+        const isActive = (t === activeTopic);
+        return `<div class="pill ${isActive ? "active" : ""}" data-topic="${escapeHtml(t)}">${escapeHtml(t)}</div>`;
+      }).join("");
+    }
+    renderPills();
+
+    function applyFilters(){
+      const query = (q.value || "").trim().toLowerCase();
+
+      const cards = Array.from(document.querySelectorAll(".app"));
+      for(const card of cards){
+        const hay = card.getAttribute("data-search") || "";
+        const topic = card.getAttribute("data-topic") || "";
+
+        let ok = true;
+
+        if(query && !hay.includes(query)) ok = false;
+
+        if(activeTopic === "Featured"){
+          // featured cards appear only in Featured section; easiest is to hide all non-featured by repo match
+          const repoText = card.querySelector(".actions div:last-child")?.textContent || "";
+          const repoName = repoText.replace("/","").trim();
+          const isFeatured = APPS.some(a => a.repo === repoName && a.featured);
+          if(!isFeatured) ok = false;
+        } else if(activeTopic !== "All"){
+          if(topic !== activeTopic) ok = false;
+        }
+
+        card.classList.toggle("hide", !ok);
+      }
+    }
+
+    q.addEventListener("input", applyFilters);
+    pillsEl.addEventListener("click", (e)=>{
+      const pill = e.target.closest(".pill");
+      if(!pill) return;
+      activeTopic = pill.getAttribute("data-topic") || "All";
+      renderPills();
+      applyFilters();
+    });
+
+    // =========================
+    // TOP BUTTONS
+    // =========================
+    document.getElementById("btnAllLive").addEventListener("click", (e)=>{
+      e.preventDefault();
+      // Open all live apps, but only the "single" + "multi" (skip legacy if you want; currently included)
+      const urls = APPS.map(liveUrl);
+
+      // Note: most browsers will block too many popups. So we open the first, then copy the rest.
+      const first = urls[0];
+      if(first) window.open(first, "_blank", "noopener,noreferrer");
+
+      const rest = urls.slice(1).join("\n");
+      navigator.clipboard?.writeText(rest).then(()=>{
+        alert("Opened 1 tab. Copied the rest of the live URLs to clipboard (paste into a note / open as you like).");
+      }).catch(()=>{
+        alert("Opened 1 tab. (Could not copy the rest automatically.)");
+      });
+    });
+
+    // initial filter state
+    applyFilters();
+  </script>
+</body>
+</html>
