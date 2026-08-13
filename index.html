@@ -27,8 +27,8 @@
       --accent-3:#fff0b3;
       --ok:#80f0c6;
       --shadow:0 24px 64px rgba(0,0,0,.33);
-      --radius-lg:24px;
-      --radius-md:18px;
+      --radius-lg:22px;
+      --radius-md:16px;
       --radius-sm:12px;
       --tap:44px;
       --display:"Avenir Next Condensed","Trebuchet MS","Gill Sans","Segoe UI",sans-serif;
@@ -43,7 +43,7 @@
         --ink:#1a2230;
         --muted:rgba(26,34,48,.72);
         --muted-2:rgba(26,34,48,.56);
-        --panel:rgba(255,255,255,.58);
+        --panel:rgba(255,255,255,.6);
         --panel-2:rgba(255,255,255,.42);
         --stroke:rgba(26,34,48,.12);
         --stroke-2:rgba(26,34,48,.09);
@@ -52,52 +52,30 @@
     }
 
     *{ box-sizing:border-box }
+    html{ scroll-behavior:smooth }
     html,body{ min-height:100% }
     body{
       margin:0;
       color:var(--ink);
       font-family:var(--sans);
       background:
-        radial-gradient(1000px 580px at 12% 0%, rgba(255,138,61,.20), transparent 60%),
-        radial-gradient(900px 540px at 88% 12%, rgba(93,210,255,.18), transparent 58%),
-        radial-gradient(900px 640px at 50% 120%, rgba(255,240,179,.12), transparent 58%),
+        radial-gradient(1000px 580px at 12% 0%, rgba(255,138,61,.16), transparent 60%),
+        radial-gradient(900px 540px at 88% 8%, rgba(93,210,255,.14), transparent 58%),
         linear-gradient(180deg, var(--bg0), var(--bg1));
       overflow-x:hidden;
-    }
-
-    body::before{
-      content:"";
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      background:
-        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
-      background-size:28px 28px;
-      mask-image:linear-gradient(180deg, rgba(0,0,0,.55), transparent 82%);
-      opacity:.35;
     }
 
     a{ color:inherit; text-decoration:none }
     img{ display:block; max-width:100% }
 
-    .glass{
-      background:linear-gradient(180deg, var(--panel), var(--panel-2));
-      border:1px solid var(--stroke);
-      border-radius:var(--radius-lg);
-      box-shadow:var(--shadow);
-      backdrop-filter:blur(18px);
-      -webkit-backdrop-filter:blur(18px);
-    }
-
     .wrap{
-      width:min(1160px, calc(100% - 28px));
+      width:min(1160px, calc(100% - 32px));
       margin:0 auto;
-      padding:18px 0 56px;
       position:relative;
       z-index:1;
     }
 
+    /* ---------- header ---------- */
     header{
       position:sticky;
       top:0;
@@ -105,263 +83,362 @@
       border-bottom:1px solid var(--stroke-2);
       backdrop-filter:blur(18px);
       -webkit-backdrop-filter:blur(18px);
-      background:linear-gradient(180deg, rgba(16,24,37,.84), rgba(16,24,37,.56));
+      background:linear-gradient(180deg, rgba(16,24,37,.78), rgba(16,24,37,.42));
     }
 
     @media (prefers-color-scheme: light){
       header{
-        background:linear-gradient(180deg, rgba(247,243,235,.86), rgba(247,243,235,.62));
+        background:linear-gradient(180deg, rgba(247,243,235,.82), rgba(247,243,235,.5));
       }
     }
 
     .nav{
-      width:min(1160px, calc(100% - 28px));
+      width:min(1160px, calc(100% - 32px));
       margin:0 auto;
       padding:14px 0;
       display:flex;
       gap:14px;
-      align-items:flex-start;
+      align-items:center;
       justify-content:space-between;
     }
 
-    .brand{
-      min-width:0;
-    }
-
     .brand-mark{
-      margin:0 0 6px;
-      font:700 12px/1 var(--mono);
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      color:var(--muted);
-    }
-
-    .brand h1{
-      margin:0;
-      font-family:var(--display);
-      font-size:clamp(1.35rem, 3vw, 2rem);
-      line-height:1;
-      letter-spacing:.02em;
+      font:700 .95rem/1 var(--display);
+      letter-spacing:.06em;
       text-transform:uppercase;
     }
 
-    .brand p{
-      margin:8px 0 0;
-      max-width:64ch;
-      font-size:.95rem;
-      line-height:1.45;
-      color:var(--muted);
-    }
-
-    .nav-actions{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      justify-content:flex-end;
-      flex-wrap:wrap;
-      flex:0 0 auto;
-    }
-
-    .btn,
-    .link{
-      min-height:var(--tap);
-      padding:11px 14px;
-      border-radius:14px;
+    .icon-link{
+      width:38px;
+      height:38px;
+      border-radius:50%;
       border:1px solid var(--stroke);
-      background:rgba(255,255,255,.06);
-      display:inline-flex;
+      background:rgba(255,255,255,.05);
+      display:flex;
       align-items:center;
-      gap:9px;
-      transition:transform .14s ease, border-color .14s ease, background .14s ease, color .14s ease;
-      cursor:pointer;
-      color:var(--ink);
-      font:600 .9rem/1 var(--sans);
+      justify-content:center;
+      transition:transform .15s ease, border-color .15s ease;
     }
+    .icon-link:hover{ transform:translateY(-1px); border-color:rgba(255,255,255,.28) }
+    .icon-link svg{ width:18px; height:18px }
 
-    .btn:hover,
-    .link:hover{
-      transform:translateY(-1px);
-      border-color:rgba(255,255,255,.24);
-    }
-
-    .btn:active,
-    .link:active{
-      transform:translateY(0);
-    }
-
-    .btn.primary{
-      border-color:rgba(255,138,61,.4);
-      background:
-        radial-gradient(160px 80px at 22% 25%, rgba(255,138,61,.22), transparent 65%),
-        rgba(255,255,255,.07);
-    }
-
-    .btn .ic,
-    .link .ic{
-      width:17px;
-      height:17px;
-      opacity:.92;
-      flex:0 0 auto;
-    }
-
+    /* ---------- hero ---------- */
     .hero{
-      margin-top:18px;
-      display:grid;
-      gap:14px;
-      grid-template-columns:1fr;
+      padding:min(14vw, 120px) 0 56px;
+      text-align:center;
     }
 
-    @media (min-width: 920px){
-      .hero{
-        grid-template-columns:1.35fr .85fr;
-      }
+    .hero .kicker{
+      margin:0 0 14px;
+      font:700 12px/1 var(--mono);
+      letter-spacing:.24em;
+      text-transform:uppercase;
+      color:var(--muted-2);
     }
 
-    .hero-main,
-    .hero-side{
-      padding:22px;
+    .hero h1{
+      margin:0 auto;
+      max-width:16ch;
+      font-family:var(--display);
+      font-size:clamp(2.6rem, 8vw, 5.2rem);
+      line-height:.98;
+      letter-spacing:.01em;
+      text-transform:uppercase;
     }
 
-    .kicker{
+    .hero p{
+      margin:20px auto 0;
+      max-width:46ch;
+      font-size:clamp(1.02rem, 1.6vw, 1.2rem);
+      line-height:1.55;
+      color:var(--muted);
+    }
+
+    .hero .scroll-cue{
+      margin-top:48px;
+      display:inline-flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+      color:var(--muted-2);
+      font:600 11px/1 var(--mono);
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      animation:bob 2.4s ease-in-out infinite;
+    }
+
+    @keyframes bob{
+      0%, 100%{ transform:translateY(0) }
+      50%{ transform:translateY(6px) }
+    }
+
+    /* ---------- shared section chrome ---------- */
+    .section{
+      padding:64px 0;
+    }
+
+    .section-head{
+      text-align:center;
+      margin-bottom:36px;
+    }
+
+    .section-head .eyebrow{
       margin:0 0 10px;
       font:700 12px/1 var(--mono);
-      letter-spacing:.18em;
+      letter-spacing:.2em;
       text-transform:uppercase;
-      color:var(--accent-3);
+      color:var(--accent-2);
     }
 
-    .hero-main h2{
-      margin:0;
-      max-width:12ch;
+    .section-head h2{
+      margin:0 auto;
+      max-width:24ch;
       font-family:var(--display);
-      font-size:clamp(2rem, 5.5vw, 4.5rem);
-      line-height:.94;
-      letter-spacing:.02em;
+      font-size:clamp(1.8rem, 4vw, 2.6rem);
+      line-height:1.05;
       text-transform:uppercase;
+      letter-spacing:.01em;
     }
 
-    .hero-main p{
-      margin:16px 0 0;
-      max-width:60ch;
+    .section-head p{
+      margin:14px auto 0;
+      max-width:56ch;
       font-size:1rem;
       line-height:1.55;
       color:var(--muted);
     }
 
-    .stats{
-      margin-top:20px;
-      display:grid;
-      grid-template-columns:repeat(3, minmax(0, 1fr));
-      gap:10px;
+    /* ---------- reflection-bearing shot ---------- */
+    .shot-frame{
+      position:relative;
+      aspect-ratio:16/10;
+      overflow:hidden;
+      border-radius:var(--radius-lg) var(--radius-lg) 0 0;
+      background:#05070b;
     }
 
-    .stat{
-      padding:14px;
-      border-radius:16px;
-      border:1px solid var(--stroke-2);
-      background:rgba(255,255,255,.04);
-    }
-
-    .stat strong{
+    .shot-frame img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
       display:block;
-      font-family:var(--display);
-      font-size:1.9rem;
-      line-height:1;
+    }
+
+    .shot-frame .emoji-hero{
+      width:100%;
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:3.6rem;
+      background:
+        radial-gradient(160px 120px at 30% 20%, rgba(255,255,255,.14), transparent 65%),
+        linear-gradient(135deg, rgba(255,138,61,.28), rgba(93,210,255,.22));
+    }
+
+    .shot-reflect{
+      height:56px;
+      overflow:hidden;
+      position:relative;
+    }
+
+    .shot-reflect img{
+      display:block;
+      width:100%;
+      aspect-ratio:16/10;
+      object-fit:cover;
+      object-position:center bottom;
+      transform:scaleY(-1);
+      opacity:.4;
+    }
+
+    .shot-reflect::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(to bottom, transparent, var(--bg1) 92%);
+      pointer-events:none;
+    }
+
+    /* ---------- highlight cards (big) ---------- */
+    .highlight-groups{
+      display:flex;
+      flex-direction:column;
+      gap:44px;
+    }
+
+    .highlight-group-label{
+      text-align:center;
+      margin:0 0 20px;
+      font:700 12px/1 var(--mono);
+      letter-spacing:.16em;
       text-transform:uppercase;
+      color:var(--muted-2);
     }
 
-    .stat span{
-      display:block;
-      margin-top:4px;
-      font-size:.82rem;
-      color:var(--muted);
-    }
-
-    .hero-side h3{
-      margin:0;
-      font-family:var(--display);
-      font-size:1.4rem;
-      line-height:1;
-      text-transform:uppercase;
-      letter-spacing:.03em;
-    }
-
-    .hero-side p{
-      margin:10px 0 0;
-      font-size:.95rem;
-      line-height:1.5;
-      color:var(--muted);
-    }
-
-    .feature-picks{
-      margin-top:18px;
+    .highlight-grid{
       display:grid;
-      gap:10px;
-    }
-
-    .feature-pick{
-      padding:14px;
-      border-radius:16px;
-      border:1px solid var(--stroke-2);
-      background:rgba(255,255,255,.04);
-    }
-
-    .feature-pick strong{
-      display:block;
-      font-size:1rem;
-    }
-
-    .feature-pick span{
-      display:block;
-      margin-top:5px;
-      color:var(--muted);
-      font-size:.88rem;
-      line-height:1.45;
-    }
-
-    .controls{
-      margin-top:14px;
-      padding:18px;
-      display:grid;
-      gap:14px;
-    }
-
-    .control-row{
-      display:grid;
-      gap:14px;
+      gap:20px;
       grid-template-columns:1fr;
     }
 
-    @media (min-width: 860px){
-      .control-row{
-        grid-template-columns:1.15fr .85fr;
+    @media (min-width: 720px){
+      .highlight-grid{
+        grid-template-columns:repeat(2, minmax(0, 1fr));
       }
     }
 
-    .control-block label{
-      display:block;
-      margin-bottom:8px;
-      font:700 12px/1 var(--mono);
-      letter-spacing:.12em;
-      text-transform:uppercase;
+    .card{
+      border-radius:var(--radius-lg);
+      overflow:hidden;
+      background:linear-gradient(180deg, var(--panel), var(--panel-2));
+      border:1px solid var(--stroke);
+      box-shadow:var(--shadow);
+      display:flex;
+      flex-direction:column;
+      transition:transform .2s ease, box-shadow .2s ease;
+    }
+
+    .card:hover{
+      transform:translateY(-3px);
+    }
+
+    .card-body{
+      padding:22px;
+    }
+
+    .card-title{
+      margin:0;
+      font-size:1.22rem;
+      font-weight:800;
+      letter-spacing:.005em;
+    }
+
+    .card-desc{
+      margin:9px 0 0;
       color:var(--muted);
+      font-size:.95rem;
+      line-height:1.5;
+    }
+
+    .card-actions{
+      margin-top:18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .btn-open{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      padding:10px 16px;
+      border-radius:999px;
+      background:var(--ink);
+      color:var(--bg0);
+      font-weight:700;
+      font-size:.9rem;
+      transition:transform .15s ease, opacity .15s ease;
+    }
+    .btn-open:hover{ transform:translateY(-1px); opacity:.9 }
+
+    .repo-link{
+      font:600 .8rem/1.2 var(--mono);
+      color:var(--muted-2);
+      transition:color .15s ease;
+    }
+    .repo-link:hover{ color:var(--ink) }
+
+    /* ---------- category showcase (compact grid) ---------- */
+    .cat-block + .cat-block{
+      margin-top:56px;
+    }
+
+    .cat-head{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:18px;
+      padding:0 2px;
+    }
+
+    .cat-head h3{
+      margin:0;
+      font-family:var(--display);
+      font-size:1.5rem;
+      letter-spacing:.02em;
+      text-transform:uppercase;
+    }
+
+    .cat-head p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:.92rem;
+      max-width:60ch;
+    }
+
+    .grid{
+      display:grid;
+      gap:16px;
+      grid-template-columns:1fr;
+    }
+
+    @media (min-width: 640px){
+      .grid{ grid-template-columns:repeat(2, minmax(0, 1fr)) }
+    }
+
+    @media (min-width: 980px){
+      .grid{ grid-template-columns:repeat(3, minmax(0, 1fr)) }
+    }
+
+    .grid .shot-frame{ aspect-ratio:16/10 }
+    .grid .shot-reflect{ height:36px }
+    .grid .card-body{ padding:18px }
+    .grid .card-title{ font-size:1.05rem }
+    .grid .card-desc{
+      font-size:.88rem;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+    .grid .shot-frame .emoji-hero{ font-size:2.6rem }
+
+    /* ---------- details (search / filter / everything) ---------- */
+    .details{
+      border-top:1px solid var(--stroke-2);
+      padding-top:56px;
+    }
+
+    .details-controls{
+      display:grid;
+      gap:14px;
+      margin-bottom:28px;
+    }
+
+    @media (min-width: 760px){
+      .details-controls{
+        grid-template-columns:1.2fr .8fr auto;
+        align-items:center;
+      }
     }
 
     .search-row{
       display:flex;
       align-items:center;
       gap:10px;
-      padding:0 14px;
-      min-height:54px;
-      border-radius:16px;
+      padding:0 16px;
+      min-height:50px;
+      border-radius:14px;
       border:1px solid var(--stroke);
       background:rgba(0,0,0,.14);
     }
 
     @media (prefers-color-scheme: light){
-      .search-row{
-        background:rgba(255,255,255,.55);
-      }
+      .search-row{ background:rgba(255,255,255,.55) }
     }
 
     .search-row input{
@@ -370,7 +447,7 @@
       outline:none;
       background:transparent;
       color:var(--ink);
-      font:500 .98rem/1.2 var(--sans);
+      font:500 .95rem/1.2 var(--sans);
     }
 
     .pill-row{
@@ -380,14 +457,15 @@
     }
 
     .pill{
-      padding:8px 12px;
+      padding:8px 13px;
       border-radius:999px;
       border:1px solid var(--stroke-2);
       background:rgba(255,255,255,.05);
       color:var(--muted);
-      font:600 .82rem/1 var(--sans);
+      font:600 .8rem/1 var(--sans);
       cursor:pointer;
       transition:transform .14s ease, border-color .14s ease, background .14s ease, color .14s ease;
+      white-space:nowrap;
     }
 
     .pill:hover{
@@ -402,315 +480,130 @@
       background:rgba(93,210,255,.12);
     }
 
-    .result-bar{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
+    .btn-bulk{
+      min-height:50px;
+      padding:0 16px;
+      border-radius:14px;
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.06);
+      color:var(--ink);
+      font:600 .88rem/1 var(--sans);
+      display:inline-flex;
       align-items:center;
-      justify-content:space-between;
+      justify-content:center;
+      gap:8px;
+      cursor:pointer;
+      white-space:nowrap;
+      transition:transform .14s ease, border-color .14s ease;
     }
+    .btn-bulk:hover{ transform:translateY(-1px); border-color:rgba(255,255,255,.24) }
 
     .result-summary,
     .status{
-      font-size:.88rem;
-      line-height:1.45;
-      color:var(--muted);
-    }
-
-    .status:empty{
-      display:none;
-    }
-
-    .section{
-      margin-top:18px;
-    }
-
-    .section-head{
-      display:flex;
-      gap:10px;
-      align-items:flex-end;
-      justify-content:space-between;
-      margin-bottom:12px;
-      padding:0 2px;
-    }
-
-    .section-copy h3{
-      margin:0;
-      font-family:var(--display);
-      font-size:1.45rem;
-      line-height:1;
-      letter-spacing:.03em;
-      text-transform:uppercase;
-    }
-
-    .section-copy p{
-      margin:8px 0 0;
-      max-width:70ch;
-      font-size:.93rem;
-      line-height:1.5;
-      color:var(--muted);
-    }
-
-    .count{
-      font:700 12px/1 var(--mono);
-      letter-spacing:.14em;
-      text-transform:uppercase;
+      font-size:.85rem;
       color:var(--muted-2);
-      white-space:nowrap;
     }
+    .status:empty{ display:none }
 
-    .cards{
-      display:grid;
-      gap:12px;
-      grid-template-columns:1fr;
-    }
-
-    @media (min-width: 760px){
-      .cards{
-        grid-template-columns:repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    .featured-group{
-      margin-bottom:22px;
-    }
-
-    .featured-group:last-child{
-      margin-bottom:0;
-    }
-
-    .featured-group-head{
-      font:700 12px/1 var(--mono);
-      letter-spacing:.12em;
-      text-transform:uppercase;
-      color:var(--accent-2);
-      margin:0 0 10px;
-      padding:0 2px;
-    }
-
-    .featured-grid{
-      grid-template-columns:1fr;
-    }
-
-    @media (min-width: 900px){
-      .featured-grid{
-        grid-template-columns:repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    .app{
-      padding:18px;
-      position:relative;
-      overflow:hidden;
-      min-height:100%;
-    }
-
-    .app::after{
-      content:"";
-      position:absolute;
-      inset:auto -60px -70px auto;
-      width:180px;
-      height:180px;
-      border-radius:50%;
-      background:radial-gradient(circle, rgba(93,210,255,.18), transparent 68%);
-      pointer-events:none;
-    }
-
-    .app.featured::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      border-radius:inherit;
-      border:1px solid rgba(255,138,61,.22);
-      pointer-events:none;
-    }
-
-    .card-top{
+    .rows{
       display:flex;
-      gap:14px;
-      align-items:flex-start;
+      flex-direction:column;
+      gap:2px;
+      border-top:1px solid var(--stroke-2);
     }
 
-    .thumb{
-      width:64px;
-      height:64px;
-      border-radius:18px;
-      border:1px solid var(--stroke);
-      background:rgba(255,255,255,.06);
+    .row{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      padding:13px 4px;
+      border-bottom:1px solid var(--stroke-2);
+    }
+
+    .row-thumb{
+      width:44px;
+      height:44px;
+      border-radius:11px;
+      overflow:hidden;
+      flex:0 0 auto;
       display:flex;
       align-items:center;
       justify-content:center;
-      overflow:hidden;
-      flex:0 0 auto;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+      background:rgba(255,255,255,.05);
+      border:1px solid var(--stroke-2);
+      font-size:1.2rem;
     }
+    .row-thumb img{ width:100%; height:100%; object-fit:cover }
 
-    .app.featured .thumb{
-      width:72px;
-      height:72px;
-    }
-
-    .thumb img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:none;
-    }
-
-    .thumb .emoji{
-      font-size:1.9rem;
-      line-height:1;
-    }
-
-    .meta{
+    .row-meta{
       min-width:0;
       flex:1;
-    }
-
-    .badge-row,
-    .tag-row{
       display:flex;
-      flex-wrap:wrap;
-      gap:7px;
-    }
-
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      min-height:24px;
-      padding:4px 8px;
-      border-radius:999px;
-      border:1px solid var(--stroke-2);
-      background:rgba(255,255,255,.05);
-      font:700 11px/1 var(--mono);
-      letter-spacing:.04em;
-      text-transform:uppercase;
-      color:var(--muted);
-    }
-
-    .badge.kind{
-      border-color:rgba(93,210,255,.26);
-      color:var(--accent-2);
-    }
-
-    .badge.new{
-      border-color:rgba(128,240,198,.34);
-      color:var(--ok);
-    }
-
-    .title{
-      margin:10px 0 0;
-      font-size:1.15rem;
-      line-height:1.15;
-      font-weight:800;
-      letter-spacing:.01em;
-    }
-
-    .app.featured .title{
-      font-size:1.38rem;
-    }
-
-    .desc{
-      margin:10px 0 0;
-      color:var(--muted);
-      font-size:.95rem;
-      line-height:1.55;
-    }
-
-    .spotlight{
-      margin:12px 0 0;
-      color:var(--accent-3);
-      font-size:.9rem;
-      line-height:1.5;
-    }
-
-    .tag{
-      padding:4px 8px;
-      border-radius:999px;
-      border:1px solid var(--stroke-2);
-      background:rgba(0,0,0,.15);
-      color:var(--muted);
-      font-size:.78rem;
-      line-height:1;
-    }
-
-    @media (prefers-color-scheme: light){
-      .tag{
-        background:rgba(255,255,255,.62);
-      }
-    }
-
-    .actions{
-      margin-top:16px;
-      padding-top:14px;
-      border-top:1px solid var(--stroke-2);
-      display:flex;
-      gap:12px;
-      align-items:center;
-      justify-content:space-between;
-      flex-wrap:wrap;
-    }
-
-    .actions-left{
-      display:flex;
+      align-items:baseline;
       gap:10px;
       flex-wrap:wrap;
-      align-items:center;
     }
 
-    .repo-label{
-      font:700 11px/1.2 var(--mono);
-      letter-spacing:.08em;
+    .row-title{
+      font-weight:700;
+      font-size:.95rem;
+    }
+
+    .row-cat{
+      font:600 11px/1 var(--mono);
+      letter-spacing:.06em;
       text-transform:uppercase;
       color:var(--muted-2);
-      overflow-wrap:anywhere;
     }
 
+    .row-desc{
+      flex-basis:100%;
+      margin:2px 0 0;
+      color:var(--muted);
+      font-size:.85rem;
+      line-height:1.4;
+    }
+
+    .row-actions{
+      display:flex;
+      gap:14px;
+      align-items:center;
+      flex:0 0 auto;
+    }
+
+    .row-actions a{
+      font:600 .82rem/1 var(--sans);
+      color:var(--muted);
+      transition:color .15s ease;
+      white-space:nowrap;
+    }
+    .row-actions a:hover{ color:var(--ink) }
+
     .empty{
-      margin-top:18px;
-      padding:20px;
+      padding:40px 20px;
       text-align:center;
       color:var(--muted);
     }
 
-    .footer{
-      margin-top:24px;
-      padding:0 2px;
-      font-size:.86rem;
-      line-height:1.5;
+    .hide{ display:none !important }
+
+    footer{
+      padding:32px 0 56px;
+      text-align:center;
+      font-size:.85rem;
       color:var(--muted-2);
     }
 
-    .hide{
-      display:none !important;
-    }
-
-    @media (max-width: 720px){
-      .wrap{
-        width:min(100% - 20px, 1160px);
-      }
-
-      .nav{
-        width:min(100% - 20px, 1160px);
-      }
-
-      .hero-main,
-      .hero-side,
-      .controls,
-      .app{
-        padding:18px;
-      }
-
-      .stats{
-        grid-template-columns:1fr;
-      }
-    }
-
     @media (prefers-reduced-motion: reduce){
-      .btn,
-      .link,
-      .pill{
+      html{ scroll-behavior:auto }
+      .card,
+      .pill,
+      .btn-open,
+      .btn-bulk,
+      .icon-link,
+      .hero .scroll-cue{
         transition:none;
+        animation:none;
       }
     }
   </style>
@@ -719,111 +612,71 @@
 <body>
   <header>
     <div class="nav">
-      <div class="brand">
-        <p class="brand-mark">Adam Borecki</p>
-        <h1>Live Web Apps</h1>
-        <p>Live GitHub Pages apps, organized by what they're for.</p>
-      </div>
-
-      <div class="nav-actions">
-        <button class="btn primary" id="btnOpenVisible" type="button" title="Open one visible app and copy the rest">
-          <svg class="ic" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M7 7h10v10H7z" stroke="currentColor" stroke-width="2" opacity=".55"/>
-            <path d="M9 9h10v10H9z" stroke="currentColor" stroke-width="2"/>
-          </svg>
-          Open Visible
-        </button>
-        <a class="btn" href="https://github.com/adamborecki" target="_blank" rel="noreferrer">
-          <svg class="ic" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M9 19c-4 1-4-2-6-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <path d="M15 19v-3c0-1 .2-1.7.7-2.2 2.3-.3 4.8-1.1 4.8-5.1 0-1.1-.4-2.1-1.1-2.9.1-.3.5-1.5-.1-3.1 0 0-.9-.3-3 1.1-.9-.2-1.8-.3-2.8-.3s-1.9.1-2.8.3c-2.1-1.4-3-1.1-3-1.1-.6 1.6-.2 2.8-.1 3.1C5.9 6.4 5.5 7.4 5.5 8.5c0 4 2.5 4.8 4.8 5.1.4.4.7 1 .7 2v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-          GitHub
-        </a>
-      </div>
+      <span class="brand-mark">Adam Borecki</span>
+      <a class="icon-link" href="https://github.com/adamborecki" target="_blank" rel="noreferrer" title="GitHub">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M9 19c-4 1-4-2-6-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M15 19v-3c0-1 .2-1.7.7-2.2 2.3-.3 4.8-1.1 4.8-5.1 0-1.1-.4-2.1-1.1-2.9.1-.3.5-1.5-.1-3.1 0 0-.9-.3-3 1.1-.9-.2-1.8-.3-2.8-.3s-1.9.1-2.8.3c-2.1-1.4-3-1.1-3-1.1-.6 1.6-.2 2.8-.1 3.1C5.9 6.4 5.5 7.4 5.5 8.5c0 4 2.5 4.8 4.8 5.1.4.4.7 1 .7 2v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </a>
     </div>
   </header>
 
-  <main class="wrap">
-    <section class="hero">
-      <div class="hero-main glass">
-        <p class="kicker">Interactive portfolio</p>
-        <h2>Built to teach, test, and play.</h2>
-        <p>Five categories, top picks pinned at the top of each.</p>
-
-        <div class="stats">
-          <div class="stat">
-            <strong id="statTotal">0</strong>
-            <span>live apps</span>
-          </div>
-          <div class="stat">
-            <strong id="statFeatured">0</strong>
-            <span>featured projects</span>
-          </div>
-          <div class="stat">
-            <strong id="statCollections">0</strong>
-            <span>multi-app collections</span>
-          </div>
-        </div>
-      </div>
-
-      <aside class="hero-side glass">
-        <h3>Top picks</h3>
-        <p>One line each — full cards are in Featured below.</p>
-        <div class="feature-picks" id="featurePicks"></div>
-      </aside>
+  <main>
+    <section class="hero wrap">
+      <p class="kicker">Interactive portfolio</p>
+      <h1>Live Web Apps</h1>
+      <p>Music-tech lessons, instruments, and a few things built just to look at.</p>
+      <div class="scroll-cue">Scroll ↓</div>
     </section>
 
-    <section class="controls glass">
-      <div class="control-row">
-        <div class="control-block">
-          <label for="q">Search the catalog</label>
+    <section class="section" id="highlightsSection">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">Featured</p>
+          <h2>Where to start</h2>
+        </div>
+        <div class="highlight-groups" id="highlightGroups"></div>
+      </div>
+    </section>
+
+    <section class="section" id="catalogSection">
+      <div class="wrap" id="catBlocks"></div>
+    </section>
+
+    <section class="section details">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">Everything</p>
+          <h2>Browse &amp; search</h2>
+          <p>Every live app, filterable by category.</p>
+        </div>
+
+        <div class="details-controls">
           <div class="search-row">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="opacity:.85">
               <path d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" stroke="currentColor" stroke-width="2"/>
               <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
-            <input
-              id="q"
-              type="search"
-              placeholder="Try: compression, uke, focus, hopfield"
-              autocomplete="off"
-            />
+            <input id="q" type="search" placeholder="Try: compression, uke, focus, hopfield" autocomplete="off" />
           </div>
-        </div>
-
-        <div class="control-block">
-          <label>Filter by section</label>
           <div class="pill-row" id="pills"></div>
+          <button class="btn-bulk" id="btnOpenVisible" type="button" title="Open one visible app and copy the rest">
+            Open visible
+          </button>
         </div>
-      </div>
 
-      <div class="result-bar">
-        <div class="result-summary" id="resultSummary"></div>
-        <div class="status" id="status" aria-live="polite"></div>
+        <div class="result-summary" id="resultSummary" style="margin-bottom:8px"></div>
+        <div class="status" id="status" aria-live="polite" style="margin-bottom:8px"></div>
+
+        <div class="rows" id="rows"></div>
+        <div class="empty hide" id="emptyState">No apps match that search yet.</div>
       </div>
     </section>
 
-    <section class="section" id="featuredSection">
-      <div class="section-head">
-        <div class="section-copy">
-          <h3>Featured</h3>
-          <p>Top pick(s) per category.</p>
-        </div>
-        <div class="count" id="featuredCount"></div>
-      </div>
-      <div id="featuredGrid"></div>
-    </section>
-
-    <div id="sections"></div>
-
-    <div class="empty glass hide" id="emptyState">
-      No live apps match that filter yet. Try another keyword or jump back to <strong>All</strong>.
-    </div>
-
-    <div class="footer">
+    <footer>
       Live apps only — in-progress repos stay off this page until they have a public demo.
-    </div>
+    </footer>
   </main>
 
   <script>
@@ -832,7 +685,6 @@
 
     const FILTERS = [
       { id: "all", label: "All" },
-      { id: "featured", label: "Featured" },
       { id: "classroom", label: "Tech Education" },
       { id: "instruments", label: "Instruments & Effects" },
       { id: "tools", label: "Practical Tools" },
@@ -869,399 +721,42 @@
     ];
 
     const APPS = [
-      {
-        repo: "mod-fx",
-        title: "Mod FX",
-        desc: "Chorus, flanger, and phaser in one interactive modulation-effects web app.",
-        section: "classroom",
-        kind: "single",
-        featured: true,
-        isNew: true,
-        emoji: "🌊",
-        tags: ["audio", "modulation", "effects"],
-        spotlight: "Tactile and immediately fun to click around."
-      },
-      {
-        repo: "harmonic-series-builder-gen3",
-        title: "Harmonic Series Builder",
-        desc: "Interactive harmonic-series practice with a notation-minded learning flow.",
-        section: "classroom",
-        kind: "single",
-        featured: true,
-        isNew: false,
-        emoji: "🎼",
-        tags: ["notation", "harmony", "visualization"],
-        spotlight: "The refined version of a repeat classroom favorite."
-      },
-      {
-        repo: "gain-staging",
-        title: "Gain Staging",
-        desc: "An educational webapp about gain staging and keeping healthy signal levels through a mixing chain.",
-        section: "classroom",
-        kind: "single",
-        featured: true,
-        isNew: true,
-        emoji: "📶",
-        tags: ["gain staging", "levels", "signal flow"],
-        spotlight: "Core signal-flow concept, taught visually."
-      },
-      {
-        repo: "parallel",
-        title: "Parallel Compression",
-        desc: "An educational webapp about parallel (New York) compression and blending a squashed signal into a mix.",
-        section: "classroom",
-        kind: "single",
-        featured: true,
-        isNew: true,
-        emoji: "🗜️",
-        tags: ["compression", "mixing", "dynamics"],
-        spotlight: "One of the clearer compression demos in the set."
-      },
-      {
-        repo: "misc-tech-webapps",
-        title: "Misc Tech Webapps",
-        desc: "Topic reviews with quiz questions — ADSR, filters, harmonics, LFOs, sound waves, and synths.",
-        section: "classroom",
-        kind: "multi",
-        featured: true,
-        isNew: true,
-        emoji: "🧰",
-        tags: ["review", "quiz", "synthesis"],
-        spotlight: "The review-quiz set for Principles of Music Tech."
-      },
-      {
-        repo: "eq-webapp",
-        title: "EQ Webapp",
-        desc: "A fast EQ and filter playground for learning what different moves actually sound like.",
-        section: "classroom",
-        kind: "single",
-        featured: false,
-        isNew: false,
-        emoji: "🎛️",
-        tags: ["eq", "filters", "ear training"]
-      },
-      {
-        repo: "oo-o-ah-a-ee",
-        title: "OO-O-AH-A-EE",
-        desc: "A vowel and formant trainer that maps speech-like sounds onto the frequency spectrum.",
-        section: "classroom",
-        kind: "single",
-        featured: false,
-        isNew: false,
-        emoji: "🗣️",
-        tags: ["formants", "vowels", "spectrum"]
-      },
-      {
-        repo: "goniometer",
-        title: "Goniometer",
-        desc: "A stereo and phase visualization tool for checking image and compatibility at a glance.",
-        section: "classroom",
-        kind: "single",
-        featured: false,
-        isNew: true,
-        emoji: "📡",
-        tags: ["stereo", "phase", "metering"]
-      },
-      {
-        repo: "comb-filtering",
-        title: "Comb Filtering",
-        desc: "A quick demo for phasey cancellations, Haas-style timing, and placement problems.",
-        section: "classroom",
-        kind: "single",
-        featured: false,
-        isNew: true,
-        emoji: "〰️",
-        tags: ["haas", "phase", "mic placement"]
-      },
-      {
-        repo: "mixcube",
-        title: "MixCube",
-        desc: "A mixing visualization repo built around a 3D analogy for stereo imaging and balance.",
-        section: "classroom",
-        kind: "multi",
-        featured: false,
-        isNew: false,
-        emoji: "🧊",
-        tags: ["mixing", "stereo", "visualization"]
-      },
-      {
-        repo: "mid-side",
-        title: "Mid/Side Processing",
-        desc: "An educational webapp about mid/side processing and how it shapes stereo width.",
-        section: "classroom",
-        kind: "single",
-        featured: false,
-        isNew: true,
-        emoji: "↔️",
-        tags: ["mid-side", "stereo", "width"]
-      },
-      {
-        repo: "sidechain",
-        title: "Sidechain Compression",
-        desc: "A webapp for learning sidechain compression, from ducking basics to pumping effects.",
-        section: "classroom",
-        kind: "single",
-        featured: false,
-        isNew: true,
-        emoji: "⛓️",
-        tags: ["sidechain", "compression", "ducking"]
-      },
-      {
-        repo: "multiband",
-        title: "Multiband Dynamics",
-        desc: "An educational webapp about multiband dynamics processing and splitting compression across frequency bands.",
-        section: "classroom",
-        kind: "single",
-        featured: false,
-        isNew: true,
-        emoji: "📊",
-        tags: ["multiband", "compression", "frequency"]
-      },
-      {
-        repo: "multiband-game",
-        title: "Multiband Mayhem",
-        desc: "A game-ified companion to the multiband dynamics webapp that turns frequency-split compression into a challenge.",
-        section: "classroom",
-        kind: "single",
-        featured: false,
-        isNew: true,
-        emoji: "🕹️",
-        tags: ["multiband", "game", "compression"]
-      },
-      {
-        repo: "harmonic-series-builder",
-        title: "Harmonic Series Builder (Prototype Archive)",
-        desc: "Three early builds of the harmonic-series trainer, same prompt handed to ChatGPT, Claude, and Gemini. Superseded by the version above.",
-        section: "classroom",
-        kind: "multi",
-        featured: false,
-        isNew: true,
-        emoji: "🧪",
-        tags: ["notation", "harmony", "archive"]
-      },
-      {
-        repo: "sock-piano",
-        title: "Sock Piano",
-        desc: "A musical instrument based on the 'wrong' key pattern of rainbow piano socks, since the pattern doesn't match a real 12-tone keyboard.",
-        section: "instruments",
-        kind: "single",
-        featured: true,
-        isNew: true,
-        emoji: "🧦",
-        tags: ["instrument", "experiment", "microtonal"],
-        spotlight: "Whimsical, and genuinely playable as an instrument."
-      },
-      {
-        repo: "misc-music-webapps",
-        title: "Uke Chord Buddy",
-        desc: "A ukulele chord reference, grouped by category, for quick lookup while playing.",
-        section: "instruments",
-        kind: "single",
-        featured: true,
-        isNew: true,
-        emoji: "🎸",
-        tags: ["ukulele", "chords", "reference"],
-        spotlight: "Simple, practical, and gets used.",
-        liveOverride: `${PAGES_ROOT}/misc-music-webapps/uke_chord_buddy.html`,
-        repoOverride: `https://github.com/${USER}/misc-music-webapps`
-      },
-      {
-        repo: "me-again",
-        title: "Me Again",
-        desc: "A delayed self-duet looper for practicing improv duets with a slightly earlier version of yourself.",
-        section: "instruments",
-        kind: "single",
-        featured: true,
-        isNew: true,
-        emoji: "🔁",
-        tags: ["looper", "delay", "improv"],
-        spotlight: "Duet with yourself, on the spot."
-      },
-      {
-        repo: "misc-music-webapps",
-        title: "There and Back Again",
-        desc: "Record audio, then hear it played back in reverse.",
-        section: "instruments",
-        kind: "single",
-        featured: true,
-        isNew: true,
-        emoji: "🔄",
-        tags: ["reverse", "recording", "sound"],
-        spotlight: "Dead simple, and a little uncanny to hear.",
-        liveOverride: `${PAGES_ROOT}/misc-music-webapps/there_and_back_again.html`,
-        repoOverride: `https://github.com/${USER}/misc-music-webapps`
-      },
-      {
-        repo: "misc-music-webapps",
-        title: "Misc Music Webapps",
-        desc: "The full collection this pulls from: key finder, chord tools, note detection, and more.",
-        section: "instruments",
-        kind: "multi",
-        featured: false,
-        isNew: false,
-        emoji: "🎚️",
-        tags: ["audio", "collection", "sandbox"]
-      },
-      {
-        repo: "gym",
-        title: "Gym",
-        desc: "A single-focus workout app that folds several fitness helpers into one cleaner routine.",
-        section: "tools",
-        kind: "single",
-        featured: false,
-        isNew: true,
-        emoji: "🏋️",
-        tags: ["fitness", "routine", "focus"]
-      },
-      {
-        repo: "focus-timer",
-        title: "Focus Timer",
-        desc: "A binaural-beat pomodoro timer with softer alarms and stretch or walk reminders.",
-        section: "tools",
-        kind: "single",
-        featured: false,
-        isNew: true,
-        emoji: "⏳",
-        tags: ["pomodoro", "binaural", "breaks"]
-      },
-      {
-        repo: "mahler1",
-        title: "Mahler's First",
-        desc: "An educational webapp walking through Mahler's Symphony No. 1, movement by movement.",
-        section: "education",
-        kind: "single",
-        featured: false,
-        isNew: true,
-        emoji: "🎻",
-        tags: ["classical", "symphony", "listening guide"]
-      },
-      {
-        repo: "turangalila",
-        title: "Turangalîla",
-        desc: "An interactive listener's guide to Messiaen's Turangalîla-Symphonie.",
-        section: "education",
-        kind: "single",
-        featured: false,
-        isNew: true,
-        emoji: "🌌",
-        tags: ["classical", "symphony", "listening guide"]
-      },
-      {
-        repo: "turandot",
-        title: "Turandot: The Video Game",
-        desc: "An interactive journey through Puccini's unfinished opera Turandot, told through riddles and arias — more listening guide than game.",
-        section: "education",
-        kind: "single",
-        featured: false,
-        isNew: true,
-        emoji: "🎭",
-        tags: ["opera", "game", "listening guide"]
-      },
-      {
-        repo: "from-japan",
-        title: "8 Tiny Japanese Habits",
-        desc: "Eight tiny Japanese habits from a YouTube video, rebuilt three ways as a demo of turning video into an interactive page.",
-        section: "education",
-        kind: "single",
-        featured: false,
-        isNew: true,
-        emoji: "🎌",
-        tags: ["experiment", "habits", "concept"]
-      },
-      {
-        repo: "quiz",
-        title: "Quiz",
-        desc: "A demo of a cleaner quiz-taking tool, built for Music Technology courses at Chapman University.",
-        section: "education",
-        kind: "single",
-        featured: false,
-        isNew: true,
-        emoji: "📝",
-        tags: ["quiz", "teaching", "course tool"]
-      },
-      {
-        repo: "misc-music-webapps",
-        title: "Note Detection",
-        desc: "A real-time note detector and lead-sheet transcriber — v2 adds a live spectrogram view.",
-        section: "education",
-        kind: "single",
-        featured: false,
-        isNew: true,
-        emoji: "📈",
-        tags: ["pitch detection", "transcription", "demo"],
-        liveOverride: `${PAGES_ROOT}/misc-music-webapps/note_detection_v2.html`,
-        repoOverride: `https://github.com/${USER}/misc-music-webapps`
-      },
-      {
-        repo: "hopfield1",
-        title: "Hopfield",
-        desc: "An exploration of Hopfield neural networks applied to music and pattern recall.",
-        section: "concept",
-        kind: "single",
-        featured: false,
-        isNew: true,
-        emoji: "🔗",
-        tags: ["neural network", "concept", "music"]
-      },
-      {
-        repo: "hopfield2",
-        title: "Hopfield Harmonics",
-        desc: "A second pass at the Hopfield neural network experiment, rebuilt from scratch with Codex.",
-        section: "concept",
-        kind: "single",
-        featured: false,
-        isNew: true,
-        emoji: "🔀",
-        tags: ["neural network", "concept", "music"]
-      },
-      {
-        repo: "consciousness",
-        title: "Consciousness",
-        desc: "A colorful concept sketch that explores altered states through layered interactive visuals.",
-        section: "concept",
-        kind: "single",
-        featured: false,
-        isNew: false,
-        emoji: "🧠",
-        tags: ["4D", "concept", "color"]
-      },
-      {
-        repo: "optics",
-        title: "Optics",
-        desc: "A visual webapp inspired by the optics in Olafur Eliasson's \"Pluriverse assembly\" — prismatic lenses, caustics, and drifting light.",
-        section: "concept",
-        kind: "multi",
-        featured: false,
-        isNew: true,
-        emoji: "🔮",
-        tags: ["light", "three.js", "concept"]
-      },
-      {
-        repo: "spirograph",
-        title: "Spirograph",
-        desc: "Generative drawing and animation sketches built from looping geometric motion.",
-        section: "concept",
-        kind: "single",
-        featured: false,
-        isNew: false,
-        emoji: "🌀",
-        tags: ["drawing", "geometry", "animation"]
-      }
+      { repo:"mod-fx", title:"Mod FX", desc:"Chorus, flanger, and phaser in one interactive modulation-effects web app.", section:"classroom", kind:"single", featured:true, emoji:"🌊", thumb:"mod-fx" },
+      { repo:"harmonic-series-builder-gen3", title:"Harmonic Series Builder", desc:"Interactive harmonic-series practice with a notation-minded learning flow.", section:"classroom", kind:"single", featured:true, emoji:"🎼", thumb:"harmonic-series-builder-gen3" },
+      { repo:"gain-staging", title:"Gain Staging", desc:"An interactive guide to gain structure — from preamp to master bus.", section:"classroom", kind:"single", featured:true, emoji:"📶", thumb:"gain-staging" },
+      { repo:"parallel", title:"Parallel Compression", desc:"Five short lessons on parallel (New York) compression, with playable presets.", section:"classroom", kind:"single", featured:true, emoji:"🗜️", thumb:"parallel" },
+      { repo:"misc-tech-webapps", title:"Misc Tech Webapps", desc:"Topic reviews with quiz questions — ADSR, filters, harmonics, LFOs, sound waves, and synths.", section:"classroom", kind:"multi", featured:true, emoji:"🧰", thumb:"misc-tech-webapps" },
+      { repo:"eq-webapp", title:"EQ Webapp", desc:"Identify filters by ear across solo, 2-player, and 3-player modes.", section:"classroom", kind:"single", featured:false, emoji:"🎛️", thumb:"eq-webapp" },
+      { repo:"oo-o-ah-a-ee", title:"OO-O-AH-A-EE", desc:"A vowel and formant trainer that maps speech-like sounds onto the frequency spectrum.", section:"classroom", kind:"single", featured:false, emoji:"🗣️", thumb:null },
+      { repo:"goniometer", title:"Goniometer", desc:"Real-time stereo field analysis with a phase scope and vector scope.", section:"classroom", kind:"single", featured:false, emoji:"📡", thumb:"goniometer" },
+      { repo:"comb-filtering", title:"Comb Filtering", desc:"Comb filtering from first principles, into Haas effect and mono compatibility.", section:"classroom", kind:"single", featured:false, emoji:"〰️", thumb:"comb-filtering" },
+      { repo:"mixcube", title:"MixCube", desc:"A 3D-mixing analogy for stereo imaging, with a dynamics-processor add-on.", section:"classroom", kind:"multi", featured:false, emoji:"🧊", thumb:null },
+      { repo:"mid-side", title:"Mid/Side Processing", desc:"Lessons, playground, and quiz on mid/side encoding and stereo width.", section:"classroom", kind:"single", featured:false, emoji:"↔️", thumb:"mid-side" },
+      { repo:"sidechain", title:"Sidechain Compression", desc:"Learn pumping, ducking, de-essing, and mix glue — interactively.", section:"classroom", kind:"single", featured:false, emoji:"⛓️", thumb:"sidechain" },
+      { repo:"multiband", title:"Multiband Dynamics", desc:"An interactive lesson on splitting, squeezing, and gluing a mix by frequency band.", section:"classroom", kind:"single", featured:false, emoji:"📊", thumb:"multiband" },
+      { repo:"multiband-game", title:"Multiband Mayhem", desc:"The game version of multiband compression — split the spectrum, save the snacks.", section:"classroom", kind:"single", featured:false, emoji:"🕹️", thumb:"multiband-game" },
+      { repo:"harmonic-series-builder", title:"Harmonic Series Builder (Prototype Archive)", desc:"Three early builds of the harmonic-series trainer, one prompt handed to three AI assistants. Superseded by the version above.", section:"classroom", kind:"multi", featured:false, emoji:"🧪", thumb:"harmonic-series-builder" },
+      { repo:"sock-piano", title:"Sock Piano", desc:"A playable instrument built on the \"wrong\" key pattern of rainbow piano socks.", section:"instruments", kind:"single", featured:true, emoji:"🧦", thumb:"sock-piano" },
+      { repo:"misc-music-webapps", title:"Uke Chord Buddy", desc:"A ukulele chord reference, grouped by song, for quick lookup while playing.", section:"instruments", kind:"single", featured:true, emoji:"🎸", thumb:"misc-music-webapps-uke-chord-buddy", liveOverride:`${PAGES_ROOT}/misc-music-webapps/uke_chord_buddy.html` },
+      { repo:"me-again", title:"Me Again", desc:"A delayed self-duet looper for practicing improv duets with a slightly earlier version of yourself.", section:"instruments", kind:"single", featured:true, emoji:"🔁", thumb:"me-again" },
+      { repo:"misc-music-webapps", title:"There and Back Again", desc:"Record audio, then hear it played back in reverse.", section:"instruments", kind:"single", featured:true, emoji:"🔄", thumb:"misc-music-webapps-there-and-back-again", liveOverride:`${PAGES_ROOT}/misc-music-webapps/there_and_back_again.html` },
+      { repo:"misc-music-webapps", title:"Misc Music Webapps", desc:"The full collection this pulls from: key finder, chord tools, note detection, and more.", section:"instruments", kind:"multi", featured:false, emoji:"🎚️", thumb:"misc-music-webapps-collection" },
+      { repo:"gym", title:"Gym", desc:"A single-focus workout app that folds several fitness helpers into one cleaner routine.", section:"tools", kind:"single", featured:false, emoji:"🏋️", thumb:"gym" },
+      { repo:"focus-timer", title:"Focus Timer", desc:"A binaural-beat pomodoro timer with softer alarms and stretch or walk reminders.", section:"tools", kind:"single", featured:false, emoji:"⏳", thumb:"focus-timer" },
+      { repo:"mahler1", title:"Mahler's First", desc:"An interactive study guide to Mahler's Symphony No. 1, movement by movement.", section:"education", kind:"single", featured:false, emoji:"🎻", thumb:"mahler1" },
+      { repo:"turangalila", title:"Turangalîla", desc:"An interactive listener's guide to Messiaen's Turangalîla-Symphonie.", section:"education", kind:"single", featured:false, emoji:"🌌", thumb:"turangalila" },
+      { repo:"turandot", title:"Turandot: The Video Game", desc:"An interactive journey through Puccini's unfinished opera — riddles, arias, and the story behind it.", section:"education", kind:"single", featured:false, emoji:"🎭", thumb:"turandot" },
+      { repo:"from-japan", title:"8 Tiny Japanese Habits", desc:"One YouTube video, rebuilt three different ways — video, slide deck, and ambient screensaver.", section:"education", kind:"single", featured:false, emoji:"🎌", thumb:"from-japan" },
+      { repo:"quiz", title:"Quiz", desc:"A cleaner quiz-taking tool built for Music Technology courses at Chapman University.", section:"education", kind:"single", featured:false, emoji:"📝", thumb:"quiz" },
+      { repo:"misc-music-webapps", title:"Note Detection", desc:"A real-time note detector and lead-sheet transcriber — v2 adds a live spectrogram view.", section:"education", kind:"single", featured:false, emoji:"📈", thumb:"misc-music-webapps-note-detection", liveOverride:`${PAGES_ROOT}/misc-music-webapps/note_detection_v2.html` },
+      { repo:"hopfield1", title:"Hopfield", desc:"A neural network that listens to itself — grab, wiggle, and watch neurons argue into a chord.", section:"concept", kind:"single", featured:false, emoji:"🔗", thumb:"hopfield1" },
+      { repo:"hopfield2", title:"Hopfield Harmonics", desc:"A second pass at the Hopfield experiment — a neural memory tuned by consonance.", section:"concept", kind:"single", featured:false, emoji:"🔀", thumb:"hopfield2" },
+      { repo:"consciousness", title:"Consciousness", desc:"Thinking outside the cube, literally — a visual metaphor mapping altered states to spatial dimensions.", section:"concept", kind:"single", featured:false, emoji:"🧠", thumb:"consciousness" },
+      { repo:"optics", title:"Optics", desc:"Prismatic lenses, caustics, and drifting light, inspired by Olafur Eliasson's \"Pluriverse assembly.\"", section:"concept", kind:"multi", featured:false, emoji:"🔮", thumb:"optics" },
+      { repo:"spirograph", title:"Spirograph", desc:"Generative drawing and animation sketches built from looping geometric motion.", section:"concept", kind:"single", featured:false, emoji:"🌀", thumb:null }
     ];
 
-    const sectionMetaById = Object.fromEntries(SECTIONS.map((section) => [section.id, section]));
-    const statusEl = document.getElementById("status");
-    const featuredSectionEl = document.getElementById("featuredSection");
-    const featuredGridEl = document.getElementById("featuredGrid");
-    const featuredCountEl = document.getElementById("featuredCount");
-    const sectionsEl = document.getElementById("sections");
-    const emptyStateEl = document.getElementById("emptyState");
-    const pillsEl = document.getElementById("pills");
-    const queryInput = document.getElementById("q");
-    const resultSummaryEl = document.getElementById("resultSummary");
-
-    let activeFilter = "all";
-    let statusTimer = null;
+    const sectionMetaById = Object.fromEntries(SECTIONS.map((s) => [s.id, s]));
 
     function repoUrl(app){
       return app.repoOverride || `https://github.com/${USER}/${app.repo}`;
@@ -1269,24 +764,6 @@
 
     function liveUrl(app){
       return app.liveOverride || `${PAGES_ROOT}/${app.repo}/`;
-    }
-
-    function thumbUrl(app){
-      return `assets/thumbs/${app.repo}.png`;
-    }
-
-    function icon(kind){
-      const common = 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
-
-      if(kind === "live"){
-        return `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path ${common} d="M14 3h7v7"/><path ${common} d="M10 14 21 3"/><path ${common} d="M21 14v7h-7"/><path ${common} d="M3 10v11h11"/></svg>`;
-      }
-
-      if(kind === "code"){
-        return `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path ${common} d="M16 18l6-6-6-6"/><path ${common} d="M8 6l-6 6 6 6"/></svg>`;
-      }
-
-      return "";
     }
 
     function escapeHtml(value){
@@ -1298,202 +775,156 @@
         .replaceAll("'", "&#039;");
     }
 
-    function kindBadge(kind){
-      if(kind === "multi"){
-        return '<span class="badge kind">multi-app</span>';
+    function shotMarkup(app, reflect){
+      if(app.thumb){
+        const src = `assets/thumbs/${app.thumb}.jpg`;
+        return `
+          <div class="shot-frame"><img src="${src}" alt="" loading="lazy" /></div>
+          ${reflect ? `<div class="shot-reflect"><img src="${src}" alt="" aria-hidden="true" loading="lazy" /></div>` : ""}
+        `;
       }
-
-      if(kind === "archive"){
-        return '<span class="badge kind">archive</span>';
-      }
-
-      return '<span class="badge kind">single</span>';
+      return `<div class="shot-frame"><div class="emoji-hero">${escapeHtml(app.emoji || "✨")}</div></div>`;
     }
 
-    function searchText(app){
-      return [
-        app.title,
-        app.desc,
-        app.repo,
-        sectionMetaById[app.section]?.label || "",
-        ...(app.tags || [])
-      ].join(" ").toLowerCase();
-    }
-
-    function matchesQuery(app, query){
-      return !query || searchText(app).includes(query);
-    }
-
-    function matchesFilter(app){
-      if(activeFilter === "all") return true;
-      if(activeFilter === "featured") return !!app.featured;
-      return app.section === activeFilter;
-    }
-
-    function getVisibleApps(){
-      const query = (queryInput.value || "").trim().toLowerCase();
-      return APPS.filter((app) => matchesFilter(app) && matchesQuery(app, query));
-    }
-
-    function appCard(app, featured){
-      const tags = (app.tags || []).slice(0, 3).map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("");
-      const sectionLabel = sectionMetaById[app.section]?.label || app.section;
+    function card(app, big){
       const actionLabel = app.kind === "multi" ? "Browse" : "Open";
-
       return `
-        <article class="app glass ${featured ? "featured" : ""}">
-          <div class="card-top">
-            <div class="thumb" aria-hidden="true">
-              <img
-                alt=""
-                loading="lazy"
-                src="${thumbUrl(app)}"
-                onload="this.style.display='block'; this.parentNode.querySelector('.emoji').style.display='none';"
-                onerror="this.style.display='none';"
-              />
-              <div class="emoji">${escapeHtml(app.emoji || "✨")}</div>
+        <article class="card">
+          ${shotMarkup(app, big)}
+          <div class="card-body">
+            <h3 class="card-title">${escapeHtml(app.title)}</h3>
+            <p class="card-desc">${escapeHtml(app.desc)}</p>
+            <div class="card-actions">
+              <a class="btn-open" href="${liveUrl(app)}" target="_blank" rel="noreferrer">${actionLabel} ↗</a>
+              <a class="repo-link" href="${repoUrl(app)}" target="_blank" rel="noreferrer">${USER}/${escapeHtml(app.repo)}</a>
             </div>
-
-            <div class="meta">
-              <div class="badge-row">
-                ${kindBadge(app.kind)}
-                <span class="badge">${escapeHtml(sectionLabel)}</span>
-                ${app.isNew ? '<span class="badge new">new</span>' : ""}
-              </div>
-              <h4 class="title">${escapeHtml(app.title)}</h4>
-              <p class="desc">${escapeHtml(app.desc)}</p>
-              ${featured && app.spotlight ? `<p class="spotlight">${escapeHtml(app.spotlight)}</p>` : ""}
-              <div class="tag-row" style="margin-top:12px">${tags}</div>
-            </div>
-          </div>
-
-          <div class="actions">
-            <div class="actions-left">
-              <a class="link" href="${liveUrl(app)}" target="_blank" rel="noreferrer">
-                ${icon("live")} ${actionLabel}
-              </a>
-              <a class="link" href="${repoUrl(app)}" target="_blank" rel="noreferrer">
-                ${icon("code")} GitHub
-              </a>
-            </div>
-            <div class="repo-label">/${escapeHtml(app.repo)}</div>
           </div>
         </article>
       `;
     }
 
-    function sectionMarkup(section, items){
-      return `
-        <section class="section">
-          <div class="section-head">
-            <div class="section-copy">
-              <h3>${escapeHtml(section.label)}</h3>
-              <p>${escapeHtml(section.description)}</p>
+    function renderHighlights(){
+      const featured = APPS.filter((a) => a.featured);
+      const html = SECTIONS.map((section) => {
+        const items = featured.filter((a) => a.section === section.id);
+        if(!items.length) return "";
+        return `
+          <div>
+            <p class="highlight-group-label">${escapeHtml(section.label)}</p>
+            <div class="highlight-grid">${items.map((a) => card(a, true)).join("")}</div>
+          </div>
+        `;
+      }).join("");
+      document.getElementById("highlightGroups").innerHTML = html;
+    }
+
+    function renderCatalog(){
+      const html = SECTIONS.map((section) => {
+        const items = APPS.filter((a) => a.section === section.id);
+        if(!items.length) return "";
+        return `
+          <div class="cat-block">
+            <div class="cat-head">
+              <div>
+                <h3>${escapeHtml(section.label)}</h3>
+                <p>${escapeHtml(section.description)}</p>
+              </div>
             </div>
-            <div class="count">${items.length} live</div>
+            <div class="grid">${items.map((a) => card(a, false)).join("")}</div>
           </div>
-          <div class="cards">
-            ${items.map((app) => appCard(app, false)).join("")}
-          </div>
-        </section>
-      `;
+        `;
+      }).join("");
+      document.getElementById("catBlocks").innerHTML = html;
     }
 
     function renderPills(){
-      pillsEl.innerHTML = FILTERS.map((filter) => `
-        <button
-          type="button"
-          class="pill ${filter.id === activeFilter ? "active" : ""}"
-          data-filter="${escapeHtml(filter.id)}"
-        >
-          ${escapeHtml(filter.label)}
-        </button>
+      const pillsEl = document.getElementById("pills");
+      pillsEl.innerHTML = FILTERS.map((f) => `
+        <button type="button" class="pill ${f.id === activeFilter ? "active" : ""}" data-filter="${escapeHtml(f.id)}">${escapeHtml(f.label)}</button>
       `).join("");
     }
 
-    function setStatus(message){
-      statusEl.textContent = message || "";
-      if(statusTimer){
-        window.clearTimeout(statusTimer);
-      }
-      if(message){
-        statusTimer = window.setTimeout(() => {
-          statusEl.textContent = "";
-        }, 4200);
-      }
-    }
-
-    function renderHero(){
-      document.getElementById("statTotal").textContent = String(APPS.length);
-      document.getElementById("statFeatured").textContent = String(APPS.filter((app) => app.featured).length);
-      document.getElementById("statCollections").textContent = String(APPS.filter((app) => app.kind !== "single").length);
-
-      const featuredPicks = APPS.filter((app) => app.featured)
-        .map((app) => `
-          <div class="feature-pick">
-            <strong>${escapeHtml(app.title)}</strong>
-            <span>${escapeHtml(sectionMetaById[app.section]?.label || app.section)}</span>
-          </div>
-        `)
-        .join("");
-
-      document.getElementById("featurePicks").innerHTML = featuredPicks;
-    }
-
-    function featuredGroupMarkup(section, items){
+    function rowMarkup(app){
+      const src = app.thumb ? `assets/thumbs/${app.thumb}.jpg` : null;
+      const thumb = src
+        ? `<img src="${src}" alt="" loading="lazy" />`
+        : escapeHtml(app.emoji || "✨");
       return `
-        <div class="featured-group">
-          <div class="featured-group-head">${escapeHtml(section.label)}</div>
-          <div class="cards featured-grid">
-            ${items.map((app) => appCard(app, true)).join("")}
+        <div class="row">
+          <div class="row-thumb">${thumb}</div>
+          <div class="row-meta">
+            <span class="row-title">${escapeHtml(app.title)}</span>
+            <span class="row-cat">${escapeHtml(sectionMetaById[app.section]?.label || app.section)}</span>
+            <p class="row-desc">${escapeHtml(app.desc)}</p>
+          </div>
+          <div class="row-actions">
+            <a href="${liveUrl(app)}" target="_blank" rel="noreferrer">${app.kind === "multi" ? "Browse" : "Open"}</a>
+            <a href="${repoUrl(app)}" target="_blank" rel="noreferrer">GitHub</a>
           </div>
         </div>
       `;
     }
 
-    function renderCatalog(){
-      const visibleApps = getVisibleApps();
-      const featuredApps = visibleApps.filter((app) => app.featured);
-      const nonFeaturedApps = visibleApps.filter((app) => !app.featured);
+    let activeFilter = "all";
+    let statusTimer = null;
+    const rowsEl = document.getElementById("rows");
+    const emptyStateEl = document.getElementById("emptyState");
+    const queryInput = document.getElementById("q");
+    const resultSummaryEl = document.getElementById("resultSummary");
+    const statusEl = document.getElementById("status");
 
-      featuredGridEl.innerHTML = SECTIONS.map((section) => {
-        const items = featuredApps.filter((app) => app.section === section.id);
-        return items.length ? featuredGroupMarkup(section, items) : "";
-      }).join("");
-      featuredCountEl.textContent = `${featuredApps.length} live`;
-      featuredSectionEl.classList.toggle("hide", featuredApps.length === 0);
-
-      const sectionMarkupList = SECTIONS.map((section) => {
-        const items = nonFeaturedApps.filter((app) => app.section === section.id);
-        return items.length ? sectionMarkup(section, items) : "";
-      }).join("");
-
-      sectionsEl.innerHTML = sectionMarkupList;
-
-      emptyStateEl.classList.toggle("hide", visibleApps.length !== 0);
-
-      const filterLabel = FILTERS.find((filter) => filter.id === activeFilter)?.label || "All";
-      resultSummaryEl.textContent = `Showing ${visibleApps.length} of ${APPS.length} live apps (${filterLabel}).`;
+    function searchText(app){
+      return [app.title, app.desc, app.repo, sectionMetaById[app.section]?.label || ""].join(" ").toLowerCase();
     }
 
-    document.getElementById("btnOpenVisible").addEventListener("click", async () => {
-      const visibleApps = getVisibleApps();
+    function getVisibleApps(){
+      const query = (queryInput.value || "").trim().toLowerCase();
+      return APPS.filter((app) => {
+        const matchesFilter = activeFilter === "all" || app.section === activeFilter;
+        const matchesQuery = !query || searchText(app).includes(query);
+        return matchesFilter && matchesQuery;
+      });
+    }
 
-      if(!visibleApps.length){
+    function setStatus(message){
+      statusEl.textContent = message || "";
+      if(statusTimer) window.clearTimeout(statusTimer);
+      if(message){
+        statusTimer = window.setTimeout(() => { statusEl.textContent = ""; }, 4200);
+      }
+    }
+
+    function renderRows(){
+      const visible = getVisibleApps();
+      rowsEl.innerHTML = visible.map(rowMarkup).join("");
+      emptyStateEl.classList.toggle("hide", visible.length !== 0);
+      const filterLabel = FILTERS.find((f) => f.id === activeFilter)?.label || "All";
+      resultSummaryEl.textContent = `Showing ${visible.length} of ${APPS.length} (${filterLabel}).`;
+    }
+
+    document.getElementById("pills").addEventListener("click", (e) => {
+      const pill = e.target.closest("[data-filter]");
+      if(!pill) return;
+      activeFilter = pill.getAttribute("data-filter") || "all";
+      renderPills();
+      renderRows();
+    });
+
+    queryInput.addEventListener("input", renderRows);
+
+    document.getElementById("btnOpenVisible").addEventListener("click", async () => {
+      const visible = getVisibleApps();
+      if(!visible.length){
         setStatus("No visible apps to open right now.");
         return;
       }
-
-      const urls = visibleApps.map(liveUrl);
+      const urls = visible.map(liveUrl);
       window.open(urls[0], "_blank", "noopener,noreferrer");
-
       if(urls.length === 1){
         setStatus("Opened the only visible app.");
         return;
       }
-
       const remainder = urls.slice(1).join("\n");
-
       try{
         await navigator.clipboard.writeText(remainder);
         setStatus(`Opened 1 app and copied ${urls.length - 1} more visible URLs to the clipboard.`);
@@ -1502,22 +933,10 @@
       }
     });
 
-    pillsEl.addEventListener("click", (event) => {
-      const pill = event.target.closest("[data-filter]");
-      if(!pill) return;
-
-      activeFilter = pill.getAttribute("data-filter") || "all";
-      renderPills();
-      renderCatalog();
-    });
-
-    queryInput.addEventListener("input", () => {
-      renderCatalog();
-    });
-
-    renderHero();
-    renderPills();
+    renderHighlights();
     renderCatalog();
+    renderPills();
+    renderRows();
   </script>
 </body>
 </html>
