@@ -471,6 +471,23 @@
       }
     }
 
+    .featured-group{
+      margin-bottom:22px;
+    }
+
+    .featured-group:last-child{
+      margin-bottom:0;
+    }
+
+    .featured-group-head{
+      font:700 12px/1 var(--mono);
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:var(--accent-2);
+      margin:0 0 10px;
+      padding:0 2px;
+    }
+
     .featured-grid{
       grid-template-columns:1fr;
     }
@@ -705,10 +722,7 @@
       <div class="brand">
         <p class="brand-mark">Adam Borecki</p>
         <h1>Live Web Apps</h1>
-        <p>
-          A front door for the GitHub Pages apps that are live right now:
-          music-tech demos, useful daily tools, and a few stranger visual experiments.
-        </p>
+        <p>Live GitHub Pages apps, organized by what they're for.</p>
       </div>
 
       <div class="nav-actions">
@@ -735,10 +749,7 @@
       <div class="hero-main glass">
         <p class="kicker">Interactive portfolio</p>
         <h2>Built to teach, test, and play.</h2>
-        <p>
-          This page now tracks the live projects first. The featured pair leans into both sides of the catalog:
-          <strong>Mod FX</strong> for the audio pedagogy work and <strong>Gym</strong> for the practical tool side.
-        </p>
+        <p>Five categories, top picks pinned at the top of each.</p>
 
         <div class="stats">
           <div class="stat">
@@ -757,10 +768,8 @@
       </div>
 
       <aside class="hero-side glass">
-        <h3>Featured right now</h3>
-        <p>
-          Two picks that feel like the clearest snapshot of the current mix of projects.
-        </p>
+        <h3>Top picks</h3>
+        <p>One line each — full cards are in Featured below.</p>
         <div class="feature-picks" id="featurePicks"></div>
       </aside>
     </section>
@@ -777,7 +786,7 @@
             <input
               id="q"
               type="search"
-              placeholder="Try: modulation, phase, focus, visuals"
+              placeholder="Try: compression, uke, focus, hopfield"
               autocomplete="off"
             />
           </div>
@@ -799,13 +808,11 @@
       <div class="section-head">
         <div class="section-copy">
           <h3>Featured</h3>
-          <p>
-            The current lead projects. These stay at the top unless your search or filter narrows to something else.
-          </p>
+          <p>Top pick(s) per category.</p>
         </div>
         <div class="count" id="featuredCount"></div>
       </div>
-      <div class="cards featured-grid" id="featuredGrid"></div>
+      <div id="featuredGrid"></div>
     </section>
 
     <div id="sections"></div>
@@ -815,7 +822,7 @@
     </div>
 
     <div class="footer">
-      Built as one static HTML file for GitHub Pages. Live apps only for now, so repo-only or in-progress ideas stay off this page until they have a public demo.
+      Live apps only — in-progress repos stay off this page until they have a public demo.
     </div>
   </main>
 
@@ -826,32 +833,38 @@
     const FILTERS = [
       { id: "all", label: "All" },
       { id: "featured", label: "Featured" },
-      { id: "music-tech", label: "Music Tech" },
-      { id: "utilities", label: "Utilities" },
-      { id: "visuals", label: "Visuals" },
-      { id: "collections", label: "Collections" }
+      { id: "classroom", label: "Tech Education" },
+      { id: "instruments", label: "Instruments & Effects" },
+      { id: "tools", label: "Practical Tools" },
+      { id: "education", label: "Multi-Discipline Ed" },
+      { id: "concept", label: "Concept & Visual" }
     ];
 
     const SECTIONS = [
       {
-        id: "music-tech",
-        label: "Music Tech / Teaching",
-        description: "Interactive demos for EQ, modulation, psychoacoustics, notation, and mix-focused listening."
+        id: "classroom",
+        label: "Tech Education",
+        description: "Audio-concept demos and quiz reviews built for classroom use."
       },
       {
-        id: "utilities",
-        label: "Tools / Focus",
-        description: "Practical helpers and daily-use experiments with a more utility-minded workflow."
+        id: "instruments",
+        label: "Instruments & Effects",
+        description: "Things you can actually play — loopers, effects, chord and ear tools."
       },
       {
-        id: "visuals",
-        label: "Visual Experiments",
-        description: "The stranger corner: geometry, animation, color, and concept-first interactive sketches."
+        id: "tools",
+        label: "Practical Tools",
+        description: "Everyday helpers, no music-theory prerequisite."
       },
       {
-        id: "collections",
-        label: "Collections / Archives",
-        description: "Multi-app repos, grab bags, and the older archive that still have live entry points."
+        id: "education",
+        label: "Multi-Discipline Ed",
+        description: "Listening guides and teaching demos outside audio engineering."
+      },
+      {
+        id: "concept",
+        label: "Concept & Visual",
+        description: "Neural nets and museum-inspired light and motion, kept for fun."
       }
     ];
 
@@ -860,31 +873,67 @@
         repo: "mod-fx",
         title: "Mod FX",
         desc: "Chorus, flanger, and phaser in one interactive modulation-effects web app.",
-        section: "music-tech",
+        section: "classroom",
         kind: "single",
         featured: true,
         isNew: true,
         emoji: "🌊",
         tags: ["audio", "modulation", "effects"],
-        spotlight: "A strong front-page pick because it is tactile, educational, and immediately fun to click around."
+        spotlight: "Tactile and immediately fun to click around."
       },
       {
-        repo: "gym",
-        title: "Gym",
-        desc: "A single-focus workout app that folds several fitness helpers into one cleaner routine.",
-        section: "utilities",
+        repo: "harmonic-series-builder-gen3",
+        title: "Harmonic Series Builder",
+        desc: "Interactive harmonic-series practice with a notation-minded learning flow.",
+        section: "classroom",
+        kind: "single",
+        featured: true,
+        isNew: false,
+        emoji: "🎼",
+        tags: ["notation", "harmony", "visualization"],
+        spotlight: "The refined version of a repeat classroom favorite."
+      },
+      {
+        repo: "gain-staging",
+        title: "Gain Staging",
+        desc: "An educational webapp about gain staging and keeping healthy signal levels through a mixing chain.",
+        section: "classroom",
         kind: "single",
         featured: true,
         isNew: true,
-        emoji: "🏋️",
-        tags: ["fitness", "routine", "focus"],
-        spotlight: "A good counterpart to Mod FX because it shows the practical tool side of your web-app work."
+        emoji: "📶",
+        tags: ["gain staging", "levels", "signal flow"],
+        spotlight: "Core signal-flow concept, taught visually."
+      },
+      {
+        repo: "parallel",
+        title: "Parallel Compression",
+        desc: "An educational webapp about parallel (New York) compression and blending a squashed signal into a mix.",
+        section: "classroom",
+        kind: "single",
+        featured: true,
+        isNew: true,
+        emoji: "🗜️",
+        tags: ["compression", "mixing", "dynamics"],
+        spotlight: "One of the clearer compression demos in the set."
+      },
+      {
+        repo: "misc-tech-webapps",
+        title: "Misc Tech Webapps",
+        desc: "Topic reviews with quiz questions — ADSR, filters, harmonics, LFOs, sound waves, and synths.",
+        section: "classroom",
+        kind: "multi",
+        featured: true,
+        isNew: true,
+        emoji: "🧰",
+        tags: ["review", "quiz", "synthesis"],
+        spotlight: "The review-quiz set for Principles of Music Tech."
       },
       {
         repo: "eq-webapp",
         title: "EQ Webapp",
         desc: "A fast EQ and filter playground for learning what different moves actually sound like.",
-        section: "music-tech",
+        section: "classroom",
         kind: "single",
         featured: false,
         isNew: false,
@@ -892,32 +941,10 @@
         tags: ["eq", "filters", "ear training"]
       },
       {
-        repo: "harmonic-series-builder-gen3",
-        title: "Harmonic Series Builder",
-        desc: "Interactive harmonic-series practice with a notation-minded learning flow.",
-        section: "music-tech",
-        kind: "single",
-        featured: false,
-        isNew: false,
-        emoji: "🎼",
-        tags: ["notation", "harmony", "visualization"]
-      },
-      {
-        repo: "harmonic-series-builder",
-        title: "Harmonic Series Builder (Prototype Archive)",
-        desc: "Three early builds of the harmonic-series trainer, same prompt handed to ChatGPT, Claude, and Gemini. Superseded by the version above.",
-        section: "music-tech",
-        kind: "multi",
-        featured: false,
-        isNew: true,
-        emoji: "🧪",
-        tags: ["notation", "harmony", "archive"]
-      },
-      {
         repo: "oo-o-ah-a-ee",
         title: "OO-O-AH-A-EE",
         desc: "A vowel and formant trainer that maps speech-like sounds onto the frequency spectrum.",
-        section: "music-tech",
+        section: "classroom",
         kind: "single",
         featured: false,
         isNew: false,
@@ -928,7 +955,7 @@
         repo: "goniometer",
         title: "Goniometer",
         desc: "A stereo and phase visualization tool for checking image and compatibility at a glance.",
-        section: "music-tech",
+        section: "classroom",
         kind: "single",
         featured: false,
         isNew: true,
@@ -939,7 +966,7 @@
         repo: "comb-filtering",
         title: "Comb Filtering",
         desc: "A quick demo for phasey cancellations, Haas-style timing, and placement problems.",
-        section: "music-tech",
+        section: "classroom",
         kind: "single",
         featured: false,
         isNew: true,
@@ -950,7 +977,7 @@
         repo: "mixcube",
         title: "MixCube",
         desc: "A mixing visualization repo built around a 3D analogy for stereo imaging and balance.",
-        section: "music-tech",
+        section: "classroom",
         kind: "multi",
         featured: false,
         isNew: false,
@@ -958,32 +985,10 @@
         tags: ["mixing", "stereo", "visualization"]
       },
       {
-        repo: "me-again",
-        title: "Me Again",
-        desc: "A delayed self-duet looper for practicing improv duets with a slightly earlier version of yourself.",
-        section: "music-tech",
-        kind: "single",
-        featured: false,
-        isNew: true,
-        emoji: "🔁",
-        tags: ["looper", "delay", "improv"]
-      },
-      {
-        repo: "parallel",
-        title: "Parallel Compression",
-        desc: "An educational webapp about parallel (New York) compression and blending a squashed signal into a mix.",
-        section: "music-tech",
-        kind: "single",
-        featured: false,
-        isNew: true,
-        emoji: "🗜️",
-        tags: ["compression", "mixing", "dynamics"]
-      },
-      {
         repo: "mid-side",
         title: "Mid/Side Processing",
         desc: "An educational webapp about mid/side processing and how it shapes stereo width.",
-        section: "music-tech",
+        section: "classroom",
         kind: "single",
         featured: false,
         isNew: true,
@@ -994,7 +999,7 @@
         repo: "sidechain",
         title: "Sidechain Compression",
         desc: "A webapp for learning sidechain compression, from ducking basics to pumping effects.",
-        section: "music-tech",
+        section: "classroom",
         kind: "single",
         featured: false,
         isNew: true,
@@ -1005,7 +1010,7 @@
         repo: "multiband",
         title: "Multiband Dynamics",
         desc: "An educational webapp about multiband dynamics processing and splitting compression across frequency bands.",
-        section: "music-tech",
+        section: "classroom",
         kind: "single",
         featured: false,
         isNew: true,
@@ -1016,7 +1021,7 @@
         repo: "multiband-game",
         title: "Multiband Mayhem",
         desc: "A game-ified companion to the multiband dynamics webapp that turns frequency-split compression into a challenge.",
-        section: "music-tech",
+        section: "classroom",
         kind: "single",
         featured: false,
         isNew: true,
@@ -1024,21 +1029,106 @@
         tags: ["multiband", "game", "compression"]
       },
       {
-        repo: "gain-staging",
-        title: "Gain Staging",
-        desc: "An educational webapp about gain staging and keeping healthy signal levels through a mixing chain.",
-        section: "music-tech",
+        repo: "harmonic-series-builder",
+        title: "Harmonic Series Builder (Prototype Archive)",
+        desc: "Three early builds of the harmonic-series trainer, same prompt handed to ChatGPT, Claude, and Gemini. Superseded by the version above.",
+        section: "classroom",
+        kind: "multi",
+        featured: false,
+        isNew: true,
+        emoji: "🧪",
+        tags: ["notation", "harmony", "archive"]
+      },
+      {
+        repo: "sock-piano",
+        title: "Sock Piano",
+        desc: "A musical instrument based on the 'wrong' key pattern of rainbow piano socks, since the pattern doesn't match a real 12-tone keyboard.",
+        section: "instruments",
+        kind: "single",
+        featured: true,
+        isNew: true,
+        emoji: "🧦",
+        tags: ["instrument", "experiment", "microtonal"],
+        spotlight: "Whimsical, and genuinely playable as an instrument."
+      },
+      {
+        repo: "misc-music-webapps",
+        title: "Uke Chord Buddy",
+        desc: "A ukulele chord reference, grouped by category, for quick lookup while playing.",
+        section: "instruments",
+        kind: "single",
+        featured: true,
+        isNew: true,
+        emoji: "🎸",
+        tags: ["ukulele", "chords", "reference"],
+        spotlight: "Simple, practical, and gets used.",
+        liveOverride: `${PAGES_ROOT}/misc-music-webapps/uke_chord_buddy.html`,
+        repoOverride: `https://github.com/${USER}/misc-music-webapps`
+      },
+      {
+        repo: "me-again",
+        title: "Me Again",
+        desc: "A delayed self-duet looper for practicing improv duets with a slightly earlier version of yourself.",
+        section: "instruments",
+        kind: "single",
+        featured: true,
+        isNew: true,
+        emoji: "🔁",
+        tags: ["looper", "delay", "improv"],
+        spotlight: "Duet with yourself, on the spot."
+      },
+      {
+        repo: "misc-music-webapps",
+        title: "There and Back Again",
+        desc: "Record audio, then hear it played back in reverse.",
+        section: "instruments",
+        kind: "single",
+        featured: true,
+        isNew: true,
+        emoji: "🔄",
+        tags: ["reverse", "recording", "sound"],
+        spotlight: "Dead simple, and a little uncanny to hear.",
+        liveOverride: `${PAGES_ROOT}/misc-music-webapps/there_and_back_again.html`,
+        repoOverride: `https://github.com/${USER}/misc-music-webapps`
+      },
+      {
+        repo: "misc-music-webapps",
+        title: "Misc Music Webapps",
+        desc: "The full collection this pulls from: key finder, chord tools, note detection, and more.",
+        section: "instruments",
+        kind: "multi",
+        featured: false,
+        isNew: false,
+        emoji: "🎚️",
+        tags: ["audio", "collection", "sandbox"]
+      },
+      {
+        repo: "gym",
+        title: "Gym",
+        desc: "A single-focus workout app that folds several fitness helpers into one cleaner routine.",
+        section: "tools",
         kind: "single",
         featured: false,
         isNew: true,
-        emoji: "📶",
-        tags: ["gain staging", "levels", "signal flow"]
+        emoji: "🏋️",
+        tags: ["fitness", "routine", "focus"]
+      },
+      {
+        repo: "focus-timer",
+        title: "Focus Timer",
+        desc: "A binaural-beat pomodoro timer with softer alarms and stretch or walk reminders.",
+        section: "tools",
+        kind: "single",
+        featured: false,
+        isNew: true,
+        emoji: "⏳",
+        tags: ["pomodoro", "binaural", "breaks"]
       },
       {
         repo: "mahler1",
         title: "Mahler's First",
         desc: "An educational webapp walking through Mahler's Symphony No. 1, movement by movement.",
-        section: "music-tech",
+        section: "education",
         kind: "single",
         featured: false,
         isNew: true,
@@ -1049,7 +1139,7 @@
         repo: "turangalila",
         title: "Turangalîla",
         desc: "An interactive listener's guide to Messiaen's Turangalîla-Symphonie.",
-        section: "music-tech",
+        section: "education",
         kind: "single",
         featured: false,
         isNew: true,
@@ -1059,8 +1149,8 @@
       {
         repo: "turandot",
         title: "Turandot: The Video Game",
-        desc: "An interactive journey through Puccini's unfinished opera Turandot, told through riddles, arias, and mini games.",
-        section: "music-tech",
+        desc: "An interactive journey through Puccini's unfinished opera Turandot, told through riddles and arias — more listening guide than game.",
+        section: "education",
         kind: "single",
         featured: false,
         isNew: true,
@@ -1068,76 +1158,10 @@
         tags: ["opera", "game", "listening guide"]
       },
       {
-        repo: "focus-timer",
-        title: "Focus Timer",
-        desc: "A binaural-beat pomodoro timer with softer alarms and stretch or walk reminders.",
-        section: "utilities",
-        kind: "single",
-        featured: false,
-        isNew: true,
-        emoji: "⏳",
-        tags: ["pomodoro", "binaural", "breaks"]
-      },
-      {
-        repo: "misc-tech-webapps",
-        title: "Misc Tech Webapps",
-        desc: "A live grab bag of smaller utility-minded experiments and tech demos.",
-        section: "utilities",
-        kind: "multi",
-        featured: false,
-        isNew: true,
-        emoji: "🧰",
-        tags: ["tools", "collection", "experiments"]
-      },
-      {
-        repo: "quiz",
-        title: "Quiz",
-        desc: "A cleaner quiz-taking tool built for Music Technology courses at Chapman University.",
-        section: "utilities",
-        kind: "single",
-        featured: false,
-        isNew: true,
-        emoji: "📝",
-        tags: ["quiz", "teaching", "course tool"]
-      },
-      {
-        repo: "spirograph",
-        title: "Spirograph",
-        desc: "Generative drawing and animation sketches built from looping geometric motion.",
-        section: "visuals",
-        kind: "single",
-        featured: false,
-        isNew: false,
-        emoji: "🌀",
-        tags: ["drawing", "geometry", "animation"]
-      },
-      {
-        repo: "optics",
-        title: "Optics",
-        desc: "A visual webapp inspired by the optics in Olafur Eliasson's \"Pluriverse assembly\" — prismatic lenses, caustics, and drifting light.",
-        section: "visuals",
-        kind: "multi",
-        featured: false,
-        isNew: true,
-        emoji: "🔮",
-        tags: ["light", "three.js", "concept"]
-      },
-      {
-        repo: "consciousness",
-        title: "Consciousness",
-        desc: "A colorful concept sketch that explores altered states through layered interactive visuals.",
-        section: "visuals",
-        kind: "single",
-        featured: false,
-        isNew: false,
-        emoji: "🧠",
-        tags: ["4D", "concept", "color"]
-      },
-      {
         repo: "from-japan",
         title: "8 Tiny Japanese Habits",
-        desc: "Eight tiny Japanese habits from a YouTube video, rebuilt three different ways as a webapp-making exercise.",
-        section: "visuals",
+        desc: "Eight tiny Japanese habits from a YouTube video, rebuilt three ways as a demo of turning video into an interactive page.",
+        section: "education",
         kind: "single",
         featured: false,
         isNew: true,
@@ -1145,10 +1169,34 @@
         tags: ["experiment", "habits", "concept"]
       },
       {
+        repo: "quiz",
+        title: "Quiz",
+        desc: "A demo of a cleaner quiz-taking tool, built for Music Technology courses at Chapman University.",
+        section: "education",
+        kind: "single",
+        featured: false,
+        isNew: true,
+        emoji: "📝",
+        tags: ["quiz", "teaching", "course tool"]
+      },
+      {
+        repo: "misc-music-webapps",
+        title: "Note Detection",
+        desc: "A real-time note detector and lead-sheet transcriber — v2 adds a live spectrogram view.",
+        section: "education",
+        kind: "single",
+        featured: false,
+        isNew: true,
+        emoji: "📈",
+        tags: ["pitch detection", "transcription", "demo"],
+        liveOverride: `${PAGES_ROOT}/misc-music-webapps/note_detection_v2.html`,
+        repoOverride: `https://github.com/${USER}/misc-music-webapps`
+      },
+      {
         repo: "hopfield1",
         title: "Hopfield",
         desc: "An exploration of Hopfield neural networks applied to music and pattern recall.",
-        section: "visuals",
+        section: "concept",
         kind: "single",
         featured: false,
         isNew: true,
@@ -1159,7 +1207,7 @@
         repo: "hopfield2",
         title: "Hopfield Harmonics",
         desc: "A second pass at the Hopfield neural network experiment, rebuilt from scratch with Codex.",
-        section: "visuals",
+        section: "concept",
         kind: "single",
         featured: false,
         isNew: true,
@@ -1167,39 +1215,37 @@
         tags: ["neural network", "concept", "music"]
       },
       {
-        repo: "sock-piano",
-        title: "Sock Piano",
-        desc: "A musical instrument based on the 'wrong' key pattern of rainbow piano socks, since the pattern doesn't match a real 12-tone keyboard.",
-        section: "visuals",
+        repo: "consciousness",
+        title: "Consciousness",
+        desc: "A colorful concept sketch that explores altered states through layered interactive visuals.",
+        section: "concept",
         kind: "single",
         featured: false,
-        isNew: true,
-        emoji: "🧦",
-        tags: ["instrument", "experiment", "microtonal"]
+        isNew: false,
+        emoji: "🧠",
+        tags: ["4D", "concept", "color"]
       },
       {
-        repo: "misc-music-webapps",
-        title: "Misc Music Webapps",
-        desc: "A multi-app repo for smaller audio and music-tech experiments that do not need their own landing page.",
-        section: "collections",
+        repo: "optics",
+        title: "Optics",
+        desc: "A visual webapp inspired by the optics in Olafur Eliasson's \"Pluriverse assembly\" — prismatic lenses, caustics, and drifting light.",
+        section: "concept",
         kind: "multi",
         featured: false,
-        isNew: false,
-        emoji: "🎚️",
-        tags: ["audio", "collection", "sandbox"]
+        isNew: true,
+        emoji: "🔮",
+        tags: ["light", "three.js", "concept"]
       },
       {
-        repo: "webapps",
-        title: "Webapps Archive",
-        desc: "The older archive of experiments, including the original kids-game and one-off prototype collection.",
-        section: "collections",
-        kind: "archive",
+        repo: "spirograph",
+        title: "Spirograph",
+        desc: "Generative drawing and animation sketches built from looping geometric motion.",
+        section: "concept",
+        kind: "single",
         featured: false,
         isNew: false,
-        emoji: "🗂️",
-        tags: ["archive", "legacy", "experiments"],
-        liveOverride: `${PAGES_ROOT}/webapps/`,
-        repoOverride: `https://github.com/${USER}/webapps`
+        emoji: "🌀",
+        tags: ["drawing", "geometry", "animation"]
       }
     ];
 
@@ -1386,7 +1432,7 @@
         .map((app) => `
           <div class="feature-pick">
             <strong>${escapeHtml(app.title)}</strong>
-            <span>${escapeHtml(app.spotlight || app.desc)}</span>
+            <span>${escapeHtml(sectionMetaById[app.section]?.label || app.section)}</span>
           </div>
         `)
         .join("");
@@ -1394,12 +1440,26 @@
       document.getElementById("featurePicks").innerHTML = featuredPicks;
     }
 
+    function featuredGroupMarkup(section, items){
+      return `
+        <div class="featured-group">
+          <div class="featured-group-head">${escapeHtml(section.label)}</div>
+          <div class="cards featured-grid">
+            ${items.map((app) => appCard(app, true)).join("")}
+          </div>
+        </div>
+      `;
+    }
+
     function renderCatalog(){
       const visibleApps = getVisibleApps();
       const featuredApps = visibleApps.filter((app) => app.featured);
       const nonFeaturedApps = visibleApps.filter((app) => !app.featured);
 
-      featuredGridEl.innerHTML = featuredApps.map((app) => appCard(app, true)).join("");
+      featuredGridEl.innerHTML = SECTIONS.map((section) => {
+        const items = featuredApps.filter((app) => app.section === section.id);
+        return items.length ? featuredGroupMarkup(section, items) : "";
+      }).join("");
       featuredCountEl.textContent = `${featuredApps.length} live`;
       featuredSectionEl.classList.toggle("hide", featuredApps.length === 0);
 
