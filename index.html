@@ -260,16 +260,16 @@
       pointer-events:none;
     }
 
-    /* ---------- highlight cards (big) ---------- */
+    /* ---------- highlight cards ---------- */
     .highlight-groups{
       display:flex;
       flex-direction:column;
-      gap:44px;
+      gap:28px;
     }
 
     .highlight-group-label{
       text-align:center;
-      margin:0 0 20px;
+      margin:0 0 14px;
       font:700 12px/1 var(--mono);
       letter-spacing:.16em;
       text-transform:uppercase;
@@ -278,13 +278,19 @@
 
     .highlight-grid{
       display:grid;
-      gap:20px;
+      gap:16px;
       grid-template-columns:1fr;
     }
 
-    @media (min-width: 720px){
+    @media (min-width: 640px){
       .highlight-grid{
         grid-template-columns:repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 1100px){
+      .highlight-grid{
+        grid-template-columns:repeat(3, minmax(0, 1fr));
       }
     }
 
@@ -350,6 +356,19 @@
       transition:color .15s ease;
     }
     .repo-link:hover{ color:var(--ink) }
+
+    .highlight-grid .shot-frame{ aspect-ratio:16/9 }
+    .highlight-grid .card-body{ padding:18px }
+    .highlight-grid .card-title{ font-size:1.05rem }
+    .highlight-grid .card-desc{
+      font-size:.88rem;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+    .highlight-grid .card-actions{ margin-top:14px }
+    .highlight-grid .shot-frame .emoji-hero{ font-size:2.6rem }
 
     /* ---------- category showcase (compact grid) ---------- */
     .cat-block + .cat-block{
@@ -723,12 +742,15 @@
     const APPS = [
       { repo:"mod-fx", title:"Mod FX", desc:"Chorus, flanger, and phaser in one interactive modulation-effects web app.", section:"classroom", kind:"single", featured:true, emoji:"🌊", thumb:"mod-fx" },
       { repo:"harmonic-series-builder-gen3", title:"Harmonic Series Builder", desc:"Interactive harmonic-series practice with a notation-minded learning flow.", section:"classroom", kind:"single", featured:true, emoji:"🎼", thumb:"harmonic-series-builder-gen3" },
-      { repo:"harmonics", title:"Harmonics", desc:"Two ways into the harmonic series: a listening experiment for the big picture, then the notation builder for practice.", section:"classroom", kind:"multi", featured:true, emoji:"🎶", thumb:null },
-      { repo:"gain-staging", title:"Gain Staging", desc:"An interactive guide to gain structure — from preamp to master bus.", section:"classroom", kind:"single", featured:true, emoji:"📶", thumb:"gain-staging" },
-      { repo:"parallel", title:"Parallel Compression", desc:"Five short lessons on parallel (New York) compression, with playable presets.", section:"classroom", kind:"single", featured:true, emoji:"🗜️", thumb:"parallel" },
-      { repo:"mus244-unit1-review", title:"MUS 244 Unit 1 Review", desc:"Topic reviews with quiz questions — ADSR, filters, harmonics, LFOs, sound waves, and synths.", section:"classroom", kind:"multi", featured:true, emoji:"🧰", thumb:"mus244-unit1-review" },
+      { repo:"harmonics", title:"Harmonics", desc:"Two ways into the harmonic series: a listening experiment for the big picture, then the notation builder for practice.", section:"classroom", kind:"multi", featured:false, emoji:"🎶", thumb:null },
+      { repo:"gain-staging", title:"Gain Staging", desc:"An interactive guide to gain structure — from preamp to master bus.", section:"classroom", kind:"single", featured:false, emoji:"📶", thumb:"gain-staging" },
+      { repo:"parallel", title:"Parallel Compression", desc:"Five short lessons on parallel (New York) compression, with playable presets.", section:"classroom", kind:"single", featured:false, emoji:"🗜️", thumb:"parallel" },
+      { repo:"mus244-unit1-review", title:"MUS 244 Unit 1 Review", desc:"Topic reviews with quiz questions — ADSR, filters, harmonics, LFOs, sound waves, and synths.", section:"classroom", kind:"multi", featured:false, emoji:"🧰", thumb:"mus244-unit1-review" },
       { repo:"mus244-unit1", title:"MUS 244 Unit 1 Slides", desc:"A 205-slide lecture deck for MUS 244 Unit 1 — Acoustics & Synthesis, with linked follow-along notes.", section:"classroom", kind:"single", featured:false, emoji:"📽️", thumb:null },
       { repo:"sound-lab", title:"Sound Lab", desc:"A museum-floor style acoustics lab — touch-and-listen stations on frequency, amplitude, periodicity, and more.", section:"classroom", kind:"single", featured:false, emoji:"🔬", thumb:null },
+      { repo:"mixer-lab", title:"Mixer Lab", desc:"A live-sound mixer simulator where students patch a band, build FOH and monitor mixes, and trace the signal path.", section:"classroom", kind:"single", featured:true, emoji:"🎚️", thumb:null },
+      { repo:"salmon", title:"Salmon", desc:"A point-and-click phone simulator for live sound, signal flow, troubleshooting, and concert recording workflows.", section:"classroom", kind:"single", featured:false, emoji:"📱", thumb:null },
+      { repo:"mus248", title:"MUS 248 Activity Hub", desc:"The course hub for concert recording: activities, worksheets, study cards, and the weekly quiz.", section:"classroom", kind:"multi", featured:false, emoji:"🎬", thumb:null },
       { repo:"eq-webapp", title:"EQ Webapp", desc:"Identify filters by ear across solo, 2-player, and 3-player modes.", section:"classroom", kind:"single", featured:false, emoji:"🎛️", thumb:"eq-webapp" },
       { repo:"oo-o-ah-a-ee", title:"OO-O-AH-A-EE", desc:"A vowel and formant trainer that maps speech-like sounds onto the frequency spectrum.", section:"classroom", kind:"single", featured:false, emoji:"🗣️", thumb:null },
       { repo:"goniometer", title:"Goniometer", desc:"Real-time stereo field analysis with a phase scope and vector scope.", section:"classroom", kind:"single", featured:false, emoji:"📡", thumb:"goniometer" },
@@ -742,10 +764,11 @@
       { repo:"sock-piano", title:"Sock Piano", desc:"A playable instrument built on the \"wrong\" key pattern of rainbow piano socks.", section:"instruments", kind:"single", featured:true, emoji:"🧦", thumb:"sock-piano" },
       { repo:"misc-music-webapps", title:"Uke Chord Buddy", desc:"A ukulele chord reference, grouped by song, for quick lookup while playing.", section:"instruments", kind:"single", featured:true, emoji:"🎸", thumb:"misc-music-webapps-uke-chord-buddy", liveOverride:`${PAGES_ROOT}/misc-music-webapps/uke_chord_buddy.html` },
       { repo:"me-again", title:"Me Again", desc:"A delayed self-duet looper for practicing improv duets with a slightly earlier version of yourself.", section:"instruments", kind:"single", featured:true, emoji:"🔁", thumb:"me-again" },
-      { repo:"misc-music-webapps", title:"There and Back Again", desc:"Record audio, then hear it played back in reverse.", section:"instruments", kind:"single", featured:true, emoji:"🔄", thumb:"misc-music-webapps-there-and-back-again", liveOverride:`${PAGES_ROOT}/misc-music-webapps/there_and_back_again.html` },
+      { repo:"misc-music-webapps", title:"There and Back Again", desc:"Record audio, then hear it played back in reverse.", section:"instruments", kind:"single", featured:false, emoji:"🔄", thumb:"misc-music-webapps-there-and-back-again", liveOverride:`${PAGES_ROOT}/misc-music-webapps/there_and_back_again.html` },
       { repo:"misc-music-webapps", title:"Misc Music Webapps", desc:"The full collection this pulls from: key finder, chord tools, note detection, and more.", section:"instruments", kind:"multi", featured:false, emoji:"🎚️", thumb:"misc-music-webapps-collection" },
       { repo:"gym", title:"Gym", desc:"A single-focus workout app that folds several fitness helpers into one cleaner routine.", section:"tools", kind:"single", featured:false, emoji:"🏋️", thumb:"gym" },
       { repo:"focus-timer", title:"Focus Timer", desc:"A binaural-beat pomodoro timer with softer alarms and stretch or walk reminders.", section:"tools", kind:"single", featured:false, emoji:"⏳", thumb:"focus-timer" },
+      { repo:"camera-lab", title:"Camera Lab", desc:"A hands-on video camera simulator for learning exposure, motion, focus, and color.", section:"education", kind:"single", featured:true, emoji:"📹", thumb:null },
       { repo:"mahler1", title:"Mahler's First", desc:"An interactive study guide to Mahler's Symphony No. 1, movement by movement.", section:"education", kind:"single", featured:false, emoji:"🎻", thumb:"mahler1" },
       { repo:"turangalila", title:"Turangalîla", desc:"An interactive listener's guide to Messiaen's Turangalîla-Symphonie.", section:"education", kind:"single", featured:false, emoji:"🌌", thumb:"turangalila" },
       { repo:"turandot", title:"Turandot: The Video Game", desc:"An interactive journey through Puccini's unfinished opera — riddles, arias, and the story behind it.", section:"education", kind:"single", featured:false, emoji:"🎭", thumb:"turandot" },
@@ -814,7 +837,7 @@
         return `
           <div>
             <p class="highlight-group-label">${escapeHtml(section.label)}</p>
-            <div class="highlight-grid">${items.map((a) => card(a, true)).join("")}</div>
+            <div class="highlight-grid">${items.map((a) => card(a, false)).join("")}</div>
           </div>
         `;
       }).join("");
