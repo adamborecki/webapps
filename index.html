@@ -260,32 +260,33 @@
       pointer-events:none;
     }
 
-    /* ---------- highlight cards (big) ---------- */
-    .highlight-groups{
-      display:flex;
-      flex-direction:column;
-      gap:44px;
-    }
-
-    .highlight-group-label{
-      text-align:center;
-      margin:0 0 20px;
-      font:700 12px/1 var(--mono);
-      letter-spacing:.16em;
-      text-transform:uppercase;
-      color:var(--muted-2);
-    }
-
+    /* ---------- featured picks ---------- */
     .highlight-grid{
       display:grid;
-      gap:20px;
+      gap:16px;
       grid-template-columns:1fr;
     }
 
-    @media (min-width: 720px){
+    @media (min-width: 640px){
       .highlight-grid{
         grid-template-columns:repeat(2, minmax(0, 1fr));
       }
+    }
+
+    @media (min-width: 980px){
+      .highlight-grid{
+        grid-template-columns:repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    .highlight-grid .card-body{ padding:18px }
+    .highlight-grid .card-title{ font-size:1.05rem }
+    .highlight-grid .card-desc{
+      font-size:.88rem;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
     }
 
     .card{
@@ -312,6 +313,14 @@
       font-size:1.22rem;
       font-weight:800;
       letter-spacing:.005em;
+    }
+
+    .card-kicker{
+      margin:0 0 8px;
+      font:700 11px/1 var(--mono);
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--muted-2);
     }
 
     .card-desc{
@@ -636,7 +645,7 @@
           <p class="eyebrow">Featured</p>
           <h2>Where to start</h2>
         </div>
-        <div class="highlight-groups" id="highlightGroups"></div>
+        <div class="highlight-grid" id="highlightGroups"></div>
       </div>
     </section>
 
@@ -729,6 +738,9 @@
       { repo:"mus244-unit1-review", title:"MUS 244 Unit 1 Review", desc:"Topic reviews with quiz questions — ADSR, filters, harmonics, LFOs, sound waves, and synths.", section:"classroom", kind:"multi", featured:true, emoji:"🧰", thumb:"mus244-unit1-review" },
       { repo:"mus244-unit1", title:"MUS 244 Unit 1 Slides", desc:"A 205-slide lecture deck for MUS 244 Unit 1 — Acoustics & Synthesis, with linked follow-along notes.", section:"classroom", kind:"single", featured:false, emoji:"📽️", thumb:null },
       { repo:"sound-lab", title:"Sound Lab", desc:"A museum-floor style acoustics lab — touch-and-listen stations on frequency, amplitude, periodicity, and more.", section:"classroom", kind:"single", featured:false, emoji:"🔬", thumb:null },
+      { repo:"salmon", title:"Salmon", desc:"A point-and-click live-sound simulator for signal flow, troubleshooting, and concert-recording workflows in Salmon Recital Hall.", section:"classroom", kind:"single", featured:false, emoji:"🐟", thumb:null },
+      { repo:"mixer-lab", title:"Mixer Lab", desc:"A live-sound mixer simulator where students patch stems, build FOH and monitor mixes, and trace the signal path.", section:"classroom", kind:"single", featured:false, emoji:"🎚️", thumb:null },
+      { repo:"dante", title:"Dante", desc:"Hands-on Dante networking activities for broadcast, walkie-talkies, loopback, and live audio routing.", section:"classroom", kind:"single", featured:false, emoji:"🔗", thumb:null },
       { repo:"eq-webapp", title:"EQ Webapp", desc:"Identify filters by ear across solo, 2-player, and 3-player modes.", section:"classroom", kind:"single", featured:false, emoji:"🎛️", thumb:"eq-webapp" },
       { repo:"oo-o-ah-a-ee", title:"OO-O-AH-A-EE", desc:"A vowel and formant trainer that maps speech-like sounds onto the frequency spectrum.", section:"classroom", kind:"single", featured:false, emoji:"🗣️", thumb:null },
       { repo:"goniometer", title:"Goniometer", desc:"Real-time stereo field analysis with a phase scope and vector scope.", section:"classroom", kind:"single", featured:false, emoji:"📡", thumb:"goniometer" },
@@ -750,6 +762,9 @@
       { repo:"turangalila", title:"Turangalîla", desc:"An interactive listener's guide to Messiaen's Turangalîla-Symphonie.", section:"education", kind:"single", featured:false, emoji:"🌌", thumb:"turangalila" },
       { repo:"turandot", title:"Turandot: The Video Game", desc:"An interactive journey through Puccini's unfinished opera — riddles, arias, and the story behind it.", section:"education", kind:"single", featured:false, emoji:"🎭", thumb:"turandot" },
       { repo:"from-japan", title:"8 Tiny Japanese Habits", desc:"One YouTube video, rebuilt three different ways — video, slide deck, and ambient screensaver.", section:"education", kind:"single", featured:false, emoji:"🎌", thumb:"from-japan" },
+      { repo:"camera-lab", title:"Camera Lab", desc:"A museum-floor style video camera simulator for learning exposure, motion, focus, and color.", section:"education", kind:"single", featured:false, emoji:"🎥", thumb:null },
+      { repo:"mus248", title:"MUS 248 Activities", desc:"Weekly quizzes, study cards, worksheets, and hands-on A/V concert-recording activities in one course hub.", section:"education", kind:"multi", featured:false, emoji:"🎬", thumb:null },
+      { repo:"sight-reading", title:"Sight Reading", desc:"A procedural sight-reading and sight-singing practice tool that generates new notation on demand.", section:"education", kind:"single", featured:false, emoji:"🎼", thumb:null },
       { repo:"quiz", title:"Quiz", desc:"A cleaner quiz-taking tool built for Music Technology courses at Chapman University.", section:"education", kind:"single", featured:false, emoji:"📝", thumb:"quiz" },
       { repo:"misc-music-webapps", title:"Note Detection", desc:"A real-time note detector and lead-sheet transcriber — v2 adds a live spectrogram view.", section:"education", kind:"single", featured:false, emoji:"📈", thumb:"misc-music-webapps-note-detection", liveOverride:`${PAGES_ROOT}/misc-music-webapps/note_detection_v2.html` },
       { repo:"hopfield1", title:"Hopfield", desc:"A neural network that listens to itself — grab, wiggle, and watch neurons argue into a chord.", section:"concept", kind:"single", featured:false, emoji:"🔗", thumb:"hopfield1" },
@@ -789,12 +804,13 @@
       return `<div class="shot-frame"><div class="emoji-hero">${escapeHtml(app.emoji || "✨")}</div></div>`;
     }
 
-    function card(app, big){
+    function card(app, big, showSection = false){
       const actionLabel = app.kind === "multi" ? "Browse" : "Open";
       return `
         <article class="card">
           ${shotMarkup(app, big)}
           <div class="card-body">
+            ${showSection ? `<p class="card-kicker">${escapeHtml(sectionMetaById[app.section]?.label || app.section)}</p>` : ""}
             <h3 class="card-title">${escapeHtml(app.title)}</h3>
             <p class="card-desc">${escapeHtml(app.desc)}</p>
             <div class="card-actions">
@@ -808,16 +824,7 @@
 
     function renderHighlights(){
       const featured = APPS.filter((a) => a.featured);
-      const html = SECTIONS.map((section) => {
-        const items = featured.filter((a) => a.section === section.id);
-        if(!items.length) return "";
-        return `
-          <div>
-            <p class="highlight-group-label">${escapeHtml(section.label)}</p>
-            <div class="highlight-grid">${items.map((a) => card(a, true)).join("")}</div>
-          </div>
-        `;
-      }).join("");
+      const html = featured.map((a) => card(a, false, true)).join("");
       document.getElementById("highlightGroups").innerHTML = html;
     }
 
