@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <meta
+    name="description"
+    content="A printable handout of Adam Borecki's web apps picked for music faculty, with QR codes."
+  />
+  <title>Built with a Coding Agent</title>
+
+  <style>
+    :root{
+      --paper:#fffdf9;
+      --desk:#ebe4d8;
+      --ink:#1a2230;
+      --muted:rgba(26,34,48,.72);
+      --muted-2:rgba(26,34,48,.56);
+      --stroke:rgba(26,34,48,.16);
+      --accent:#c85a12;
+      --accent-soft:#fff1e6;
+      --blue-soft:#eaf6fc;
+      --display:"Avenir Next Condensed","Trebuchet MS","Gill Sans","Segoe UI",sans-serif;
+      --sans:"Avenir Next","Trebuchet MS","Helvetica Neue","Segoe UI",sans-serif;
+      --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+      --qr:1.1in;
+    }
+
+    @page{ size:letter; margin:.5in }
+
+    *{ box-sizing:border-box }
+    body{
+      margin:0;
+      color:var(--ink);
+      font-family:var(--sans);
+      font-size:10.5pt;
+      line-height:1.4;
+      background:var(--desk);
+    }
+    a{ color:inherit; text-decoration:none }
+
+    .sheet{
+      width:min(8.5in, calc(100% - 32px));
+      margin:24px auto;
+      padding:.5in;
+      background:var(--paper);
+      box-shadow:0 18px 48px rgba(68,49,24,.14);
+    }
+
+    .toolbar{
+      width:min(8.5in, calc(100% - 32px));
+      margin:24px auto 0;
+      display:flex;
+      justify-content:flex-end;
+    }
+    .toolbar button{
+      font:600 14px/1 var(--sans);
+      padding:12px 18px;
+      border:0;
+      border-radius:12px;
+      background:var(--ink);
+      color:var(--paper);
+      cursor:pointer;
+    }
+
+    /* ---------- header ---------- */
+    .masthead{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:16px;
+      padding-bottom:10px;
+      border-bottom:3px solid var(--ink);
+    }
+    h1{
+      margin:0;
+      font:700 30pt/1 var(--display);
+      letter-spacing:-.01em;
+    }
+    .byline{
+      text-align:right;
+      font-size:10pt;
+      color:var(--muted);
+    }
+    .byline strong{ display:block; color:var(--ink); font-size:11pt }
+
+    .intro{
+      display:grid;
+      grid-template-columns:1.4fr 1fr;
+      gap:12px;
+      margin:14px 0 6px;
+    }
+    .note{
+      padding:10px 12px;
+      border-radius:10px;
+      background:var(--accent-soft);
+    }
+    .note.scan{ background:var(--blue-soft) }
+    .note h2{
+      margin:0 0 2px;
+      font:700 11pt/1.2 var(--sans);
+    }
+    .note p{ margin:0 }
+    .note p + p{ margin-top:6px }
+
+    .subtitle{
+      margin:6px 0 0;
+      font-size:11pt;
+      color:var(--muted);
+    }
+
+    /* ---------- sections ---------- */
+    section{ margin-top:18px }
+    section > h2{
+      margin:0 0 8px;
+      font:700 16pt/1.1 var(--display);
+      color:var(--accent);
+      break-after:avoid;
+    }
+    .section-note{
+      margin:-2px 0 10px;
+      color:var(--muted);
+      break-after:avoid;
+    }
+
+    .apps{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+      gap:10px;
+    }
+    .app{
+      display:flex;
+      min-width:0;
+      gap:12px;
+      align-items:flex-start;
+      padding:10px;
+      border:1px solid var(--stroke);
+      border-radius:10px;
+      break-inside:avoid;
+    }
+    .app.wide{ grid-column:1 / -1 }
+    .app.featured{ border:2px solid var(--accent) }
+
+    .qr{
+      flex:0 0 var(--qr);
+      width:var(--qr);
+      height:var(--qr);
+    }
+    .qr svg{ display:block; width:100%; height:100% }
+    .qr.none{
+      display:grid;
+      place-items:center;
+      padding:8px;
+      border:1.5px dashed var(--stroke);
+      border-radius:8px;
+      font-size:8.5pt;
+      line-height:1.25;
+      text-align:center;
+      color:var(--muted);
+    }
+
+    .kicker{
+      margin:0;
+      font-size:9pt;
+      font-weight:600;
+      color:var(--muted);
+    }
+    .app h3{
+      margin:1px 0 3px;
+      font:700 13pt/1.15 var(--sans);
+    }
+    .app p{ margin:0 }
+    .app p + p:not(.url){ margin-top:4px }
+    .url{
+      margin-top:5px !important;
+      font:8pt/1.2 var(--mono);
+      color:var(--muted-2);
+    }
+    .url span{ white-space:nowrap }
+    .tag{
+      display:inline-block;
+      margin-left:6px;
+      padding:1px 6px;
+      border-radius:999px;
+      background:var(--accent);
+      color:#fff;
+      font:700 8pt/1.4 var(--sans);
+      letter-spacing:.04em;
+      vertical-align:middle;
+    }
+
+    /* ---------- getting started ---------- */
+    .start{
+      padding:14px;
+      border:2px solid var(--ink);
+      border-radius:12px;
+      break-inside:avoid;
+    }
+    .start > h2{ color:var(--ink) }
+    .start-body{
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+    }
+    .start ol{
+      margin:0;
+      padding-left:1.2em;
+    }
+    .start li + li{ margin-top:8px }
+    .prompt{
+      margin:6px 0 2px;
+      padding:10px 12px;
+      border-radius:8px;
+      background:var(--blue-soft);
+      font:10.5pt/1.5 var(--mono);
+    }
+    .choice{
+      display:inline-block;
+      padding:0 6px;
+      border:1px solid var(--muted-2);
+      border-radius:999px;
+    }
+    .start figure{
+      margin:0;
+      text-align:center;
+      font-size:9pt;
+      color:var(--muted);
+    }
+    .start figure .qr{ margin-bottom:4px }
+
+    @media (max-width:640px){
+      .sheet{ padding:20px 16px }
+      .intro, .apps{ grid-template-columns:1fr }
+      .masthead{ flex-direction:column; align-items:flex-start }
+      .byline{ text-align:left }
+      .start-body{ flex-direction:column }
+      :root{ --qr:.95in }
+    }
+
+    @media print{
+      body{ background:none }
+      .toolbar{ display:none }
+      .sheet{ width:auto; margin:0; padding:0; background:none; box-shadow:none }
+      * { -webkit-print-color-adjust:exact; print-color-adjust:exact }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar"><button type="button" onclick="window.print()">Print</button></div>
+
+  <main class="sheet">
+    <header class="masthead">
+      <div>
+        <h1>Built with a Coding Agent</h1>
+        <p class="subtitle">Cool, helpful, educational web apps for music faculty, and how to make your own.</p>
+      </div>
+      <div class="byline">
+        <strong>Adam Borecki</strong>
+        borecki@chapman.edu
+      </div>
+    </header>
+
+    <div class="intro">
+      <div class="note">
+        <h2>How AI is involved</h2>
+        <p>You use AI to create the web app. No additional AI is used by students when they use the app.</p>
+        <p>These particular web apps were built with Claude Code.</p>
+      </div>
+      <div class="note scan">
+        <h2>How to open one</h2>
+        <p>Point your phone's camera at a square code, then tap the link that pops up. Or type the address under each app into any browser.</p>
+      </div>
+    </div>
+
+    <section>
+      <h2>Brand new</h2>
+      <div class="apps">
+        <article class="app wide featured">
+          <div class="qr"></div>
+          <div>
+            <h3><a href="https://adamborecki.github.io/practice/">Practice</a><span class="tag">NEW</span></h3>
+            <p>Being built right now.</p>
+            <p class="url">adamborecki.github.io/<wbr><span>practice</span></p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Assign homework that's interactive</h2>
+      <p class="section-note">When I assign one of these as homework, students do it on the website. When they're done, they click a button to get a Canvas code, then copy and paste it into Canvas, which is how I handle grading. No grading data is saved inside the web app itself.</p>
+      <div class="apps">
+        <article class="app">
+          <div class="qr"></div>
+          <div>
+            <p class="kicker">Learn how to use a camera</p>
+            <h3><a href="https://adamborecki.github.io/camera-lab/">Camera Lab</a></h3>
+            <p>A video camera simulator for exposure, motion, focus, and color.</p>
+            <p class="url">adamborecki.github.io/<wbr><span>camera-lab</span></p>
+          </div>
+        </article>
+        <article class="app">
+          <div class="qr"></div>
+          <div>
+            <p class="kicker">Learn how to use a mixer</p>
+            <h3><a href="https://adamborecki.github.io/mixer-lab/">Mixer Lab</a></h3>
+            <p>A live-sound mixer simulator: patch stems, build FOH and monitor mixes, and trace the signal path.</p>
+            <p class="url">adamborecki.github.io/<wbr><span>mixer-lab</span></p>
+          </div>
+        </article>
+        <article class="app wide">
+          <div class="qr"></div>
+          <div>
+            <p class="kicker">Notate a harmonic series on a grand staff</p>
+            <h3><a href="https://adamborecki.github.io/harmonic-series-builder-gen3/">Harmonic Series Builder</a></h3>
+            <p>With hints and help if you're confused.</p>
+            <p class="url">adamborecki.github.io/<wbr><span>harmonic-series-builder-gen3</span></p>
+          </div>
+        </article>
+        <article class="app">
+          <div class="qr"></div>
+          <div>
+            <h3><a href="https://adamborecki.github.io/mod-fx/">Mod FX</a></h3>
+            <p>Chorus, flanger, and phaser in one interactive app.</p>
+            <p class="url">adamborecki.github.io/<wbr><span>mod-fx</span></p>
+          </div>
+        </article>
+        <article class="app">
+          <div class="qr"></div>
+          <div>
+            <p class="kicker">Learn the fundamentals of sound and acoustics</p>
+            <h3><a href="https://adamborecki.github.io/sound-lab/">Sound Lab</a></h3>
+            <p>A museum-floor style acoustics lab: touch-and-listen stations on frequency, amplitude, periodicity, and more.</p>
+            <p class="url">adamborecki.github.io/<wbr><span>sound-lab</span></p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Conservatory Intelligence System</h2>
+      <div class="apps">
+        <article class="app wide">
+          <div class="qr none">No QR code</div>
+          <div>
+            <h3>Conservatory Intelligence System</h3>
+            <p>A tool for visualizing expected demand for courses and getting custom reports about degree programs and student progress. To make it fun, it's styled like a secret CIA dashboard.</p>
+            <p>It uses confidential data, so it isn't online. In-person demo only. Ask me.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Intersections of Tech + Art and Tech + Poetry</h2>
+      <div class="apps">
+        <article class="app">
+          <div class="qr"></div>
+          <div>
+            <h3><a href="https://adamborecki.github.io/dating-profile-generator/images/">Gear in the Style of…</a></h3>
+            <p>44 pieces of concert gear, each painted in the style of a different artist or art movement.</p>
+            <p class="url">adamborecki.github.io/<wbr><span>dating-profile-generator/images</span></p>
+          </div>
+        </article>
+        <article class="app">
+          <div class="qr"></div>
+          <div>
+            <h3><a href="https://adamborecki.github.io/four-seasons/">The Four Seasons</a></h3>
+            <p>Poems of the four seasons to read aloud, with generative soundscapes and a voice instrument.</p>
+            <p class="url">adamborecki.github.io/<wbr><span>four-seasons</span></p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Program notes as a web app instead of a paragraph of text</h2>
+      <div class="apps">
+        <article class="app">
+          <div class="qr"></div>
+          <div>
+            <p class="kicker">Mahler · Symphony No. 1</p>
+            <h3><a href="https://adamborecki.github.io/mahler1/">Mahler's First</a></h3>
+            <p>An interactive study guide, movement by movement.</p>
+            <p class="url">adamborecki.github.io/<wbr><span>mahler1</span></p>
+          </div>
+        </article>
+        <article class="app">
+          <div class="qr"></div>
+          <div>
+            <p class="kicker">Messiaen · Turangalîla-Symphonie</p>
+            <h3><a href="https://adamborecki.github.io/turangalila/">Turangalîla</a></h3>
+            <p>An interactive listener's guide.</p>
+            <p class="url">adamborecki.github.io/<wbr><span>turangalila</span></p>
+          </div>
+        </article>
+        <article class="app wide">
+          <div class="qr"></div>
+          <div>
+            <p class="kicker">Puccini · Turandot</p>
+            <h3><a href="https://adamborecki.github.io/turandot/">Turandot: The Video Game</a></h3>
+            <p>An interactive journey through Puccini's unfinished opera: riddles, arias, and the story behind it.</p>
+            <p class="url">adamborecki.github.io/<wbr><span>turandot</span></p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Audio FX</h2>
+      <div class="apps">
+        <article class="app">
+          <div class="qr"></div>
+          <div>
+            <h3><a href="https://adamborecki.github.io/me-again/">Me Again</a></h3>
+            <p>A delayed self-duet looper: practice improv duets with a slightly earlier version of yourself.</p>
+            <p class="url">adamborecki.github.io/<wbr><span>me-again</span></p>
+          </div>
+        </article>
+        <article class="app">
+          <div class="qr"></div>
+          <div>
+            <h3><a href="https://adamborecki.github.io/there-and-back/">There and Back Again</a></h3>
+            <p>Hold to record, let go to hear it backwards.</p>
+            <p class="url">adamborecki.github.io/<wbr><span>there-and-back</span></p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Personal health &amp; wellbeing</h2>
+      <div class="apps">
+        <article class="app">
+          <div class="qr"></div>
+          <div>
+            <h3><a href="https://adamborecki.github.io/caffeine/">Caffeine &amp; Sleep Planner</a></h3>
+            <p>See how caffeine from each drink decays through the day and whether it will still be active at bedtime. Educational only, not medical advice.</p>
+            <p class="url">adamborecki.github.io/<wbr><span>caffeine</span></p>
+          </div>
+        </article>
+        <article class="app">
+          <div class="qr"></div>
+          <div>
+            <h3><a href="https://adamborecki.github.io/gym/">Gym</a></h3>
+            <p>A single-focus workout app that folds several fitness helpers into one routine.</p>
+            <p class="url">adamborecki.github.io/<wbr><span>gym</span></p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="start">
+      <h2>How to try it yourself</h2>
+      <div class="start-body">
+        <ol>
+          <li>Open an AI you pay for, or Chapman's PantherAI at <strong>pantherai.chapman.edu</strong>.</li>
+          <li>If you're using PantherAI, open the model picker and choose <strong>Anthropic › Claude › Sonnet</strong> (pick the highest number available).</li>
+          <li>Paste this in, choosing one of the three levels:
+            <div class="prompt">Help me build a webapp using GitHub Pages. I'm a <span class="choice">beginner</span> <span class="choice">intermediate</span> <span class="choice">advanced</span> at music tech.</div>
+          </li>
+        </ol>
+        <figure>
+          <div class="qr" data-url="https://pantherai.chapman.edu"></div>
+          PantherAI
+        </figure>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+  <script>
+    // Each empty .qr renders its card's link (or its own data-url) as an SVG QR code.
+    document.querySelectorAll(".qr:not(.none)").forEach(box => {
+      const url = box.dataset.url || box.closest(".app").querySelector("a[href]").href;
+      const qr = qrcode(0, "M");
+      qr.addData(url);
+      qr.make();
+      box.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+      box.title = url;
+    });
+  </script>
+</body>
